@@ -1,0 +1,28 @@
+# 🏛️ CLUAIZD LINGUISTIC OVERRIDES
+# This file controls how GitHub calculates the language statistics bar.
+
+# --- End of Line normalization ---
+* text=auto eol=lf
+*.rs text eol=lf
+*.cpp text eol=lf
+*.h text eol=lf
+*.sh text eol=lf
+
+# --- Hide GUI & React code from language stats ---
+# We want this database repo to show up as ~100% Rust!
+apps/gui/** linguist-vendored
+*.css linguist-vendored
+*.html linguist-vendored
+*.js linguist-vendored
+*.ts linguist-vendored
+*.tsx linguist-vendored
+
+# --- Hide Documentation & JSON from stats ---
+docs/** linguist-documentation
+genomes/*.json linguist-vendored
+*.json linguist-vendored
+
+# --- Force index core languages (just in case) ---
+*.rs linguist-detectable=true
+*.c linguist-detectable=true
+*.h linguist-detectable=true
