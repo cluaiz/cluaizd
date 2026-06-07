@@ -15,77 +15,77 @@ The C-FFI completely bypasses the HTTP server, Axum router, and JSON serializati
 
 ```bash
 # Compile as a dynamic shared library
-cargo build --release -p cnsdb-ffi
+cargo build --release -p cluaizd-ffi
 
 # Output locations:
-# Windows:  target/release/cnsdb.dll
-# Linux:    target/release/libcnsdb.so
-# macOS:    target/release/libcnsdb.dylib
+# Windows:  target/release/cluaizd.dll
+# Linux:    target/release/libcluaizd.so
+# macOS:    target/release/libcluaizd.dylib
 ```
 
-Copy the output library and `ffi/cnsdb.h` into your project.
+Copy the output library and `ffi/cluaizd.h` into your project.
 
 ---
 
-## Full API Reference (`cnsdb.h`)
+## Full API Reference (`cluaizd.h`)
 
 ```c
-#include "cnsdb.h"
+#include "cluaizd.h"
 
 // ─────────────────────────────────────────────
-// cnsdb_open()
+// cluaizd_open()
 // Open (or create) an LMDB shard at the given path.
 //
 // @path:        Filesystem path to the LMDB directory (created if missing)
 // @map_size_mb: Maximum database size in MB (e.g. 8192 = 8 GB)
 // @return:      Opaque handle, or NULL on failure
 // ─────────────────────────────────────────────
-CnsdbHandle* cnsdb_open(const char* path, unsigned long map_size_mb);
+CluaizdHandle* cluaizd_open(const char* path, unsigned long map_size_mb);
 
 // ─────────────────────────────────────────────
-// cnsdb_write()
+// cluaizd_write()
 // Write raw bytes into LMDB — NO genome hooks, NO HTTP, NO JSON parser.
 // This is the absolute fastest write path.
 //
-// @handle:       Handle from cnsdb_open()
+// @handle:       Handle from cluaizd_open()
 // @neuron_id:    String key (any unique identifier)
 // @payload_json: JSON string payload
 // @return:       0 on success, -1 on failure
 // ─────────────────────────────────────────────
-int cnsdb_write(CnsdbHandle* handle, const char* neuron_id, const char* payload_json);
+int cluaizd_write(CluaizdHandle* handle, const char* neuron_id, const char* payload_json);
 
 // ─────────────────────────────────────────────
-// cnsdb_read()
+// cluaizd_read()
 // Direct LMDB key lookup — O(1) Fast-Path.
 //
-// @handle:    Handle from cnsdb_open()
+// @handle:    Handle from cluaizd_open()
 // @neuron_id: The key to look up
-// @return:    Heap-allocated JSON string. CALLER MUST FREE with cnsdb_free_string().
+// @return:    Heap-allocated JSON string. CALLER MUST FREE with cluaizd_free_string().
 // ─────────────────────────────────────────────
-char* cnsdb_read(CnsdbHandle* handle, const char* neuron_id);
+char* cluaizd_read(CluaizdHandle* handle, const char* neuron_id);
 
 // ─────────────────────────────────────────────
-// cnsdb_query()
+// cluaizd_query()
 // Execute a CNQL query string against this shard.
 //
-// @handle: Handle from cnsdb_open()
+// @handle: Handle from cluaizd_open()
 // @cnql:   CNQL query string
-// @return: Heap-allocated JSON array string. CALLER MUST FREE with cnsdb_free_string().
+// @return: Heap-allocated JSON array string. CALLER MUST FREE with cluaizd_free_string().
 // ─────────────────────────────────────────────
-char* cnsdb_query(CnsdbHandle* handle, const char* cnql);
+char* cluaizd_query(CluaizdHandle* handle, const char* cnql);
 
 // ─────────────────────────────────────────────
-// cnsdb_free_string()
-// Free a string returned by cnsdb_read() or cnsdb_query().
+// cluaizd_free_string()
+// Free a string returned by cluaizd_read() or cluaizd_query().
 // ALWAYS call this to prevent memory leaks.
 // ─────────────────────────────────────────────
-void cnsdb_free_string(char* ptr);
+void cluaizd_free_string(char* ptr);
 
 // ─────────────────────────────────────────────
-// cnsdb_close()
+// cluaizd_close()
 // Flush all pending writes and close the LMDB environment.
 // ─────────────────────────────────────────────
-void cnsdb_close(CnsdbHandle* handle);
+void cluaizd_close(CluaizdHandle* handle);
 ```
 
 ---
@@ -93,15 +93,15 @@ void cnsdb_close(CnsdbHandle* handle);
 ## C++ Example: Sensor Ingestion
 
 ```cpp
-#include "cnsdb.h"
+#include "cluaizd.h"
 #include <cstdio>
 #include <cstring>
 
 int main() {
     // Open a dedicated sensory shard (isolated from main database)
-    CnsdbHandle* handle = cnsdb_open("./data/sensory_tissue", 8192);
+    CluaizdHandle* handle = cluaizd_open("./data/sensory_tissue", 8192);
     if (!handle) {
-        fprintf(stderr, "Failed to open CNSDB\n");
+        fprintf(stderr, "Failed to open CLUAIZD\n");
         return 1;
     }
 
@@ -114,35 +114,35 @@ int main() {
             "{\"sensor\": \"temp_01\", \"value\": %.2f, \"ts\": %lld}",
             20.0 + (i % 10) * 0.5, (long long)i * 1000000LL);
 
-        if (cnsdb_write(handle, id, payload) != 0) {
+        if (cluaizd_write(handle, id, payload) != 0) {
             fprintf(stderr, "Write failed at index %d\n", i);
             break;
         }
     }
 
     // Direct key lookup — bypasses CNQL entirely
-    char* result = cnsdb_read(handle, "reading_0000500");
+    char* result = cluaizd_read(handle, "reading_0000500");
     if (result) {
         printf("Record: %s\n", result);
-        cnsdb_free_string(result);  // Always free!
+        cluaizd_free_string(result);  // Always free!
     }
 
     // CNQL query via FFI
-    char* query_result = cnsdb_query(handle,
+    char* query_result = cluaizd_query(handle,
         "find * -> filter sensor: \"temp_01\" -> limit 10");
     if (query_result) {
         printf("Query: %s\n", query_result);
-        cnsdb_free_string(query_result);  // Always free!
+        cluaizd_free_string(query_result);  // Always free!
     }
 
-    cnsdb_close(handle);
+    cluaizd_close(handle);
     return 0;
 }
 ```
 
 **Compile:**
 ```bash
-gcc -o sensor_app sensor_app.c -L./target/release -lcnsdb -Wl,-rpath,./target/release
+gcc -o sensor_app sensor_app.c -L./target/release -lcluaizd -Wl,-rpath,./target/release
 ```
 
 ---
@@ -154,38 +154,38 @@ import ctypes
 import json
 
 # Load the shared library
-cnsdb = ctypes.CDLL("./target/release/libcnsdb.so")
+cluaizd = ctypes.CDLL("./target/release/libcluaizd.so")
 
 # Configure return types (CRITICAL — without this, Python will crash)
-cnsdb.cnsdb_open.restype = ctypes.c_void_p
-cnsdb.cnsdb_open.argtypes = [ctypes.c_char_p, ctypes.c_ulong]
+cluaizd.cluaizd_open.restype = ctypes.c_void_p
+cluaizd.cluaizd_open.argtypes = [ctypes.c_char_p, ctypes.c_ulong]
 
-cnsdb.cnsdb_write.restype = ctypes.c_int
-cnsdb.cnsdb_write.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p]
+cluaizd.cluaizd_write.restype = ctypes.c_int
+cluaizd.cluaizd_write.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p]
 
-cnsdb.cnsdb_read.restype = ctypes.c_char_p
-cnsdb.cnsdb_read.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+cluaizd.cluaizd_read.restype = ctypes.c_char_p
+cluaizd.cluaizd_read.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
 
-cnsdb.cnsdb_query.restype = ctypes.c_char_p
-cnsdb.cnsdb_query.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+cluaizd.cluaizd_query.restype = ctypes.c_char_p
+cluaizd.cluaizd_query.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
 
-cnsdb.cnsdb_free_string.argtypes = [ctypes.c_char_p]
-cnsdb.cnsdb_close.argtypes = [ctypes.c_void_p]
+cluaizd.cluaizd_free_string.argtypes = [ctypes.c_char_p]
+cluaizd.cluaizd_close.argtypes = [ctypes.c_void_p]
 
 # Open database
-handle = cnsdb.cnsdb_open(b"./data/sensory_tissue", 4096)
+handle = cluaizd.cluaizd_open(b"./data/sensory_tissue", 4096)
 
 # Write data
 payload = json.dumps({"electrode": 42, "voltage_uv": 0.42, "ts": 1717789200}).encode()
-cnsdb.cnsdb_write(handle, b"bci_reading_001", payload)
+cluaizd.cluaizd_write(handle, b"bci_reading_001", payload)
 
 # Read back (direct O(1) lookup)
-result_bytes = cnsdb.cnsdb_read(handle, b"bci_reading_001")
+result_bytes = cluaizd.cluaizd_read(handle, b"bci_reading_001")
 if result_bytes:
     print(json.loads(result_bytes))
 
 # Close
-cnsdb.cnsdb_close(handle)
+cluaizd.cluaizd_close(handle)
 ```
 
 ---
@@ -195,8 +195,8 @@ cnsdb.cnsdb_close(handle)
 | Method | Throughput | Latency | Overhead |
 |---|---|---|---|
 | HTTP REST (`/neuron`) | ~50K writes/s | ~100µs | TCP + JSON + Axum routing |
-| **C-FFI (`cnsdb_write`)** | **~1M writes/s** | **~1µs** | **None — direct mmap** |
+| **C-FFI (`cluaizd_write`)** | **~1M writes/s** | **~1µs** | **None — direct mmap** |
 | C-FFI + Ring Buffer | ~2M writes/s | ~0.5µs | Amortized batching |
 
 > [!CAUTION]
-> `cnsdb_write()` bypasses all Genome DNA hooks (`on_write`, `on_index`, `on_lifecycle`). Use it only for high-throughput sensor/BCI streams where you own the schema at the application level.
+> `cluaizd_write()` bypasses all Genome DNA hooks (`on_write`, `on_index`, `on_lifecycle`). Use it only for high-throughput sensor/BCI streams where you own the schema at the application level.

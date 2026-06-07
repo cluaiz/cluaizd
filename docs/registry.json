@@ -6,7 +6,7 @@
       {
         "group": "Philosophy",
         "pages": [
-          { "slug": "why-cnsdb", "title": "💡 Why CNSDB?", "file_path": "docs/vision/why-cnsdb.md" },
+          { "slug": "why-cluaizd", "title": "💡 Why CLUAIZD?", "file_path": "docs/vision/why-cluaizd.md" },
           { "slug": "for-ai-agents", "title": "🤖 For AI Agents", "file_path": "docs/vision/for-ai-agents.md" }
         ]
       }
@@ -25,7 +25,7 @@
       {
         "group": "Overview",
         "pages": [
-          { "slug": "introduction", "title": "📖 What is CNSDB?", "file_path": "docs/get-started/introduction.md" },
+          { "slug": "introduction", "title": "📖 What is CLUAIZD?", "file_path": "docs/get-started/introduction.md" },
           { "slug": "quickstart", "title": "⚡ Quickstart", "file_path": "docs/get-started/quickstart.md" },
           { "slug": "installation", "title": "📦 Installation", "file_path": "docs/get-started/installation.md" },
           { "slug": "build-a-todo-app", "title": "🛠️ Build Your First App", "file_path": "docs/get-started/build-a-todo-app.md" }

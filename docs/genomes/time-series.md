@@ -117,9 +117,9 @@ Paired with periodic CNQL aggregation jobs that write hourly summaries, you can 
 
 ---
 
-## Comparison: CNSDB vs InfluxDB
+## Comparison: CLUAIZD vs InfluxDB
 
-| Feature | InfluxDB | CNSDB (time_series) |
+| Feature | InfluxDB | CLUAIZD (time_series) |
 |---|---|---|
 | Timestamp Enforcement | ✅ | ✅ |
 | Time-Window Aggregations | ✅ | ✅ (via CNQL) |

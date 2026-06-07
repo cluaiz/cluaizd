@@ -166,7 +166,7 @@ export function AppShell({ children }: AppShellProps) {
             <span className="text-sm leading-none">🪼</span>
           </div>
           <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">
-            CNSDB Genome Canvas
+            CLUAIZD Genome Canvas
           </span>
         </div>
         <button

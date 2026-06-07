@@ -8,7 +8,7 @@ Traditional databases have one strategy for memory management: **"Keep everythin
 
 PostgreSQL has `shared_buffers`. Redis has `maxmemory`. InfluxDB has TSM compaction. All of them require manual tuning, and all of them have the same failure mode: when RAM runs out, the OS kills the process.
 
-CNSDB takes a radically different approach inspired by biological nervous systems.
+CLUAIZD takes a radically different approach inspired by biological nervous systems.
 
 ---
 
@@ -19,7 +19,7 @@ Human brains handle more information than RAM can hold. The brain's solution:
 - **Short-Term Memory (Warm):** What happened today. Accessible quickly.
 - **Long-Term Memory (Cold):** What happened years ago. Requires effort to recall but never truly lost.
 
-The **Dreamer** is CNSDB's background thread that autonomically manages this three-tier memory hierarchy. It runs every few seconds, evaluating whether neurons need to be promoted, demoted, or evicted.
+The **Dreamer** is CLUAIZD's background thread that autonomically manages this three-tier memory hierarchy. It runs every few seconds, evaluating whether neurons need to be promoted, demoted, or evicted.
 
 ---
 
@@ -105,7 +105,7 @@ default_cold_ttl_seconds = 3600
 
 ## Why This Approach is Superior to Manual Tuning
 
-| Approach | PostgreSQL `shared_buffers` | Redis `maxmemory` | CNSDB Dreamer |
+| Approach | PostgreSQL `shared_buffers` | Redis `maxmemory` | CLUAIZD Dreamer |
 |---|---|---|---|
 | Configuration | Manual, requires DBA expertise | Manual, single limit | Automatic, self-calibrating |
 | Behavior at RAM limit | Query slowdown, OOM kill | Evict or crash | Graceful Hot→Warm→Cold |

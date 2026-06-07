@@ -1,6 +1,6 @@
-//! # CNSDB FFI — C-Compatible Bindings
+//! # CLUAIZD FFI — C-Compatible Bindings
 //!
-//! Exposes CNSDB as a native C library for **0ms local access**.
+//! Exposes CLUAIZD as a native C library for **0ms local access**.
 //! No HTTP, no serialization overhead — direct in-process memory calls.
 //!
 //! ## Use Cases
@@ -11,17 +11,17 @@
 //!
 //! ## Compile
 //! ```sh
-//! cargo build --release -p cnsdb-ffi
-//! # Output: target/release/cnsdb.dll (Windows) / cnsdb.so (Linux)
+//! cargo build --release -p cluaizd-ffi
+//! # Output: target/release/cluaizd.dll (Windows) / cluaizd.so (Linux)
 //! ```
 //!
 //! ## C Usage
 //! ```c
-//! #include "cnsdb.h"
+//! #include "cluaizd.h"
 //!
-//! CnsdbHandle* db = cnsdb_open("./data/mydb", 4096);
-//! cnsdb_write(db, "hello world", 11, "text");
-//! cnsdb_close(db);
+//! CluaizdHandle* db = cluaizd_open("./data/mydb", 4096);
+//! cluaizd_write(db, "hello world", 11, "text");
+//! cluaizd_close(db);
 //! ```
 
 use std::ffi::{CStr, CString};
@@ -29,28 +29,28 @@ use std::os::raw::{c_char, c_ulong};
 use std::sync::Mutex;
 
 use bytes::Bytes;
-use cnsdb_types::{PayloadType, UniversalNeuron};
+use cluaizd_types::{PayloadType, UniversalNeuron};
 use engine_lmdb::LmdbEnv;
 
-/// Opaque handle representing an open CNSDB database instance.
-/// The caller holds a raw pointer — they must call `cnsdb_close` to free it.
-pub struct CnsdbHandle {
+/// Opaque handle representing an open CLUAIZD database instance.
+/// The caller holds a raw pointer — they must call `cluaizd_close` to free it.
+pub struct CluaizdHandle {
     env: Mutex<LmdbEnv>,
 }
 
-/// Open a CNSDB database at the given path.
+/// Open a CLUAIZD database at the given path.
 ///
 /// # Arguments
 /// - `path`: UTF-8 path to the database directory (will be created if absent)
 /// - `map_size_mb`: Maximum database size in megabytes (e.g. 4096 = 4GB)
 ///
 /// # Returns
-/// A non-null `CnsdbHandle*` on success, or `NULL` on failure.
+/// A non-null `CluaizdHandle*` on success, or `NULL` on failure.
 ///
 /// # Safety
-/// Caller must free the returned pointer with `cnsdb_close()`.
+/// Caller must free the returned pointer with `cluaizd_close()`.
 #[no_mangle]
-pub extern "C" fn cnsdb_open(path: *const c_char, map_size_mb: c_ulong) -> *mut CnsdbHandle {
+pub extern "C" fn cluaizd_open(path: *const c_char, map_size_mb: c_ulong) -> *mut CluaizdHandle {
     if path.is_null() {
         return std::ptr::null_mut();
     }
@@ -64,7 +64,7 @@ pub extern "C" fn cnsdb_open(path: *const c_char, map_size_mb: c_ulong) -> *mut 
     let map_size = (map_size_mb as usize) * 1024 * 1024;
     match LmdbEnv::open(std::path::Path::new(path_str), map_size) {
         Ok(env) => {
-            let handle = Box::new(CnsdbHandle {
+            let handle = Box::new(CluaizdHandle {
                 env: Mutex::new(env),
             });
             Box::into_raw(handle)
@@ -73,24 +73,24 @@ pub extern "C" fn cnsdb_open(path: *const c_char, map_size_mb: c_ulong) -> *mut 
     }
 }
 
-/// Write a raw payload into CNSDB.
+/// Write a raw payload into CLUAIZD.
 ///
 /// # Arguments
-/// - `handle`: A valid `CnsdbHandle*` from `cnsdb_open()`
+/// - `handle`: A valid `CluaizdHandle*` from `cluaizd_open()`
 /// - `payload`: Pointer to the raw byte payload
 /// - `payload_len`: Length of the payload in bytes
 /// - `payload_type`: Type string: "text", "audio", "video", "code", "voltage_stream", or "binary"
 ///
 /// # Returns
 /// A heap-allocated null-terminated string containing the assigned Neuron UUID.
-/// The caller MUST free this with `cnsdb_free_string()`.
+/// The caller MUST free this with `cluaizd_free_string()`.
 /// Returns `NULL` on failure.
 ///
 /// # Safety
 /// `payload` must point to a valid buffer of at least `payload_len` bytes.
 #[no_mangle]
-pub extern "C" fn cnsdb_write(
-    handle: *mut CnsdbHandle,
+pub extern "C" fn cluaizd_write(
+    handle: *mut CluaizdHandle,
     payload: *const u8,
     payload_len: usize,
     payload_type: *const c_char,
@@ -136,23 +136,23 @@ pub extern "C" fn cnsdb_write(
     }
 }
 
-/// Read a neuron's raw payload from CNSDB by its UUID string.
+/// Read a neuron's raw payload from CLUAIZD by its UUID string.
 ///
 /// # Arguments
-/// - `handle`: A valid `CnsdbHandle*`
+/// - `handle`: A valid `CluaizdHandle*`
 /// - `neuron_id`: A null-terminated UUID string (e.g. "550e8400-e29b-41d4-...")
 /// - `out_len`: Pointer to a `ulong` that receives the payload byte length
 ///
 /// # Returns
 /// A heap-allocated byte buffer containing the raw payload.
-/// The caller MUST free this with `cnsdb_free_bytes()`.
+/// The caller MUST free this with `cluaizd_free_bytes()`.
 /// Returns `NULL` if the neuron is not found.
 ///
 /// # Safety
 /// `out_len` must be a valid pointer.
 #[no_mangle]
-pub extern "C" fn cnsdb_read(
-    handle: *mut CnsdbHandle,
+pub extern "C" fn cluaizd_read(
+    handle: *mut CluaizdHandle,
     neuron_id: *const c_char,
     out_len: *mut c_ulong,
 ) -> *mut u8 {
@@ -169,7 +169,7 @@ pub extern "C" fn cnsdb_read(
         Err(_) => return std::ptr::null_mut(),
     };
 
-    let nid = cnsdb_types::NeuronId::from_bytes(*uuid.as_bytes());
+    let nid = cluaizd_types::NeuronId::from_bytes(*uuid.as_bytes());
 
     let handle_ref = unsafe { &*handle };
     let env = match handle_ref.env.lock() {
@@ -191,19 +191,19 @@ pub extern "C" fn cnsdb_read(
     }
 }
 
-/// Query CNSDB using a CNQL string.
+/// Query CLUAIZD using a CNQL string.
 ///
 /// # Arguments
-/// - `handle`: A valid `CnsdbHandle*`
+/// - `handle`: A valid `CluaizdHandle*`
 /// - `cnql`: A null-terminated CNQL query string (e.g. `find *(name: "Aryan")`)
 ///
 /// # Returns
 /// A heap-allocated null-terminated JSON string containing the array of matched neuron IDs.
-/// The caller MUST free this with `cnsdb_free_string()`.
+/// The caller MUST free this with `cluaizd_free_string()`.
 /// Returns `NULL` on failure.
 #[no_mangle]
-pub extern "C" fn cnsdb_query(
-    handle: *mut CnsdbHandle,
+pub extern "C" fn cluaizd_query(
+    handle: *mut CluaizdHandle,
     cnql: *const c_char,
 ) -> *mut c_char {
     if handle.is_null() || cnql.is_null() {
@@ -241,38 +241,38 @@ pub extern "C" fn cnsdb_query(
     }
 }
 
-/// Close a CNSDB handle and free all associated resources.
+/// Close a CLUAIZD handle and free all associated resources.
 ///
 /// # Safety
-/// `handle` must be a valid pointer from `cnsdb_open()`. After this call, the pointer is invalid.
+/// `handle` must be a valid pointer from `cluaizd_open()`. After this call, the pointer is invalid.
 #[no_mangle]
-pub extern "C" fn cnsdb_close(handle: *mut CnsdbHandle) {
+pub extern "C" fn cluaizd_close(handle: *mut CluaizdHandle) {
     if !handle.is_null() {
         unsafe { drop(Box::from_raw(handle)) };
     }
 }
 
-/// Free a string returned by CNSDB FFI functions.
+/// Free a string returned by CLUAIZD FFI functions.
 ///
 /// # Safety
-/// `ptr` must be a pointer returned by `cnsdb_write()` or `cnsdb_query()`.
+/// `ptr` must be a pointer returned by `cluaizd_write()` or `cluaizd_query()`.
 #[no_mangle]
-pub extern "C" fn cnsdb_free_string(ptr: *mut c_char) {
+pub extern "C" fn cluaizd_free_string(ptr: *mut c_char) {
     if !ptr.is_null() {
         unsafe { drop(CString::from_raw(ptr)) };
     }
 }
 
-/// Free a byte buffer returned by `cnsdb_read()`.
+/// Free a byte buffer returned by `cluaizd_read()`.
 ///
 /// # Arguments
-/// - `ptr`: The pointer returned by `cnsdb_read()`
+/// - `ptr`: The pointer returned by `cluaizd_read()`
 /// - `len`: The length previously written to `out_len`
 ///
 /// # Safety
-/// `ptr` and `len` must match what was returned by `cnsdb_read()`.
+/// `ptr` and `len` must match what was returned by `cluaizd_read()`.
 #[no_mangle]
-pub extern "C" fn cnsdb_free_bytes(ptr: *mut u8, len: c_ulong) {
+pub extern "C" fn cluaizd_free_bytes(ptr: *mut u8, len: c_ulong) {
     if !ptr.is_null() {
         unsafe {
             let slice = std::slice::from_raw_parts_mut(ptr, len as usize);

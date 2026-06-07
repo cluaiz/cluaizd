@@ -3,7 +3,7 @@ use std::path::Path;
 use heed::{Database, Env, EnvOpenOptions, RoTxn, RwTxn};
 use tracing::info;
 
-use cnsdb_errors::StorageError;
+use cluaizd_errors::StorageError;
 
 /// The LMDB environment wrapper.
 /// This struct owns the connection to the physical `.mdb` file on disk.

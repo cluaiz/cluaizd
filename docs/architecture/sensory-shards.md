@@ -8,11 +8,11 @@ Imagine a BCI (Brain-Computer Interface) device recording neural signals at 256,
 
 The result: your main application queries slow to a crawl while the sensor firehose hammers the database.
 
-CNSDB solves this with **Sensory Shards** — completely isolated LMDB environments dedicated to high-throughput write streams.
+CLUAIZD solves this with **Sensory Shards** — completely isolated LMDB environments dedicated to high-throughput write streams.
 
 ---
 
-## How Sharding Works in CNSDB
+## How Sharding Works in CLUAIZD
 
 Each LMDB environment is a fully independent set of files on disk (`.mdb` + lock file). They share NO memory, NO write locks, and NO B-tree pages. A write to one shard cannot block a read in another.
 
@@ -30,7 +30,7 @@ out/
 
 ## Routing to a Specific Shard
 
-Every CNSDB HTTP endpoint accepts a `tenant_id` parameter. The Shard Manager uses this to open (or reuse) the corresponding LMDB environment:
+Every CLUAIZD HTTP endpoint accepts a `tenant_id` parameter. The Shard Manager uses this to open (or reuse) the corresponding LMDB environment:
 
 ```bash
 # Write to the main database (default shard)
@@ -50,7 +50,7 @@ curl -X POST "http://localhost:7331/query?tenant_id=sensory_tissue" \
 
 ## Lazy Shard Initialization
 
-CNSDB does not require you to pre-create shards. The **Shard Manager** (`crates/server/src/shard_manager.rs`) uses lazy initialization:
+CLUAIZD does not require you to pre-create shards. The **Shard Manager** (`crates/server/src/shard_manager.rs`) uses lazy initialization:
 
 1. First request with `tenant_id=sensory_tissue` → Shard Manager creates `out/sensory_tissue.mdb`.
 2. All subsequent requests reuse the already-open LMDB environment (held in an `Arc<Mutex<HashMap>>` cache).
@@ -91,7 +91,7 @@ For maximum performance on the `sensory_tissue` shard (bypassing TCP/HTTP entire
 
 ```c
 // Open the sensory shard directly from C code
-CnsdbHandle* handle = cnsdb_open("./out/sensory_tissue", 8192);
+CluaizdHandle* handle = cluaizd_open("./out/sensory_tissue", 8192);
 
 // Write 256,000 BCI readings/second directly via memory-mapped I/O
 for (int i = 0; i < 256000; i++) {
@@ -99,10 +99,10 @@ for (int i = 0; i < 256000; i++) {
     snprintf(payload, sizeof(payload),
         "{\"electrode\": %d, \"value\": %.4f, \"ts\": %lld}",
         electrode_id[i], voltage[i], timestamp_ns[i]);
-    cnsdb_write(handle, "bci_stream", payload);
+    cluaizd_write(handle, "bci_stream", payload);
 }
 
-cnsdb_close(handle);
+cluaizd_close(handle);
 ```
 
 This bypasses Axum, the HTTP stack, and the shard routing layer entirely. The C-FFI writes directly to LMDB's memory-mapped file.

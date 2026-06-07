@@ -61,7 +61,7 @@ pub enum StorageTier {
     Cold,
 }
 
-/// The fundamental atomic unit of storage in Cluaiz CNSDB.
+/// The fundamental atomic unit of storage in Cluaiz CLUAIZD.
 ///
 /// Every piece of data — text, audio, video, or raw voltage streams —
 /// is stored as a `UniversalNeuron`. Fields are co-located on disk

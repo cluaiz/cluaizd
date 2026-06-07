@@ -31,7 +31,7 @@ find User(status: "active")
   -> limit 20
 ```
 
-In a Database Zoo this requires: Neo4j query → join with Postgres → PostGIS filter → Pinecone query → Python merge sort. That is 5 API calls. CNSDB does it in 1.
+In a Database Zoo this requires: Neo4j query → join with Postgres → PostGIS filter → Pinecone query → Python merge sort. That is 5 API calls. CLUAIZD does it in 1.
 
 ---
 

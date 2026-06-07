@@ -1,7 +1,7 @@
 use tracing::debug;
 
-use cnsdb_errors::StorageError;
-use cnsdb_types::{NeuronId, UniversalNeuron};
+use cluaizd_errors::StorageError;
+use cluaizd_types::{NeuronId, UniversalNeuron};
 
 use crate::env::LmdbEnv;
 
@@ -66,7 +66,7 @@ pub fn read_neuron(
                 }
                 
                 // Expose payload string if text
-                if neuron.payload_type == cnsdb_types::PayloadType::Text {
+                if neuron.payload_type == cluaizd_types::PayloadType::Text {
                     if let Ok(text) = String::from_utf8(neuron.raw_payload.to_vec()) {
                         scope.push("payload", text);
                     }
@@ -120,19 +120,19 @@ pub fn read_neuron(
 #[cfg(test)]
 mod tests {
     use bytes::Bytes;
-    use cnsdb_types::PayloadType;
+    use cluaizd_types::PayloadType;
 
     use super::*;
     use crate::{env::LmdbEnv, writer::write_neuron};
 
     #[test]
     fn test_write_then_read_round_trip() {
-        let tmp_dir = std::env::temp_dir().join("cnsdb_test_read");
+        let tmp_dir = std::env::temp_dir().join("cluaizd_test_read");
         let env = LmdbEnv::open(&tmp_dir, 10 * 1024 * 1024).expect("env open failed");
 
         let model_hash = [42u8; 32];
         let neuron = UniversalNeuron::new(
-            Bytes::from("hello cnsdb"),
+            Bytes::from("hello cluaizd"),
             [1.0f32; 16],
             model_hash,
             PayloadType::Text,
@@ -144,7 +144,7 @@ mod tests {
         // Read back with matching model hash — should succeed
         let fetched = read_neuron(&env, saved_id, Some(model_hash)).expect("read failed");
         assert_eq!(fetched.id, saved_id);
-        assert_eq!(fetched.raw_payload, Bytes::from("hello cnsdb"));
+        assert_eq!(fetched.raw_payload, Bytes::from("hello cluaizd"));
 
         // Read back with wrong model hash — should fail
         let wrong_hash = [0u8; 32];

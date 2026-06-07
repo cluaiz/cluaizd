@@ -15,7 +15,7 @@ Real-world use cases: User accounts, billing records, inventory management, fina
 ## How It Works (Under the Hood)
 
 ### Schema Enforcement via `on_write`
-Unlike PostgreSQL where the schema is compiled into the engine's C code, CNSDB enforces schemas entirely through the `on_write` Rhai hook in the Genome script. When a Neuron write is requested, the core engine **calls this hook before committing to LMDB**.
+Unlike PostgreSQL where the schema is compiled into the engine's C code, CLUAIZD enforces schemas entirely through the `on_write` Rhai hook in the Genome script. When a Neuron write is requested, the core engine **calls this hook before committing to LMDB**.
 
 If the hook returns `"Abort"`, the transaction is rolled back atomically. No partial writes. No dirty state.
 
@@ -76,7 +76,7 @@ This genome enforces a schema with 5 required fields and two business rules — 
 
 ## Relational Joins with CNQL
 
-CNSDB does not have foreign keys in the SQL sense. Relationships are expressed through Graph **edges** (`adjacency` field). However, CNQL's `join()` operator allows you to merge payload data from related Neurons at query time.
+CLUAIZD does not have foreign keys in the SQL sense. Relationships are expressed through Graph **edges** (`adjacency` field). However, CNQL's `join()` operator allows you to merge payload data from related Neurons at query time.
 
 ### Example: Join Orders with Products
 ```text
@@ -116,7 +116,7 @@ This returns the top 10 users by order count — a standard analytics query.
 ## Best Practices
 
 > [!TIP]
-> **Index your most-queried fields.** While CNSDB does not have traditional B-tree indexes, you can store a pre-computed sorted list of IDs in a dedicated "Index Neuron" and traverse it via graph edges for fast lookups.
+> **Index your most-queried fields.** While CLUAIZD does not have traditional B-tree indexes, you can store a pre-computed sorted list of IDs in a dedicated "Index Neuron" and traverse it via graph edges for fast lookups.
 
 > [!WARNING]
 > **Do not use `sql_strict` for high-frequency IoT streams.** The Rhai hook evaluation adds ~0.1ms per write. For 10,000 writes/second, use the `sensory_stream` genome instead which has a lightweight append-only validation.

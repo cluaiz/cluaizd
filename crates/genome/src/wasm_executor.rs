@@ -1,7 +1,7 @@
-use cnsdb_errors::StorageError;
+use cluaizd_errors::StorageError;
 use wasmtime::{Engine, Instance, Module, Store};
 
-/// A simple WASM Executor for CNSDB.
+/// A simple WASM Executor for CLUAIZD.
 /// It instantiates a WASM module from raw bytes and calls an exported function.
 pub struct WasmExecutor {
     engine: Engine,

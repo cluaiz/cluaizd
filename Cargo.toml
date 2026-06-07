@@ -3,9 +3,9 @@ resolver = "2"
 
 members = [
     # Components (shared libraries, no business logic)
-    "components/cnsdb-types",
-    "components/cnsdb-errors",
-    "components/cnsdb-common",
+    "components/cluaizd-types",
+    "components/cluaizd-errors",
+    "components/cluaizd-common",
 
     # Storage Layer
     "crates/storage/engine-lmdb",
@@ -51,8 +51,8 @@ hex          = "0.4"
 futures-util = "0.3"
 
 # Internal crates (version managed here)
-cnsdb-types  = { path = "components/cnsdb-types" }
-cnsdb-errors = { path = "components/cnsdb-errors" }
-cnsdb-common = { path = "components/cnsdb-common" }
+cluaizd-types  = { path = "components/cluaizd-types" }
+cluaizd-errors = { path = "components/cluaizd-errors" }
+cluaizd-common = { path = "components/cluaizd-common" }
 genome       = { path = "crates/genome" }
 heart        = { path = "crates/heart" }

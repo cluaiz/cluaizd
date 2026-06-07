@@ -1,7 +1,7 @@
 use std::ffi::{c_char, c_void, CString};
 use std::slice;
 
-use cnsdb_types::NeuronId;
+use cluaizd_types::NeuronId;
 use crate::env::LmdbEnv;
 use crate::reader::read_neuron;
 
@@ -20,9 +20,9 @@ use crate::reader::read_neuron;
 /// - `env_ptr` must be a valid pointer to an initialized `LmdbEnv`.
 /// - `id_ptr` must point to a 16-byte array containing the raw bytes of a `NeuronId`.
 /// - `out_json` must point to a mutable `*mut c_char` address where the resulting JSON string pointer will be written.
-/// - The caller is responsible for freeing the returned JSON string by calling `cnsdb_ffi_free_string`.
+/// - The caller is responsible for freeing the returned JSON string by calling `cluaizd_ffi_free_string`.
 #[no_mangle]
-pub unsafe extern "C" fn cnsdb_ffi_read_neuron(
+pub unsafe extern "C" fn cluaizd_ffi_read_neuron(
     env_ptr: *mut c_void,
     id_ptr: *const u8,
     out_json: *mut *mut c_char,
@@ -61,12 +61,12 @@ pub unsafe extern "C" fn cnsdb_ffi_read_neuron(
     }
 }
 
-/// Free a JSON string allocated by `cnsdb_ffi_read_neuron`.
+/// Free a JSON string allocated by `cluaizd_ffi_read_neuron`.
 ///
 /// # Safety
-/// - `str_ptr` must be a valid pointer returned by `cnsdb_ffi_read_neuron` or null.
+/// - `str_ptr` must be a valid pointer returned by `cluaizd_ffi_read_neuron` or null.
 #[no_mangle]
-pub unsafe extern "C" fn cnsdb_ffi_free_string(str_ptr: *mut c_char) {
+pub unsafe extern "C" fn cluaizd_ffi_free_string(str_ptr: *mut c_char) {
     if !str_ptr.is_null() {
         // SAFETY: CString::from_raw safely reclaims and drops the string allocation.
         let _ = CString::from_raw(str_ptr);
@@ -78,13 +78,13 @@ mod tests {
     use super::*;
     use std::ptr;
     use bytes::Bytes;
-    use cnsdb_types::PayloadType;
-    use cnsdb_types::UniversalNeuron;
+    use cluaizd_types::PayloadType;
+    use cluaizd_types::UniversalNeuron;
     use crate::writer::write_neuron;
 
     #[test]
     fn test_ffi_read_neuron_succeeds() {
-        let tmp_dir = std::env::temp_dir().join("cnsdb_test_ffi");
+        let tmp_dir = std::env::temp_dir().join("cluaizd_test_ffi");
         let env = LmdbEnv::open(&tmp_dir, 10 * 1024 * 1024).expect("env open failed");
 
         let neuron = UniversalNeuron::new(
@@ -101,7 +101,7 @@ mod tests {
 
         // SAFETY: We provide valid stack references
         let result = unsafe {
-            cnsdb_ffi_read_neuron(env_ptr, id_ptr, &mut out_json)
+            cluaizd_ffi_read_neuron(env_ptr, id_ptr, &mut out_json)
         };
 
         assert_eq!(result, 0);
@@ -112,7 +112,7 @@ mod tests {
             let c_str = std::ffi::CStr::from_ptr(out_json);
             let json_str = c_str.to_str().expect("invalid utf-8");
             assert!(json_str.contains(&neuron.id.to_string()));
-            cnsdb_ffi_free_string(out_json);
+            cluaizd_ffi_free_string(out_json);
         }
 
         let _ = std::fs::remove_dir_all(&tmp_dir);

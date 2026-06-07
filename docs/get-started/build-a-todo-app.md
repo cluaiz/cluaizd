@@ -1,16 +1,16 @@
 # Build Your First App: A Real-Time Todo Board
 
-In this tutorial, we will build a **real-time collaborative todo app** backend using CNSDB. Unlike a typical "Hello World" tutorial, we will use CNSDB as 3 different databases simultaneously:
+In this tutorial, we will build a **real-time collaborative todo app** backend using CLUAIZD. Unlike a typical "Hello World" tutorial, we will use CLUAIZD as 3 different databases simultaneously:
 - **Relational (SQL-like):** For structured Todo items with strict validation.
 - **Real-Time Cache (Redis-like):** For storing online user presence with TTL.
 - **Graph (Neo4j-like):** For linking todos to users via ownership edges.
 
-This is CNSDB's core superpower on full display.
+This is CLUAIZD's core superpower on full display.
 
 ---
 
 ## Step 0: Prerequisites
-Make sure CNSDB is running on `localhost:7331`. See the [Installation Guide](installation.md).
+Make sure CLUAIZD is running on `localhost:7331`. See the [Installation Guide](installation.md).
 
 ---
 
@@ -56,7 +56,7 @@ curl -X POST http://localhost:7331/data \
   }'
 ```
 
-Notice the `adjacency` field — we just created a graph edge from `todo_001` to `user_aryan` with relation `owned_by`. CNSDB is simultaneously acting as a Relational DB (for structure) and a Graph DB (for edges).
+Notice the `adjacency` field — we just created a graph edge from `todo_001` to `user_aryan` with relation `owned_by`. CLUAIZD is simultaneously acting as a Relational DB (for structure) and a Graph DB (for edges).
 
 ---
 
@@ -120,7 +120,7 @@ curl -X PUT http://localhost:7331/data/todo_001 \
 
 ## What We Just Built
 
-In this single tutorial, we used CNSDB as:
+In this single tutorial, we used CLUAIZD as:
 1. **PostgreSQL** — Strict schema enforcement via `on_write` Rhai hooks.
 2. **Neo4j** — Graph edges (`owned_by`) linking Todos to Users.
 3. **Redis** — TTL-based presence cache with auto-eviction.

@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "cli")]
-#[command(about = "Cluaiz CNSDB Administration CLI", long_about = None)]
+#[command(about = "Cluaiz CLUAIZD Administration CLI", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -11,7 +11,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Check the health of the CNSDB server
+    /// Check the health of the CLUAIZD server
     Health,
     /// Inspect the contents of a specific neuron
     Inspect {
@@ -30,8 +30,8 @@ async fn main() -> Result<()> {
         Commands::Health => {
             // Check if server is reachable
             match client.get(format!("{}/neuron/00000000-0000-0000-0000-000000000000", base_url)).send().await {
-                Ok(_) => println!("Status: CNSDB is healthy and running on {}.", base_url),
-                Err(e) => eprintln!("Error: Could not connect to CNSDB at {}. Is the server running? ({})", base_url, e),
+                Ok(_) => println!("Status: CLUAIZD is healthy and running on {}.", base_url),
+                Err(e) => eprintln!("Error: Could not connect to CLUAIZD at {}. Is the server running? ({})", base_url, e),
             }
         }
         Commands::Inspect { id } => {
@@ -47,7 +47,7 @@ async fn main() -> Result<()> {
                         eprintln!("Failed to inspect neuron. Status: {} - {}", status, text);
                     }
                 }
-                Err(e) => eprintln!("Error: Failed to connect to CNSDB. ({})", e),
+                Err(e) => eprintln!("Error: Failed to connect to CLUAIZD. ({})", e),
             }
         }
     }

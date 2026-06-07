@@ -1,6 +1,6 @@
 use std::sync::Arc;
 use anyhow::{anyhow, Result};
-use cnsdb_types::{UniversalNeuron, NeuronId};
+use cluaizd_types::{UniversalNeuron, NeuronId};
 use tempfile::tempdir;
 use tracing::{info, warn};
 

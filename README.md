@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/cnsdb-banner.png" alt="cluaizd Banner" width="100%">
+  <img src="assets/banner.png" alt="cluaizd Banner" width="100%">
 </p>
 
 <h1 align="center">🧠 cluaizd</h1>
@@ -83,10 +83,10 @@ Data gracefully decays instead of crashing the system. The "Dreamer" background 
 
 ### Run the Server
 ```bash
-git clone https://github.com/cluaiz/cnsdb.git
-cd cnsdb
+git clone https://github.com/cluaiz/cluaizd.git
+cd cluaizd
 
-cargo run -p cnsdb-server
+cargo run -p cluaizd-server
 # Server starts at http://localhost:7331
 ```
 
@@ -105,11 +105,11 @@ curl -X POST http://localhost:7331/neuron \
 
 ### Build the C-FFI Library (Robotics / BCI / Python)
 ```bash
-cargo build --release -p cnsdb-ffi
-# Windows: target/release/cnsdb.dll
-# Linux:   target/release/libcnsdb.so
+cargo build --release -p cluaizd-ffi
+# Windows: target/release/cluaizd.dll
+# Linux:   target/release/libcluaizd.so
 ```
-Include `ffi/cnsdb.h` in your C/C++ project for **0ms memory-mapped data ingestion** — no HTTP, no TCP.
+Include `ffi/cluaizd.h` in your C/C++ project for **0ms memory-mapped data ingestion** — no HTTP, no TCP.
 
 ---
 
@@ -127,7 +127,7 @@ Include `ffi/cnsdb.h` in your C/C++ project for **0ms memory-mapped data ingesti
 
 Full documentation lives in `docs/` and is indexed by `docs/registry.json`:
 
-- 🌟 **[Why cluaizd?](docs/vision/why-cnsdb.md)** — Cost savings, paradigm comparison
+- 🌟 **[Why cluaizd?](docs/vision/why-cluaizd.md)** — Cost savings, paradigm comparison
 - ⚡ **[Quickstart](docs/get-started/quickstart.md)** — Up and running in 60 seconds
 - 🗺️ **[Rosetta Stone Cheatsheet](docs/cnql/rosetta-stone.md)** — Your DB's syntax → CNQL in 10 minutes
 - 🧬 **[The 10 Genomes](docs/genomes/dna-architecture.md)** — How DNA shapes cluaizd

@@ -6,7 +6,7 @@
 
 Most developers think about databases as silos. You query PostgreSQL for structured data. You query Pinecone for vectors. You query Neo4j for relationships. Then you write Python code to merge the results.
 
-CNSDB breaks this paradigm. Because Genomes are dynamic policies attached to Neurons rather than hardcoded engine modes, a single CNQL pipeline can transparently invoke multiple paradigm engines in sequence — all within the same Rust memory process, zero network hops between steps.
+CLUAIZD breaks this paradigm. Because Genomes are dynamic policies attached to Neurons rather than hardcoded engine modes, a single CNQL pipeline can transparently invoke multiple paradigm engines in sequence — all within the same Rust memory process, zero network hops between steps.
 
 ---
 
@@ -55,7 +55,7 @@ find Restaurant(cuisine: "Italian", rating >= 4.5, open_now: true)
 ```
 
 **Traditional approach:** PostGIS query → Elasticsearch query → Python merge → sort. 3 API calls, 2-3 seconds.
-**CNSDB:** 1 pipeline, ~15ms.
+**CLUAIZD:** 1 pipeline, ~15ms.
 
 ---
 

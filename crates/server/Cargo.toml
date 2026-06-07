@@ -1,17 +1,17 @@
 [package]
-name = "cnsdb-server"
+name = "cluaizd-server"
 version = "0.1.0"
 edition = "2021"
 license = "BSL-1.1"
-description = "HTTP/gRPC server daemon for Cluaiz CNSDB"
+description = "HTTP/gRPC server daemon for Cluaiz CLUAIZD"
 
 [[bin]]
-name = "cnsdb-server"
+name = "cluaizd-server"
 path = "src/main.rs"
 
 [dependencies]
-cnsdb-types  = { workspace = true }
-cnsdb-errors = { workspace = true }
+cluaizd-types  = { workspace = true }
+cluaizd-errors = { workspace = true }
 engine-lmdb  = { path = "../storage/engine-lmdb" }
 wal          = { path = "../storage/wal" }
 tokio        = { workspace = true }

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use cnsdb_types::NeuronDna;
-use cnsdb_errors::StorageError;
+use cluaizd_types::NeuronDna;
+use cluaizd_errors::StorageError;
 use crate::crispr::CrisprSandbox;
 
 /// The Corporate Genome Manager.

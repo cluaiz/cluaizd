@@ -4,7 +4,7 @@
 
 ## What is JUJU?
 
-JUJU is CNSDB's **Live Spatial State Engine**. While every other database shows you a list of rows, JUJU maps every Neuron and its graph edges onto a real-time **3D coordinate space**.
+JUJU is CLUAIZD's **Live Spatial State Engine**. While every other database shows you a list of rows, JUJU maps every Neuron and its graph edges onto a real-time **3D coordinate space**.
 
 This enables the **Genome Canvas** (the GUI) to render your entire database as a living neural network — where each node's position reflects its tier (Hot/Warm/Cold) and each line represents a real graph edge in your data.
 

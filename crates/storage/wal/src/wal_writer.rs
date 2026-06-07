@@ -5,8 +5,8 @@ use std::sync::Arc;
 
 use tracing::{debug, info};
 
-use cnsdb_errors::StorageError;
-use cnsdb_types::{NeuronId, UniversalNeuron};
+use cluaizd_errors::StorageError;
+use cluaizd_types::{NeuronId, UniversalNeuron};
 
 use crate::log_entry::{WalEntry, WalOperation};
 

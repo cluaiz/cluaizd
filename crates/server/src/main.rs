@@ -15,7 +15,7 @@ async fn main() -> Result<()> {
         .with_env_filter(EnvFilter::from_default_env())
         .init();
 
-    info!("Cluaiz CNSDB Server v0.0.1 — starting");
+    info!("Cluaiz CLUAIZD Server v0.0.1 — starting");
 
     let shards_path = Path::new("data/shards");
     let sensory_path = Path::new("data/sensory");
@@ -33,7 +33,7 @@ async fn main() -> Result<()> {
             let mut replayed_count = 0usize;
             let result = wal::recover_from_wal(wal_path, &mut |entry| {
                 if let wal::WalOperation::Write { payload } = &entry.operation {
-                    if let Ok(neuron) = serde_json::from_slice::<cnsdb_types::UniversalNeuron>(payload) {
+                    if let Ok(neuron) = serde_json::from_slice::<cluaizd_types::UniversalNeuron>(payload) {
                         // Check if this neuron is already in LMDB (idempotent replay)
                         if engine_lmdb::read_neuron(&env, neuron.id, None).is_err() {
                             engine_lmdb::write_neuron(&env, &neuron)?;
@@ -57,10 +57,10 @@ async fn main() -> Result<()> {
         Err(e) => warn!("Could not open default shard for WAL recovery (clean boot?): {}", e),
     }
 
-    info!("Initializing CNSDB Shard Manager at {:?}", shards_path);
+    info!("Initializing CLUAIZD Shard Manager at {:?}", shards_path);
     let shard_manager = routes::ShardManager::new(shards_path);
 
-    info!("Opening CNSDB Sensory Shard at {:?}", sensory_path);
+    info!("Opening CLUAIZD Sensory Shard at {:?}", sensory_path);
     // Sensory shard capacity: 10,000 entries (ring buffer limit)
     let sensory_shard = engine_lmdb::SensoryShard::open(sensory_path, 10000)
         .map_err(|e| anyhow::anyhow!("Failed to open sensory shard: {}", e))?;

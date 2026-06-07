@@ -1,7 +1,7 @@
 use tracing::debug;
 
-use cnsdb_errors::StorageError;
-use cnsdb_types::UniversalNeuron;
+use cluaizd_errors::StorageError;
+use cluaizd_types::UniversalNeuron;
 
 use crate::env::LmdbEnv;
 
@@ -33,14 +33,14 @@ pub fn write_neuron(env: &LmdbEnv, neuron: &UniversalNeuron) -> Result<(), Stora
 #[cfg(test)]
 mod tests {
     use bytes::Bytes;
-    use cnsdb_types::PayloadType;
+    use cluaizd_types::PayloadType;
 
     use super::*;
     use crate::env::LmdbEnv;
 
     #[test]
     fn test_write_neuron_succeeds() {
-        let tmp_dir = std::env::temp_dir().join("cnsdb_test_write");
+        let tmp_dir = std::env::temp_dir().join("cluaizd_test_write");
         let env = LmdbEnv::open(&tmp_dir, 10 * 1024 * 1024).expect("env open failed");
 
         let neuron = UniversalNeuron::new(

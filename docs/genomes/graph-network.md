@@ -17,7 +17,7 @@ Real-world use cases: LinkedIn connections, product recommendations, fraud ring 
 
 PostgreSQL has foreign keys. When you JOIN two tables, the database performs a hash lookup across both tables' indexes — this is O(log n) per hop.
 
-Neo4j (and CNSDB in graph mode) use a completely different strategy called **Index-Free Adjacency**. Every Neuron stores a direct list of its neighbor's IDs (the `adjacency` field). When traversing an edge, CNSDB follows a direct memory pointer instead of performing an index lookup.
+Neo4j (and CLUAIZD in graph mode) use a completely different strategy called **Index-Free Adjacency**. Every Neuron stores a direct list of its neighbor's IDs (the `adjacency` field). When traversing an edge, CLUAIZD follows a direct memory pointer instead of performing an index lookup.
 
 This changes graph traversal from **O(n × log n)** to **O(edges)** — a dramatic speedup as graphs grow.
 
@@ -129,9 +129,9 @@ find id("concept_inflation") -> traverse(edge: "causes", hops: 1..5)
 
 ---
 
-## Comparison: CNSDB vs Neo4j
+## Comparison: CLUAIZD vs Neo4j
 
-| Feature | Neo4j | CNSDB (graph_network) |
+| Feature | Neo4j | CLUAIZD (graph_network) |
 |---|---|---|
 | Index-Free Adjacency | ✅ | ✅ |
 | Variable-Depth Traversal | ✅ | ✅ |

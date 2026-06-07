@@ -4,7 +4,7 @@
 
 ## What is the Booster?
 
-The Booster is CNSDB's **hot-swappable WASM compute engine**. It allows you to upload a compiled `.wasm` binary that replaces the default computation engine powering certain genomic operations — without restarting the server.
+The Booster is CLUAIZD's **hot-swappable WASM compute engine**. It allows you to upload a compiled `.wasm` binary that replaces the default computation engine powering certain genomic operations — without restarting the server.
 
 Think of it as a CPU upgrade you can do while the machine is running.
 

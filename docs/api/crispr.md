@@ -4,7 +4,7 @@
 
 ## What is the CRISPR API?
 
-CRISPR is CNSDB's **surgical precision tool** for live database intervention. Named after the gene-editing technology, it allows you to:
+CRISPR is CLUAIZD's **surgical precision tool** for live database intervention. Named after the gene-editing technology, it allows you to:
 
 1. **Clamp** a DNA parameter to a forced value without restarting the server.
 2. **Force-inject** a permanent synaptic edge that cannot be removed by normal write operations.

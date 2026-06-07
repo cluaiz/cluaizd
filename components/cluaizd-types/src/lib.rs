@@ -1,4 +1,4 @@
-//! `cnsdb-types`
+//! `cluaizd-types`
 //!
 //! Core data types for the Cluaiz Nervous System Database.
 //! All other crates in this workspace depend on this crate.

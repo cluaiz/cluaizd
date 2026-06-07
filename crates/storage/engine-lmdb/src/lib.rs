@@ -1,6 +1,6 @@
 //! `engine-lmdb`
 //!
-//! Physical LMDB-backed storage engine for Cluaiz CNSDB.
+//! Physical LMDB-backed storage engine for Cluaiz CLUAIZD.
 //!
 //! ## Architecture
 //! - `env` — Opens and manages the raw LMDB environment (file handle + mmap).

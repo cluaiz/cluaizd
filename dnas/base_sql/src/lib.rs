@@ -1,4 +1,4 @@
-/// Base SQL DNA — CNSDB WASM Module
+/// Base SQL DNA — CLUAIZD WASM Module
 ///
 /// Enables SQL-style comparison queries on JSON payloads.
 /// Supports: =, !=, >, <, >=, <=, LIKE (contains), AND (multi-field)

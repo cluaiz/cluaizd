@@ -21,7 +21,7 @@ Earth is not flat. Two points at `lat: 28.6, lon: 77.2` and `lat: 28.7, lon: 77.
 Using standard Euclidean math near the poles would give wildly incorrect distances.
 
 ### The Haversine Formula
-CNSDB uses the **Haversine Formula** to compute the great-circle distance between two points on Earth's surface:
+CLUAIZD uses the **Haversine Formula** to compute the great-circle distance between two points on Earth's surface:
 
 ```
 a = sin²(Δlat/2) + cos(lat₁)·cos(lat₂)·sin²(Δlon/2)
@@ -127,9 +127,9 @@ If the query returns a result, the driver is inside the geofence. If empty, they
 
 ---
 
-## Comparison: CNSDB vs PostGIS
+## Comparison: CLUAIZD vs PostGIS
 
-| Feature | PostGIS | CNSDB (geospatial) |
+| Feature | PostGIS | CLUAIZD (geospatial) |
 |---|---|---|
 | Haversine Distance | ✅ | ✅ |
 | Bounding Box Filter | ✅ | ✅ |

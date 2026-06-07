@@ -1,17 +1,17 @@
 [package]
-name = "cnsdb-ffi"
+name = "cluaizd-ffi"
 version = "0.1.0"
 edition = "2021"
-description = "C-compatible FFI bindings for CNSDB — 0ms local access for robots, AI agents, and embedded systems"
+description = "C-compatible FFI bindings for CLUAIZD — 0ms local access for robots, AI agents, and embedded systems"
 
 # Build as a C-compatible shared library (.dll / .so / .dylib)
 [lib]
-name = "cnsdb"
+name = "cluaizd"
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-cnsdb-types = { path = "../components/cnsdb-types" }
-cnsdb-errors = { path = "../components/cnsdb-errors" }
+cluaizd-types = { path = "../components/cluaizd-types" }
+cluaizd-errors = { path = "../components/cluaizd-errors" }
 engine-lmdb = { path = "../crates/storage/engine-lmdb" }
 bytes = "1.9"
 serde_json = "1.0"

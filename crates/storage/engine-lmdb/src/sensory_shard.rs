@@ -3,15 +3,15 @@ use std::path::Path;
 use tracing::debug;
 
 
-use cnsdb_errors::StorageError;
-use cnsdb_types::{NeuronId, PayloadType, UniversalNeuron};
+use cluaizd_errors::StorageError;
+use cluaizd_types::{NeuronId, PayloadType, UniversalNeuron};
 
 use crate::env::LmdbEnv;
 
 /// The isolated shard for high-frequency sensor and BCI streaming data.
 ///
 /// Robotics (LiDAR, Camera) and Brain-Computer Interface (voltage spikes)
-/// streams MUST NOT be written to the main `cnsdb.mdb` database.
+/// streams MUST NOT be written to the main `cluaizd.mdb` database.
 /// High-throughput writes would create write contention and block all read queries.
 ///
 /// This shard acts as a ring buffer:
@@ -52,7 +52,7 @@ impl SensoryShard {
         &self,
         raw_stream: bytes::Bytes,
         source_device_id: Option<&str>,
-        dna: Option<cnsdb_types::NeuronDna>,
+        dna: Option<cluaizd_types::NeuronDna>,
     ) -> Result<NeuronId, StorageError> {
         use crate::writer::write_neuron;
 

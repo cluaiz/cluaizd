@@ -1,5 +1,5 @@
 [package]
-name = "cnsdb-types"
+name = "cluaizd-types"
 version = "0.1.0"
 edition = "2021"
 license = "BSL-1.1"

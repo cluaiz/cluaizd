@@ -22,7 +22,7 @@ mod shard_manager_tests;
 pub use state::AppState;
 pub use shard_manager::ShardManager;
 
-/// Build the main Axum router with all CNSDB API routes.
+/// Build the main Axum router with all CLUAIZD API routes.
 pub fn build_router(state: Arc<AppState>) -> Router {
     Router::new()
         // Write a neuron (insert or update)

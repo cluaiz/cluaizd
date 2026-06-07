@@ -1,7 +1,7 @@
 
-# 🏛️ CLUAIZ CNSDB: THE VISUAL MATRIX (FRONTEND MONOREPO)
+# 🏛️ CLUAIZ CLUAIZD: THE VISUAL MATRIX (FRONTEND MONOREPO)
 
-This is the self-contained, isolated frontend monorepo for the **Cluaiz Nervous System Database (CNSDB)**. It powers the cognitive visual console, featuring **Cluaiz-HEART** (real-time biomarker telemetry) and **Cluaiz-JUJU** (3D infinite synaptic mesh graph).
+This is the self-contained, isolated frontend monorepo for the **Cluaiz Nervous System Database (CLUAIZD)**. It powers the cognitive visual console, featuring **Cluaiz-HEART** (real-time biomarker telemetry) and **Cluaiz-JUJU** (3D infinite synaptic mesh graph).
 
 The codebase is engineered around strict **DRY (Don't Repeat Yourself)** principles, a decoupled **Feature-Driven Architecture**, and a **Pixelated Voxel/Minecraft Neobrutalist design standard** matching the master `cluaiz.com` layout.
 
@@ -29,7 +29,7 @@ apps/gui/
 ├── package.json                # Monorepo root (workspaces: ["apps/*"])
 ├── package-lock.json
 │
-├── src/                        # The Shared Core (@cnsdb/gui)
+├── src/                        # The Shared Core (@cluaizd/gui)
 │   ├── index.ts                # Entrypoint (exports App component)
 │   ├── App.tsx                 # Master Bento Grid Dashboard Layout
 │   ├── App.css                 # Main dashboard layout styles
@@ -64,13 +64,13 @@ apps/gui/
 │
 └── apps/                       # Thin Platform Wrappers (Shells)
     ├── shell-web/              # Vite Web Application Shell
-    │   ├── package.json        # Declares workspace dependency "@cnsdb/gui"
+    │   ├── package.json        # Declares workspace dependency "@cluaizd/gui"
     │   ├── tsconfig.json       # Includes shared parent "../../src"
     │   ├── vite.config.ts      # Bypasses type definitions mapping
     │   └── src/main.tsx        # Boots shared App and CSS
     │
     └── shell-desktop/          # Vite + Tauri Desktop Application Shell
-        ├── package.json        # Declares workspace dependency "@cnsdb/gui"
+        ├── package.json        # Declares workspace dependency "@cluaizd/gui"
         ├── src-tauri/          # Desktop compilation assets
         ├── tsconfig.json       # Includes shared parent "../../src"
         └── src/main.tsx        # Boots shared App and CSS
@@ -125,4 +125,4 @@ npm run build:desktop
 
 ---
 
-**Cluaiz Technology © 2026** — *CNSDB Visual Matrix*
+**Cluaiz Technology © 2026** — *CLUAIZD Visual Matrix*

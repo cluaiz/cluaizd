@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use tracing::warn;
 use uuid::Uuid;
 
-use cnsdb_types::{PayloadType, NeuronId, UniversalNeuron, NeuronDna, NeuronEdge};
+use cluaizd_types::{PayloadType, NeuronId, UniversalNeuron, NeuronDna, NeuronEdge};
 use engine_lmdb::DeepArcherSandbox;
 use crate::routes::AppState;
 use crate::routes::write::WriteNeuronEdgeRequest;

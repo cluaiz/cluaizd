@@ -4,7 +4,7 @@ use axum::{Json, extract::{Path, State, Query}, http::{StatusCode, HeaderMap}, r
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use cnsdb_types::{NeuronId, UniversalNeuron};
+use cluaizd_types::{NeuronId, UniversalNeuron};
 use crate::routes::AppState;
 
 #[derive(Deserialize)]

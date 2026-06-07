@@ -90,7 +90,7 @@ pub fn spawn_dreamer(state: Arc<AppState>) {
                                             let weight = result_map.get("weight").and_then(|v| v.as_float().ok()).unwrap_or(0.5);
                                             
                                             if let Some(target_id) = target {
-                                                neuron.adjacency.push(cnsdb_types::NeuronEdge {
+                                                neuron.adjacency.push(cluaizd_types::NeuronEdge {
                                                     target_id,
                                                     weight: weight as f32,
                                                     last_accessed_ns: std::time::SystemTime::now()

@@ -1,11 +1,11 @@
 # DNA Architecture (Genomes)
 
-CNSDB relies on a revolutionary concept called **Genomes**. The core rust engine (`engine-lmdb`) contains zero business logic, schemas, or indexing optimizations. It only understands how to rapidly serialize and deserialize byte arrays.
+CLUAIZD relies on a revolutionary concept called **Genomes**. The core rust engine (`engine-lmdb`) contains zero business logic, schemas, or indexing optimizations. It only understands how to rapidly serialize and deserialize byte arrays.
 
 All intelligence is injected into the engine using DNA.
 
 ## What is a Genome?
-A Genome is an isolated script (written in WASM or Rhai) that attaches to a Neuron. When the CNSDB core engine interacts with that Neuron, it triggers specific hooks defined by the Genome.
+A Genome is an isolated script (written in WASM or Rhai) that attaches to a Neuron. When the CLUAIZD core engine interacts with that Neuron, it triggers specific hooks defined by the Genome.
 
 ### The 5 Biological Hooks
 

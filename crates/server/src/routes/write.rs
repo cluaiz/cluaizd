@@ -4,7 +4,7 @@ use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use tracing::warn;
 
-use cnsdb_types::{PayloadType, UniversalNeuron, NeuronDna, NeuronEdge};
+use cluaizd_types::{PayloadType, UniversalNeuron, NeuronDna, NeuronEdge};
 use crate::routes::AppState;
 
 /// API request representation of a Neuron Edge.
@@ -17,7 +17,7 @@ pub struct WriteNeuronEdgeRequest {
 /// Request body for `POST /neuron`.
 ///
 /// The AI model or client is responsible for computing the vector.
-/// CNSDB only stores what it receives — it never generates vectors internally.
+/// CLUAIZD only stores what it receives — it never generates vectors internally.
 #[derive(Debug, Deserialize)]
 pub struct WriteNeuronRequest {
     /// The raw payload as a UTF-8 string (for text) or base64 (for binary).
@@ -101,7 +101,7 @@ pub async fn handle_write(
         for e in req_edges {
             if let Ok(uuid) = uuid::Uuid::parse_str(&e.target_id) {
                 edges.push(NeuronEdge {
-                    target_id: cnsdb_types::NeuronId::from_bytes(*uuid.as_bytes()),
+                    target_id: cluaizd_types::NeuronId::from_bytes(*uuid.as_bytes()),
                     weight: e.weight,
                     last_accessed_ns: now_ns,
                 });

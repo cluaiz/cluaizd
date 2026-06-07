@@ -1,6 +1,6 @@
 # Supported Paradigms (The 10-in-1 Engine)
 
-By writing the correct DNA, CNSDB can morph into 10 entirely different database paradigms. Below are the official, out-of-the-box Genomes supported by CNSDB.
+By writing the correct DNA, CLUAIZD can morph into 10 entirely different database paradigms. Below are the official, out-of-the-box Genomes supported by CLUAIZD.
 
 > [!NOTE]
 > All these genomes exist in the `genomes/` directory. You can load them at runtime without recompiling the Rust server.
@@ -25,7 +25,7 @@ Behaves like Neo4j.
 
 ## 5. Key-Value (`ephemeral_cache.json`)
 Behaves like Redis / Memcached.
-- **Fast-Path:** When queried via ID (`find id("x")`), CNSDB bypasses the WASM engine entirely, reading directly from LMDB memory-maps for `0ms` latency.
+- **Fast-Path:** When queried via ID (`find id("x")`), CLUAIZD bypasses the WASM engine entirely, reading directly from LMDB memory-maps for `0ms` latency.
 - **Lifecycle:** strict LRU / TTL eviction policies.
 
 ## 6. Vector / AI (`vector_space.json`)

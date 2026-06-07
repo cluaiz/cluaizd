@@ -3,11 +3,11 @@ name = "wal"
 version = "0.1.0"
 edition = "2021"
 license = "BSL-1.1"
-description = "Write-Ahead Log for crash recovery in Cluaiz CNSDB"
+description = "Write-Ahead Log for crash recovery in Cluaiz CLUAIZD"
 
 [dependencies]
-cnsdb-types  = { workspace = true }
-cnsdb-errors = { workspace = true }
+cluaizd-types  = { workspace = true }
+cluaizd-errors = { workspace = true }
 tokio        = { workspace = true }
 bytes        = { workspace = true }
 tracing      = { workspace = true }

@@ -3,11 +3,11 @@ name = "engine-lmdb"
 version = "0.1.0"
 edition = "2021"
 license = "BSL-1.1"
-description = "LMDB-backed physical storage engine for Cluaiz CNSDB"
+description = "LMDB-backed physical storage engine for Cluaiz CLUAIZD"
 
 [dependencies]
-cnsdb-types  = { workspace = true }
-cnsdb-errors = { workspace = true }
+cluaizd-types  = { workspace = true }
+cluaizd-errors = { workspace = true }
 thiserror    = { workspace = true }
 tokio        = { workspace = true }
 bytes        = { workspace = true }

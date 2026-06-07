@@ -2,7 +2,7 @@
 
 In a traditional database system, encountering an Out-Of-Memory (OOM) error causes the entire application to crash. The database aggressively holds onto caches until the OS kills it. 
 
-CNSDB takes a biological approach to memory management through its **Bits to Atoms** architecture, governed by the background *Dreamer* engine.
+CLUAIZD takes a biological approach to memory management through its **Bits to Atoms** architecture, governed by the background *Dreamer* engine.
 
 ## The 3 Storage Tiers
 
@@ -29,4 +29,4 @@ When memory pressure builds, the Dreamer engine evaluates TTL (Time-To-Live) and
 
 ## The Dreamer Engine
 The Dreamer is an autonomic background thread. You do not configure crons or run maintenance scripts. 
-It monitors `sysinfo` (RAM usage). If RAM drops below 15%, it automatically transitions the oldest Hot neurons to Warm, and Warm to Cold. This ensures CNSDB **never OOM crashes**, gracefully degrading performance instead of failing entirely.
+It monitors `sysinfo` (RAM usage). If RAM drops below 15%, it automatically transitions the oldest Hot neurons to Warm, and Warm to Cold. This ensures CLUAIZD **never OOM crashes**, gracefully degrading performance instead of failing entirely.

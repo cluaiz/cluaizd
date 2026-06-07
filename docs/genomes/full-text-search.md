@@ -108,9 +108,9 @@ response = requests.post("http://localhost:7331/query", json={
 
 ---
 
-## Comparison: CNSDB vs Elasticsearch
+## Comparison: CLUAIZD vs Elasticsearch
 
-| Feature | Elasticsearch | CNSDB (search_index) |
+| Feature | Elasticsearch | CLUAIZD (search_index) |
 |---|---|---|
 | Inverted Index | ✅ | ✅ (via on_index hook) |
 | BM25 Relevance | ✅ | ✅ |

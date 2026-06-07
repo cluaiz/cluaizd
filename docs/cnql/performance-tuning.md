@@ -27,7 +27,7 @@ Layer 3: Full-Shard Scan (10ms - 10s)
 
 ## Rule 1: Always Use the Fast-Path for Single-Record Lookups
 
-This is the single most impactful optimization in CNSDB.
+This is the single most impactful optimization in CLUAIZD.
 
 ```text
 // ❌ BAD — triggers a full-shard scan
@@ -113,10 +113,10 @@ for reading in sensor_readings:
 
 # ✅ GOOD — C-FFI adds ~1µs per write (20x faster)
 import ctypes
-cnsdb = ctypes.CDLL("./libcnsdb.so")
-handle = cnsdb.cnsdb_open(b"./out/sensory_tissue", 8192)
+cluaizd = ctypes.CDLL("./libcluaizd.so")
+handle = cluaizd.cluaizd_open(b"./out/sensory_tissue", 8192)
 for reading in sensor_readings:
-    cnsdb.cnsdb_write(handle, b"bci_stream", json.dumps(reading).encode())
+    cluaizd.cluaizd_write(handle, b"bci_stream", json.dumps(reading).encode())
 ```
 
 ---

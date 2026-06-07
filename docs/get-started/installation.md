@@ -1,6 +1,6 @@
 # Installation Guide
 
-CNSDB is a self-contained Rust binary. There are no external service dependencies (no JVM, no Python runtime, no Node.js). The only requirement is the Rust toolchain to compile it from source.
+CLUAIZD is a self-contained Rust binary. There are no external service dependencies (no JVM, no Python runtime, no Node.js). The only requirement is the Rust toolchain to compile it from source.
 
 ## Method 1: From Source (Recommended for Development)
 
@@ -35,9 +35,9 @@ sudo apt-get update && sudo apt-get install -y clang llvm libclang-dev
 
 ### Step 3: Clone and Run
 ```bash
-git clone https://github.com/cluaiz/cnsdb.git
-cd cnsdb
-cargo run -p cnsdb-server
+git clone https://github.com/cluaiz/cluaizd.git
+cd cluaizd
+cargo run -p cluaizd-server
 ```
 
 > [!TIP]
@@ -45,9 +45,9 @@ cargo run -p cnsdb-server
 
 On success, you will see:
 ```
-[CNSDB] WAL recovery complete — 0 entries replayed.
-[CNSDB] Shard manager initialized at ./out/
-[CNSDB] HTTP server listening on 0.0.0.0:7331
+[CLUAIZD] WAL recovery complete — 0 entries replayed.
+[CLUAIZD] Shard manager initialized at ./out/
+[CLUAIZD] HTTP server listening on 0.0.0.0:7331
 ```
 
 ---
@@ -55,33 +55,33 @@ On success, you will see:
 ## Method 2: Docker
 
 ```bash
-docker pull ghcr.io/cluaiz/cnsdb:latest
+docker pull ghcr.io/cluaiz/cluaizd:latest
 docker run -d \
-  --name cnsdb \
+  --name cluaizd \
   -p 7331:7331 \
-  -v $(pwd)/cnsdb-data:/app/out \
-  ghcr.io/cluaiz/cnsdb:latest
+  -v $(pwd)/cluaizd-data:/app/out \
+  ghcr.io/cluaiz/cluaizd:latest
 ```
 
-The `/app/out` volume is where CNSDB stores its LMDB `.mdb` data files and WAL log. Always mount this as a persistent volume to survive container restarts.
+The `/app/out` volume is where CLUAIZD stores its LMDB `.mdb` data files and WAL log. Always mount this as a persistent volume to survive container restarts.
 
 ---
 
 ## Method 3: Build the C-FFI Shared Library
 
-For embedding CNSDB into a Python, C++, or Rust application as a native library (with 0ms latency, no HTTP overhead):
+For embedding CLUAIZD into a Python, C++, or Rust application as a native library (with 0ms latency, no HTTP overhead):
 
 ```bash
-cargo build --release -p cnsdb-ffi
+cargo build --release -p cluaizd-ffi
 
 # Linux output:
-ls target/release/libcnsdb.so
+ls target/release/libcluaizd.so
 
 # Windows output:
-ls target/release/cnsdb.dll
+ls target/release/cluaizd.dll
 ```
 
-Copy the `.so` or `.dll` and the `ffi/cnsdb.h` header into your target project.
+Copy the `.so` or `.dll` and the `ffi/cluaizd.h` header into your target project.
 
 ---
 
@@ -106,7 +106,7 @@ Expected response:
 
 ## Configuration (Optional)
 
-CNSDB reads a `config.toml` at startup if present in the working directory.
+CLUAIZD reads a `config.toml` at startup if present in the working directory.
 
 ```toml
 [server]

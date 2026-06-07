@@ -1,4 +1,4 @@
-/// Base Graph DNA — CNSDB WASM Module
+/// Base Graph DNA — CLUAIZD WASM Module
 ///
 /// Enables graph traversal queries on the Neuron's adjacency edges.
 /// Inspects edges, filters by weight and relation, and returns match/no-match.

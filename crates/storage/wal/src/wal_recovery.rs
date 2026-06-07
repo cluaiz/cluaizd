@@ -3,7 +3,7 @@ use std::path::Path;
 
 use tracing::{info, warn};
 
-use cnsdb_errors::StorageError;
+use cluaizd_errors::StorageError;
 
 use crate::log_entry::{WalEntry, WalOperation};
 

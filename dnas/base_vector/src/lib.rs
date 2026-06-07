@@ -1,4 +1,4 @@
-/// Base Vector DNA — CNSDB WASM Module
+/// Base Vector DNA — CLUAIZD WASM Module
 ///
 /// Enables high-dimensional cosine similarity search.
 /// Compares a 16-dimensional query vector against the neuron's stored vector_data.

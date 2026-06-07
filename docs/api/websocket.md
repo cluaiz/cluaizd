@@ -4,7 +4,7 @@
 
 ## What is the HEART WebSocket?
 
-CNSDB maps all its internal performance metrics to **biological biomarkers** through the `Cluaiz-HEART` system. Instead of showing you boring CPU% graphs, it expresses database load as:
+CLUAIZD maps all its internal performance metrics to **biological biomarkers** through the `Cluaiz-HEART` system. Instead of showing you boring CPU% graphs, it expresses database load as:
 - **Heart Rate (BPM):** Maps to the number of active shards. More shards = faster heartbeat.
 - **Blood Pressure:** Maps to write/read throughput pressure.
 - **SpO2 (Oxygen Level):** Maps to database health — 100% = perfectly healthy, <95% = warning.

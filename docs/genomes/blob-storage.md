@@ -19,7 +19,7 @@ A 4K video file is ~4 GB. If you try to store 1,000 videos in a database that ke
 
 Traditional object stores (S3, MinIO) solve this by pushing everything to disk, but then you lose the ability to add metadata, search relationships, or graph-traverse between blobs.
 
-CNSDB solves this differently with the **Bits-to-Atoms tiering system**:
+CLUAIZD solves this differently with the **Bits-to-Atoms tiering system**:
 
 ```
 On Write:
@@ -81,7 +81,7 @@ A video player needs to jump to the 10-minute mark without downloading the whole
 find id("video_drone_mumbai_4k") -> stream(bytes: 104857600..209715200)
 ```
 
-This is equivalent to HTTP's `Range: bytes=104857600-209715200` header. The CNSDB engine decompresses only the relevant ZSTD block containing those bytes, never touching the rest.
+This is equivalent to HTTP's `Range: bytes=104857600-209715200` header. The CLUAIZD engine decompresses only the relevant ZSTD block containing those bytes, never touching the rest.
 
 ---
 
@@ -100,7 +100,7 @@ This returns only the `raw_payload` JSON metadata fields (if the on_write hook s
 
 ## Semantic Search Over Blobs (The Impossible Made Possible)
 
-The holy grail of media databases: semantic search over video content. With CNSDB, you pre-compute video embeddings (using a model like CLIP or VideoMAE) and store them in `vector_data`. Now you can do:
+The holy grail of media databases: semantic search over video content. With CLUAIZD, you pre-compute video embeddings (using a model like CLIP or VideoMAE) and store them in `vector_data`. Now you can do:
 
 ```text
 // Find videos semantically similar to "sunset over a beach"
@@ -113,9 +113,9 @@ The vector search runs entirely on the Hot-tier Neuron shells (which are small).
 
 ---
 
-## Comparison: CNSDB vs Amazon S3
+## Comparison: CLUAIZD vs Amazon S3
 
-| Feature | Amazon S3 | CNSDB (object_store) |
+| Feature | Amazon S3 | CLUAIZD (object_store) |
 |---|---|---|
 | Blob Storage (TB scale) | ✅ | ✅ (via ZSTD Cold tier) |
 | Byte-Range Streaming | ✅ | ✅ |

@@ -1,4 +1,4 @@
-use cnsdb_types::NeuronId;
+use cluaizd_types::NeuronId;
 
 /// All errors that can occur in the physical storage layer.
 #[derive(Debug, thiserror::Error)]

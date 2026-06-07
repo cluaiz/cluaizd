@@ -1,6 +1,6 @@
 # ⚡ Quickstart
 
-Get CNSDB running and your first data in under **60 seconds**.
+Get CLUAIZD running and your first data in under **60 seconds**.
 
 ## Prerequisites
 - **Rust Toolchain:** Version `1.75+` — install via [rustup.rs](https://rustup.rs/).
@@ -9,27 +9,27 @@ Get CNSDB running and your first data in under **60 seconds**.
 ## Step 1: Run the Server
 
 ```bash
-git clone https://github.com/cluaiz/cnsdb.git
-cd cnsdb
-cargo run -p cnsdb-server
+git clone https://github.com/cluaiz/cluaizd.git
+cd cluaizd
+cargo run -p cluaizd-server
 ```
 
 You should see:
 ```
-INFO Cluaiz CNSDB Server v0.0.1 starting
+INFO Cluaiz CLUAIZD Server v0.0.1 starting
 INFO Running WAL crash recovery...
 INFO WAL boot recovery complete ✅
 INFO Server listening on 0.0.0.0:7331
 ```
 
 > [!TIP]
-> **Port is 7331** — not 8080. CNSDB uses port 7331 by default.
+> **Port is 7331** — not 8080. CLUAIZD uses port 7331 by default.
 
 ---
 
 ## Step 2: Write Your First Neuron
 
-CNSDB stores everything as a `UniversalNeuron`. No `CREATE TABLE`. No schema.
+CLUAIZD stores everything as a `UniversalNeuron`. No `CREATE TABLE`. No schema.
 
 ```bash
 curl -X POST http://localhost:7331/neuron \

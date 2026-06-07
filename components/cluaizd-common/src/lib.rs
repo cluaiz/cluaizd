@@ -1,7 +1,7 @@
-//! `cnsdb-common`
+//! `cluaizd-common`
 //!
 //! Shared traits, utility functions, and constants used across
-//! all crates in the Cluaiz CNSDB workspace.
+//! all crates in the Cluaiz CLUAIZD workspace.
 
 /// Validates that a 16-dimensional vector contains only finite values.
 /// Returns the index of the first invalid value, or `Ok(())` if valid.

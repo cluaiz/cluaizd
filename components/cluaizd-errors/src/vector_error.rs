@@ -14,7 +14,7 @@ pub enum VectorError {
     },
 
     /// Returned when a vector with wrong dimensions is submitted.
-    /// CNSDB only accepts 16-dimensional vectors.
+    /// CLUAIZD only accepts 16-dimensional vectors.
     #[error("Vector dimension mismatch: expected 16 dimensions, got {actual}")]
     DimensionMismatch { actual: usize },
 

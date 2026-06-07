@@ -15,7 +15,7 @@ Real-world use cases: Session tokens, API rate limiting, leaderboard counters, o
 
 ## The O(1) Fast-Path: How It Actually Works
 
-This is CNSDB's most powerful optimization. When the CNQL Planner sees a `find id("...")` query, it **completely skips** all query planning and WASM/Rhai evaluation. Instead, it calls LMDB's direct key lookup which is a single memory-mapped pointer dereference.
+This is CLUAIZD's most powerful optimization. When the CNQL Planner sees a `find id("...")` query, it **completely skips** all query planning and WASM/Rhai evaluation. Instead, it calls LMDB's direct key lookup which is a single memory-mapped pointer dereference.
 
 ```
 Normal Query Path:
@@ -85,7 +85,7 @@ The Planner detects `id(...)` and bypasses the entire WASM engine, returning the
 
 ## Atomic Counters (Rate Limiting)
 
-CNSDB does not yet have native atomic increment. The recommended pattern is to use `on_write` to read the current counter, increment it, and enforce the limit:
+CLUAIZD does not yet have native atomic increment. The recommended pattern is to use `on_write` to read the current counter, increment it, and enforce the limit:
 
 ```json
 {
@@ -102,9 +102,9 @@ CNSDB does not yet have native atomic increment. The recommended pattern is to u
 
 ---
 
-## Comparison: CNSDB vs Redis
+## Comparison: CLUAIZD vs Redis
 
-| Feature | Redis | CNSDB (ephemeral_cache) |
+| Feature | Redis | CLUAIZD (ephemeral_cache) |
 |---|---|---|
 | O(1) Get | ✅ | ✅ (via Fast-Path) |
 | TTL Eviction | ✅ | ✅ (via Dreamer lifecycle hook) |

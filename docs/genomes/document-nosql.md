@@ -46,7 +46,7 @@ curl -X POST http://localhost:7331/data \
 The raw_payload represents:
 ```json
 {
-  "title": "Why CNSDB Changes Everything",
+  "title": "Why CLUAIZD Changes Everything",
   "content": "Full article text here...",
   "author": {
     "id": "user_aryan",

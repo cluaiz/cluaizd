@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::time;
 use tracing::info;
-use cnsdb_types::{StorageTier, UniversalNeuron};
+use cluaizd_types::{StorageTier, UniversalNeuron};
 use bytes::Bytes;
 use zstd::stream::encode_all;
 use rhai::{Engine, Scope, Map};

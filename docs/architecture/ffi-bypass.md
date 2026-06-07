@@ -9,7 +9,7 @@ This manual is for:
 - **BCI (Brain-Computer Interface) researchers** capturing 256,000+ neural samples/second.
 - **High-Frequency Trading** systems where every microsecond costs money.
 - **Game engine developers** (Unreal, Unity) needing direct memory-mapped world state.
-- **Python / C++ AI researchers** who need to pull vectors out of CNSDB at native speeds.
+- **Python / C++ AI researchers** who need to pull vectors out of CLUAIZD at native speeds.
 
 If you are building a standard web API, use the [REST API](../clients/rest-api.md) instead.
 
@@ -17,7 +17,7 @@ If you are building a standard web API, use the [REST API](../clients/rest-api.m
 
 ## The Fundamental Problem with HTTP
 
-Every HTTP request to CNSDB goes through:
+Every HTTP request to CLUAIZD goes through:
 ```
 Your Code → TCP Handshake → JSON Serialize → Axum Router → WASM Eval → LMDB → JSON Deserialize → TCP Send → Your Code
 ```
@@ -36,7 +36,7 @@ At 256,000 writes/second (BCI target), this is mathematically impossible.
 
 The C-FFI eliminates ALL of the above:
 ```
-Your Code → cnsdb_write() → LMDB mmap pointer → Disk
+Your Code → cluaizd_write() → LMDB mmap pointer → Disk
 ```
 
 - **No TCP.** Shared memory, not a socket.
@@ -49,67 +49,67 @@ Your Code → cnsdb_write() → LMDB mmap pointer → Disk
 ## Step 1: Build the Shared Library
 
 ```bash
-# Compile CNSDB as a dynamic library
-cargo build --release -p cnsdb-ffi
+# Compile CLUAIZD as a dynamic library
+cargo build --release -p cluaizd-ffi
 
 # Outputs:
-# Windows: target/release/cnsdb.dll
-# Linux:   target/release/libcnsdb.so  
-# macOS:   target/release/libcnsdb.dylib
+# Windows: target/release/cluaizd.dll
+# Linux:   target/release/libcluaizd.so  
+# macOS:   target/release/libcluaizd.dylib
 ```
 
-Copy `ffi/cnsdb.h` and the `.so`/`.dll` into your project.
+Copy `ffi/cluaizd.h` and the `.so`/`.dll` into your project.
 
 ---
 
 ## Step 2: The C API Surface
 
 ```c
-#include "cnsdb.h"
+#include "cluaizd.h"
 
-// Open a CNSDB shard as a memory-mapped database
+// Open a CLUAIZD shard as a memory-mapped database
 // path: filesystem path to LMDB directory
 // map_size_mb: max database size in MB (e.g. 8192 = 8GB)
 // Returns: opaque handle, or NULL on failure
-CnsdbHandle* cnsdb_open(const char* path, unsigned long map_size_mb);
+CluaizdHandle* cluaizd_open(const char* path, unsigned long map_size_mb);
 
 // Write raw bytes directly to LMDB (no JSON, no HTTP)
 // neuron_id: unique string key
 // payload_json: serialized payload bytes
 // Returns: 0 on success, -1 on failure
-int cnsdb_write(CnsdbHandle* handle, const char* neuron_id, const char* payload_json);
+int cluaizd_write(CluaizdHandle* handle, const char* neuron_id, const char* payload_json);
 
 // Direct key lookup — bypasses ALL query planning
 // Returns: allocated JSON string, caller must free
-char* cnsdb_read(CnsdbHandle* handle, const char* neuron_id);
+char* cluaizd_read(CluaizdHandle* handle, const char* neuron_id);
 
 // Execute a CNQL query string
-char* cnsdb_query(CnsdbHandle* handle, const char* cnql);
+char* cluaizd_query(CluaizdHandle* handle, const char* cnql);
 
 // Close and flush all pending writes
-void cnsdb_close(CnsdbHandle* handle);
+void cluaizd_close(CluaizdHandle* handle);
 ```
 
 ---
 
 ## Step 3: C++ Robotics Example (ROS2 Node)
 
-A ROS2 node receiving LiDAR point clouds at 100 Hz, storing each scan frame directly into CNSDB:
+A ROS2 node receiving LiDAR point clouds at 100 Hz, storing each scan frame directly into CLUAIZD:
 
 ```cpp
-#include "cnsdb.h"
+#include "cluaizd.h"
 #include <chrono>
 #include <cstdio>
 
 class LidarStorageNode {
-    CnsdbHandle* db_handle;
+    CluaizdHandle* db_handle;
     
 public:
     LidarStorageNode() {
         // Open the sensory shard directly — no HTTP server needed
-        db_handle = cnsdb_open("./out/sensory_tissue", 16384); // 16GB max
+        db_handle = cluaizd_open("./out/sensory_tissue", 16384); // 16GB max
         if (!db_handle) {
-            throw std::runtime_error("Failed to open CNSDB sensory shard");
+            throw std::runtime_error("Failed to open CLUAIZD sensory shard");
         }
     }
     
@@ -126,15 +126,15 @@ public:
         snprintf(neuron_id, sizeof(neuron_id), "lidar_%llu", scan.frame_id);
         
         // DIRECT WRITE — ~1µs latency, no TCP, no JSON parser
-        int result = cnsdb_write(db_handle, neuron_id, payload);
+        int result = cluaizd_write(db_handle, neuron_id, payload);
         if (result != 0) {
             // Handle write failure (disk full, LMDB error)
-            fprintf(stderr, "CNSDB write failed for frame %llu\n", scan.frame_id);
+            fprintf(stderr, "CLUAIZD write failed for frame %llu\n", scan.frame_id);
         }
     }
     
     ~LidarStorageNode() {
-        cnsdb_close(db_handle);
+        cluaizd_close(db_handle);
     }
 };
 ```
@@ -151,16 +151,16 @@ import json
 import time
 
 # Load the shared library
-cnsdb = ctypes.CDLL("./libcnsdb.so")
+cluaizd = ctypes.CDLL("./libcluaizd.so")
 
 # Set return types
-cnsdb.cnsdb_open.restype = ctypes.c_void_p
-cnsdb.cnsdb_write.restype = ctypes.c_int
-cnsdb.cnsdb_read.restype = ctypes.c_char_p
-cnsdb.cnsdb_query.restype = ctypes.c_char_p
+cluaizd.cluaizd_open.restype = ctypes.c_void_p
+cluaizd.cluaizd_write.restype = ctypes.c_int
+cluaizd.cluaizd_read.restype = ctypes.c_char_p
+cluaizd.cluaizd_query.restype = ctypes.c_char_p
 
 # Open the sensory shard directly (no HTTP server needed)
-handle = cnsdb.cnsdb_open(b"./out/sensory_tissue", 8192)
+handle = cluaizd.cluaizd_open(b"./out/sensory_tissue", 8192)
 
 def stream_bci_sample(electrode_id: int, voltage: float, timestamp_ns: int):
     """Stream a single BCI electrode reading at 0ms latency."""
@@ -172,7 +172,7 @@ def stream_bci_sample(electrode_id: int, voltage: float, timestamp_ns: int):
         "sample_rate_hz": 1000
     }).encode()
     
-    result = cnsdb.cnsdb_write(handle, neuron_id, payload)
+    result = cluaizd.cluaizd_write(handle, neuron_id, payload)
     return result == 0
 
 # Simulate 256 electrodes × 1000 Hz = 256,000 writes/second
@@ -190,7 +190,7 @@ print(f"256,000 writes in {elapsed:.3f}s = {256000/elapsed:.0f} writes/sec")
 # Expected output: ~200,000-800,000 writes/sec (depends on NVMe speed)
 
 # Cleanup
-cnsdb.cnsdb_close(handle)
+cluaizd.cluaizd_close(handle)
 ```
 
 ---
@@ -200,7 +200,7 @@ cnsdb.cnsdb_close(handle)
 For hard real-time systems (robotics, safety-critical), use a ring buffer to decouple the write thread from the sensor callback:
 
 ```cpp
-#include "cnsdb.h"
+#include "cluaizd.h"
 #include <atomic>
 #include <thread>
 #include <array>
@@ -226,15 +226,15 @@ void sensor_callback(RingBuffer& ring, const char* id, const char* payload) {
     ring.write_head.store(head + 1, std::memory_order_release);
 }
 
-// Background writer thread (drains ring into CNSDB)
-void writer_thread(RingBuffer& ring, CnsdbHandle* db) {
+// Background writer thread (drains ring into CLUAIZD)
+void writer_thread(RingBuffer& ring, CluaizdHandle* db) {
     while (true) {
         size_t tail = ring.read_head.load(std::memory_order_relaxed);
         size_t head = ring.write_head.load(std::memory_order_acquire);
         
         while (tail < head) {
             auto& frame = ring.frames[tail & (RING_SIZE - 1)];
-            cnsdb_write(db, frame.neuron_id, frame.payload);
+            cluaizd_write(db, frame.neuron_id, frame.payload);
             tail++;
         }
         ring.read_head.store(tail, std::memory_order_release);

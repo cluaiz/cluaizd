@@ -1,6 +1,6 @@
 //! `wal`
 //!
-//! Write-Ahead Log for crash-safe durability in Cluaiz CNSDB.
+//! Write-Ahead Log for crash-safe durability in Cluaiz CLUAIZD.
 //!
 //! ## Design
 //! Every mutation (write or delete) must be appended to the WAL

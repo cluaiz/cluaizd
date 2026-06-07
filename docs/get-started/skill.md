@@ -1,12 +1,12 @@
-# CNSDB AI Agent & Cursor Rules (`skill.md`)
+# CLUAIZD AI Agent & Cursor Rules (`skill.md`)
 
-This file is a **complete context specification** for AI coding assistants (Cursor, Claude, GitHub Copilot, GPT-4). Paste this entire file as a system prompt or `.cursorrules` context when working on any CNSDB codebase.
+This file is a **complete context specification** for AI coding assistants (Cursor, Claude, GitHub Copilot, GPT-4). Paste this entire file as a system prompt or `.cursorrules` context when working on any CLUAIZD codebase.
 
 ---
 
-## 🧠 What CNSDB Is (Core Mental Model)
+## 🧠 What CLUAIZD Is (Core Mental Model)
 
-CNSDB is a **shape-shifting memory substrate** built in Rust on top of LMDB. You must never think of it as a traditional database.
+CLUAIZD is a **shape-shifting memory substrate** built in Rust on top of LMDB. You must never think of it as a traditional database.
 
 **The single most important concept:**
 - The Rust core engine (`engine-lmdb`) is **100% logicless**. It stores raw bytes. It knows nothing about schemas, indexes, TTLs, or query optimizations.
@@ -18,7 +18,7 @@ CNSDB is a **shape-shifting memory substrate** built in Rust on top of LMDB. You
 ## 📁 Codebase Structure (Critical Paths)
 
 ```
-cnsdb/
+cluaizd/
 ├── crates/
 │   ├── genome/src/cnql/      ← CNQL parser.rs + planner.rs (THE QUERY BRAIN)
 │   ├── server/src/routes/    ← HTTP API (query.rs, data.rs, state.rs)
@@ -26,9 +26,9 @@ cnsdb/
 │       ├── engine-lmdb/      ← Raw LMDB read/write (NEVER add business logic here)
 │       └── wal/              ← Write-Ahead Log for crash recovery
 ├── components/
-│   └── cnsdb-types/          ← UniversalNeuron, StorageTier, DNA structs
+│   └── cluaizd-types/          ← UniversalNeuron, StorageTier, DNA structs
 ├── genomes/                  ← All 10 DNA scripts (sql_strict.json, etc.)
-├── ffi/                      ← C-FFI bindings (cnsdb.h + lib.rs)
+├── ffi/                      ← C-FFI bindings (cluaizd.h + lib.rs)
 └── docs/                     ← Documentation (registry.json + markdown)
 ```
 

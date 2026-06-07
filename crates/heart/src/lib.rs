@@ -22,9 +22,9 @@ pub struct Telemetry {
     pub gpu_load: u8,
     /// Disk / SSD I/O wait or load percentage.
     pub ssd_load: u8,
-    /// CPU Load of the current CNSDB process (0-100%).
+    /// CPU Load of the current CLUAIZD process (0-100%).
     pub process_bp: u8,
-    /// RAM Usage percentage of the current CNSDB process.
+    /// RAM Usage percentage of the current CLUAIZD process.
     pub process_spo2: u8,
 }
 

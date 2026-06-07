@@ -17,7 +17,7 @@ Real-world use cases: Brain-Computer Interface (BCI) neural signal capture, robo
 
 Wide-column databases like Cassandra achieve extreme write speeds because they never update records — they only append new ones. Updates are achieved by writing a new record with a newer timestamp. The "latest" record wins during reads.
 
-CNSDB's `sensory_stream` genome enforces this constraint at the DNA level:
+CLUAIZD's `sensory_stream` genome enforces this constraint at the DNA level:
 
 ### The `sensory_stream.json` Genome
 ```json
@@ -35,16 +35,16 @@ Any write that includes `"is_update": true` is **blocked**. This prevents accide
 
 A BCI device records 1000 neural samples per second per electrode, across 256 electrodes. That is **256,000 writes/second** — a throughput that would destroy a standard Postgres setup.
 
-CNSDB handles this through:
+CLUAIZD handles this through:
 1. **Sensory Shard Isolation:** BCI traffic is routed to `?tenant_id=sensory_tissue` — a completely separate LMDB memory-map that does not block the main cortical database.
 2. **C-FFI Direct Writes:** The BCI device's C++ firmware writes directly via the C-FFI, bypassing HTTP/TCP entirely.
 3. **Sequential Append:** Because LMDB's B-tree allows sequential appends without lock contention, write speeds remain high.
 
 ```c
-// BCI C++ firmware writing to CNSDB at 256,000 writes/second
-#include "cnsdb.h"
+// BCI C++ firmware writing to CLUAIZD at 256,000 writes/second
+#include "cluaizd.h"
 
-CnsdbHandle* handle = cnsdb_open("./out/sensory_tissue", 8192);
+CluaizdHandle* handle = cluaizd_open("./out/sensory_tissue", 8192);
 
 while (recording) {
     char payload[256];
@@ -52,7 +52,7 @@ while (recording) {
         "{\"electrode\": %d, \"value\": %.4f, \"ts\": %lld}",
         electrode_id, sample_voltage, timestamp_ns);
     
-    cnsdb_write(handle, "bci_stream", payload);
+    cluaizd_write(handle, "bci_stream", payload);
 }
 ```
 
@@ -88,9 +88,9 @@ Any attempt to modify this record is blocked by the `sensory_stream` genome's ap
 
 ---
 
-## Comparison: CNSDB vs Cassandra
+## Comparison: CLUAIZD vs Cassandra
 
-| Feature | Cassandra | CNSDB (sensory_stream) |
+| Feature | Cassandra | CLUAIZD (sensory_stream) |
 |---|---|---|
 | Append-Only Enforcement | ⚠️ (convention only) | ✅ (DNA-enforced) |
 | Partition Key Routing | ✅ | ✅ (via tenant_id sharding) |

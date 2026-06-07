@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{Json, extract::State, http::{StatusCode, HeaderMap}, response::IntoResponse};
 use serde::{Deserialize, Serialize};
 
-use cnsdb_types::{UniversalNeuron, StorageTier};
+use cluaizd_types::{UniversalNeuron, StorageTier};
 use crate::routes::AppState;
 use genome::cnql::{parser::{parse, CnqlValue, CompareOp}, planner::{build_plan, PlanStep}};
 
@@ -194,7 +194,7 @@ fn execute_cnql(
             PlanStep::FilterResults { field, op, value } => {
                 working_set = working_set.into_iter().filter(|n| {
                     let payload_str = String::from_utf8_lossy(&n.raw_payload).to_string();
-                    matches_filter(n, &cnsdb_types_filter_ref(field, op, value), &payload_str)
+                    matches_filter(n, &cluaizd_types_filter_ref(field, op, value), &payload_str)
                 }).collect();
             }
 
@@ -300,7 +300,7 @@ fn matches_filter(
 }
 
 /// Helper to build a temporary Filter reference for inline use
-fn cnsdb_types_filter_ref<'a>(
+fn cluaizd_types_filter_ref<'a>(
     field: &'a str,
     op: &'a CompareOp,
     value: &'a CnqlValue,

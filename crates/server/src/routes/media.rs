@@ -7,7 +7,7 @@ use axum::{
 use axum::body::Body;
 use uuid::Uuid;
 
-use cnsdb_types::NeuronId;
+use cluaizd_types::NeuronId;
 use crate::routes::AppState;
 
 /// `GET /stream/{id}` — Zero-Copy Media Streaming.

@@ -20,7 +20,7 @@ A vector embedding is a mathematical representation of the "meaning" of data, pr
 - The sentence **"I enjoy espresso"** maps to `[0.13, -0.42, 0.91, ...]` — very close!
 - The sentence **"The rocket launches tomorrow"** maps to `[-0.82, 0.31, -0.05, ...]` — far away.
 
-CNSDB stores these embeddings in the `vector_data` field of every Neuron. The CNQL `similar_to()` operator then computes the mathematical distance between a query vector and all stored vectors, returning the closest matches.
+CLUAIZD stores these embeddings in the `vector_data` field of every Neuron. The CNQL `similar_to()` operator then computes the mathematical distance between a query vector and all stored vectors, returning the closest matches.
 
 ---
 
@@ -85,12 +85,12 @@ import requests
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Encode a document before storing
-doc = "CNSDB is a universal database substrate built in Rust"
+doc = "CLUAIZD is a universal database substrate built in Rust"
 embedding = model.encode(doc).tolist()
 
-# Store in CNSDB
+# Store in CLUAIZD
 requests.post("http://localhost:7331/data", json={
-    "id": "doc_cnsdb_intro",
+    "id": "doc_cluaizd_intro",
     "tier": "Hot",
     "raw_payload": list(doc.encode("utf-8")),
     "vector_data": embedding,
@@ -108,9 +108,9 @@ results = requests.post("http://localhost:7331/query", json={
 
 ---
 
-## Comparison: CNSDB vs Pinecone
+## Comparison: CLUAIZD vs Pinecone
 
-| Feature | Pinecone | CNSDB (vector_space) |
+| Feature | Pinecone | CLUAIZD (vector_space) |
 |---|---|---|
 | Cosine / L2 Similarity | ✅ | ✅ |
 | Metadata Hybrid Filtering | ✅ | ✅ |

@@ -1,4 +1,4 @@
-# Why CNSDB?
+# Why CLUAIZD?
 
 > *"The best database is the one you never have to replace."*
 
@@ -22,20 +22,20 @@ This is called **The Database Zoo Problem**, and it is one of the biggest hidden
 
 ---
 
-## The CNSDB Solution: One Brain. Infinite Forms.
+## The CLUAIZD Solution: One Brain. Infinite Forms.
 
-CNSDB is not "yet another database." It is a **shape-shifting memory substrate** built in Rust, designed to replace your entire Database Zoo with a single engine.
+CLUAIZD is not "yet another database." It is a **shape-shifting memory substrate** built in Rust, designed to replace your entire Database Zoo with a single engine.
 
 The core insight: **A database is just a policy applied to raw bytes.**
 - PostgreSQL is raw bytes + a strict schema policy.
 - Redis is raw bytes + an in-memory TTL eviction policy.
 - Neo4j is raw bytes + an adjacency traversal policy.
 
-CNSDB stores raw bytes (called **Neurons**). The **policy** is injected externally via WASM-compiled DNA scripts called **Genomes**. The Rust engine itself is 100% policy-free.
+CLUAIZD stores raw bytes (called **Neurons**). The **policy** is injected externally via WASM-compiled DNA scripts called **Genomes**. The Rust engine itself is 100% policy-free.
 
-### The 10 Shapes of CNSDB
+### The 10 Shapes of CLUAIZD
 
-| Attach This Genome | CNSDB Becomes This Database | Replaces |
+| Attach This Genome | CLUAIZD Becomes This Database | Replaces |
 |---|---|---|
 | `sql_strict.json` | Strict relational DB with schema enforcement | PostgreSQL / MySQL |
 | `document_store.json` | Schema-less document store | MongoDB |
@@ -52,7 +52,7 @@ CNSDB stores raw bytes (called **Neurons**). The **policy** is injected external
 
 ## The CNQL Superpower: Cross-Paradigm Queries
 
-The real magic is that these 10 paradigms do not live in silos. CNSDB's **CNQL (Cluaiz Neural Query Language)** allows you to cross database-paradigm boundaries in a single pipeline query.
+The real magic is that these 10 paradigms do not live in silos. CLUAIZD's **CNQL (Cluaiz Neural Query Language)** allows you to cross database-paradigm boundaries in a single pipeline query.
 
 ### Example 1: AI-Powered Product Recommendation
 *"Find active pro-tier users, traverse their purchase graph, filter by location, rank by semantic similarity."*
@@ -72,7 +72,7 @@ In a Database Zoo, this requires:
 4. Query Pinecone for semantic match → **Round Trip 4**.
 5. Merge and sort in Python → **CPU + Memory overhead**.
 
-With CNSDB, this entire pipeline runs **inside a single Rust memory space**. Zero network hops between paradigms. The latency difference is measured in milliseconds vs seconds.
+With CLUAIZD, this entire pipeline runs **inside a single Rust memory space**. Zero network hops between paradigms. The latency difference is measured in milliseconds vs seconds.
 
 ### Example 2: Real-Time IoT Anomaly Detection
 *"Find sensor streams from the last 1 hour, aggregate by 5-minute windows, alert if temperature exceeds threshold."*
@@ -85,7 +85,7 @@ find Sensor(type: "temperature")
   -> filter avg_value > 95.0
 ```
 
-This would normally require InfluxDB + Kafka + Python. CNSDB handles it natively.
+This would normally require InfluxDB + Kafka + Python. CLUAIZD handles it natively.
 
 ---
 
@@ -94,7 +94,7 @@ This would normally require InfluxDB + Kafka + Python. CNSDB handles it natively
 ### The OOM (Out-of-Memory) Problem
 Every database in existence will eventually crash with an OOM error if you push enough data into RAM. Their solution is always the same: "Buy more RAM." This is a $1,000/month problem.
 
-CNSDB treats memory like a **biological nervous system**:
+CLUAIZD treats memory like a **biological nervous system**:
 
 ```
 ACTIVE (Hot Neurons)    ← Nanosecond LMDB memory-mapped access
@@ -115,13 +115,13 @@ The result: You can store **terabytes of historical data** on a $5/month VPS by 
 | Stack | Monthly Cost | Engineering Hours/Month |
 |---|---|---|
 | **Postgres + Redis + Pinecone + Neo4j + Elasticsearch** | ~$350–$700 | 20+ hrs (maintenance, syncing, upgrades) |
-| **Single CNSDB Instance** | ~$5–$20 | 2 hrs (CNSDB is self-managing) |
+| **Single CLUAIZD Instance** | ~$5–$20 | 2 hrs (CLUAIZD is self-managing) |
 
 For a seed-stage startup, this translates to **$3,000–$8,000 saved per year**, plus the hidden cost of having your engineers debug Data Sync Hell instead of building features.
 
 ---
 
-## Who Should Use CNSDB?
+## Who Should Use CLUAIZD?
 
 ### ✅ You are a good fit if you:
 - Are building an AI-native application (LLM memory, semantic search, agentic systems).
@@ -129,15 +129,15 @@ For a seed-stage startup, this translates to **$3,000–$8,000 saved per year**,
 - Are tired of managing 4+ database types and want to simplify your architecture.
 - Need a database that can survive extreme write bursts (IoT, BCI, high-frequency telemetry) without crashing.
 
-### ⛔ CNSDB is not (yet) a fit if you:
+### ⛔ CLUAIZD is not (yet) a fit if you:
 - Need a drop-in replacement for an existing Postgres schema with complex stored procedures and triggers.
-- Require distributed multi-region ACID transactions (coming in a future CNSDB cluster mode).
+- Require distributed multi-region ACID transactions (coming in a future CLUAIZD cluster mode).
 
 ---
 
 ## The Philosophy: The "Kabadi" Rule
 
-Our core engineering rule for CNSDB is called the **Kabadi Rule**: *"The Rust core engine must contain zero business logic."*
+Our core engineering rule for CLUAIZD is called the **Kabadi Rule**: *"The Rust core engine must contain zero business logic."*
 
 If a feature can be implemented in a Genome (DNA script), it must not be hardcoded into the Rust binary. This guarantees that:
 

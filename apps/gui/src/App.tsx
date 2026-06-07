@@ -35,7 +35,7 @@ export default function App() {
       { id: '5', name: 'Read/Write Synapse', label: 'SkillNeuron', cluster: 'WORKFORCE' },
       { id: '6', name: 'LMDB Driver Interface', label: 'ToolNeuron', cluster: 'WORKFORCE' },
       // KNOWLEDGE CLUSTER
-      { id: '7', name: 'cnsdb_manual.pdf', label: 'PageNeuron', cluster: 'KNOWLEDGE' },
+      { id: '7', name: 'cluaizd_manual.pdf', label: 'PageNeuron', cluster: 'KNOWLEDGE' },
       { id: '8', name: 'Hot state caching rules', label: 'PageNeuron', cluster: 'KNOWLEDGE' },
       // MEMORY CLUSTER
       { id: '9', name: 'Active Admin Session', label: 'SessionNode', cluster: 'MEMORY' },
