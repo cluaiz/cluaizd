@@ -1,0 +1,10 @@
+[package]
+name = "cnsdb-errors"
+version = "0.1.0"
+edition = "2021"
+license = "BSL-1.1"
+description = "Centralized error types for Cluaiz CNSDB"
+
+[dependencies]
+thiserror  = { workspace = true }
+cnsdb-types = { workspace = true }

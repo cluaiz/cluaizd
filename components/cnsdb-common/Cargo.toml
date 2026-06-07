@@ -1,0 +1,11 @@
+[package]
+name = "cnsdb-common"
+version = "0.1.0"
+edition = "2021"
+license = "BSL-1.1"
+description = "Shared traits and utilities for Cluaiz CNSDB"
+
+[dependencies]
+cnsdb-types  = { workspace = true }
+cnsdb-errors = { workspace = true }
+tracing      = { workspace = true }

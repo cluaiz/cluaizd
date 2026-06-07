@@ -1,0 +1,71 @@
+use std::path::Path;
+
+use heed::{Database, Env, EnvOpenOptions, RoTxn, RwTxn};
+use tracing::info;
+
+use cnsdb_errors::StorageError;
+
+/// The LMDB environment wrapper.
+/// This struct owns the connection to the physical `.mdb` file on disk.
+/// One `LmdbEnv` per database shard.
+pub struct LmdbEnv {
+    pub(crate) env: Env,
+    /// The primary neuron key-value store within this environment.
+    /// Key: NeuronId bytes (16 bytes)
+    /// Value: serialized UniversalNeuron (JSON for MVP, binary in future)
+    pub(crate) db: Database<heed::types::Bytes, heed::types::Bytes>,
+}
+
+impl LmdbEnv {
+    /// Open (or create) an LMDB environment at the given directory path.
+    ///
+    /// # Arguments
+    /// * `path` — Directory where `data.mdb` and `lock.mdb` will be created.
+    /// * `map_size_bytes` — Maximum memory-mapped size for this environment.
+    ///
+    /// # Errors
+    /// Returns `StorageError::EnvOpenFailed` if the path is invalid or permissions fail.
+    pub fn open(path: &Path, map_size_bytes: usize) -> Result<Self, StorageError> {
+        std::fs::create_dir_all(path).map_err(|e| StorageError::EnvOpenFailed {
+            path: path.display().to_string(),
+            reason: e.to_string(),
+        })?;
+
+        // SAFETY: We create the directory above before calling open.
+        // The map_size is caller-controlled and bounded by system RAM checks upstream.
+        let env = unsafe {
+            EnvOpenOptions::new()
+                .map_size(map_size_bytes)
+                .max_dbs(8)
+                .open(path)
+                .map_err(|e| StorageError::EnvOpenFailed {
+                    path: path.display().to_string(),
+                    reason: e.to_string(),
+                })?
+        };
+
+        let mut wtxn = env.write_txn().map_err(|e| StorageError::WriteTxnFailed(e.to_string()))?;
+        let db = env
+            .create_database(&mut wtxn, Some("neurons"))
+            .map_err(|e| StorageError::WriteTxnFailed(e.to_string()))?;
+        wtxn.commit().map_err(|e| StorageError::WriteTxnFailed(e.to_string()))?;
+
+        info!(path = %path.display(), "LMDB environment opened successfully");
+
+        Ok(Self { env, db })
+    }
+
+    /// Begin a read-only transaction.
+    pub fn read_txn(&self) -> Result<RoTxn<'_>, StorageError> {
+        self.env
+            .read_txn()
+            .map_err(|e| StorageError::ReadTxnFailed(e.to_string()))
+    }
+
+    /// Begin a read-write transaction.
+    pub fn write_txn(&self) -> Result<RwTxn<'_>, StorageError> {
+        self.env
+            .write_txn()
+            .map_err(|e| StorageError::WriteTxnFailed(e.to_string()))
+    }
+}

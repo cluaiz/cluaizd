@@ -1,0 +1,58 @@
+[workspace]
+resolver = "2"
+
+members = [
+    # Components (shared libraries, no business logic)
+    "components/cnsdb-types",
+    "components/cnsdb-errors",
+    "components/cnsdb-common",
+
+    # Storage Layer
+    "crates/storage/engine-lmdb",
+    "crates/storage/wal",
+
+    # Server
+    "crates/server",
+
+    # CLI binary
+    "apps/cli", "crates/genome", "crates/heart", "dnas/base_document", "dnas/base_sql", "dnas/base_vector", "dnas/base_graph", "ffi",
+]
+
+# Shared dependency versions for all crates.
+# Individual crates inherit these versions from the workspace.
+[workspace.dependencies]
+# Async runtime
+tokio        = { version = "1", features = ["full"] }
+
+# Error handling
+thiserror    = "2"
+anyhow       = "1"
+
+# Serialization
+serde        = { version = "1", features = ["derive"] }
+serde_json   = "1"
+
+# Zero-copy bytes
+bytes        = { version = "1", features = ["serde"] }
+
+# Logging & Tracing
+tracing      = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Unique IDs (UUID v7 - time-sortable)
+uuid         = { version = "1", features = ["v7", "serde"] }
+
+# Compression for Tier 3 Cold State
+zstd         = "0.13"
+
+# Cryptography & encoding for manifests
+sha2         = "0.10"
+hex          = "0.4"
+futures-util = "0.3"
+
+# Internal crates (version managed here)
+cnsdb-types  = { path = "components/cnsdb-types" }
+cnsdb-errors = { path = "components/cnsdb-errors" }
+cnsdb-common = { path = "components/cnsdb-common" }
+genome       = { path = "crates/genome" }
+heart        = { path = "crates/heart" }

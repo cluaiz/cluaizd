@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #020208;
+  color: #a0a5c0;
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom glow effects for neobrutalist/cyberpunk vibes */
+.glow-green {
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.25);
+  border-color: rgba(57, 255, 20, 0.4);
+}
+
+.glow-blue {
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+  border-color: rgba(0, 240, 255, 0.4);
+}
+
+.glow-pink {
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.25);
+  border-color: rgba(255, 0, 127, 0.4);
+}
+
+/* Custom Scrollbar Styles from cluaiz.com */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 120, 0.4);
+  border-radius: 0px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 120, 0.7);
+}

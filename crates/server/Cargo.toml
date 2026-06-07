@@ -1,0 +1,39 @@
+[package]
+name = "cnsdb-server"
+version = "0.1.0"
+edition = "2021"
+license = "BSL-1.1"
+description = "HTTP/gRPC server daemon for Cluaiz CNSDB"
+
+[[bin]]
+name = "cnsdb-server"
+path = "src/main.rs"
+
+[dependencies]
+cnsdb-types  = { workspace = true }
+cnsdb-errors = { workspace = true }
+engine-lmdb  = { path = "../storage/engine-lmdb" }
+wal          = { path = "../storage/wal" }
+tokio        = { workspace = true }
+serde        = { workspace = true }
+serde_json   = { workspace = true }
+tracing      = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid         = { workspace = true }
+bytes        = { workspace = true }
+# HTTP layer
+axum         = { version = "0.7", features = ["macros", "multipart", "ws"] }
+anyhow       = { workspace = true }
+# Hex encoding/decoding for model hashes
+hex          = "0.4"
+futures-util = { workspace = true }
+genome = { version = "0.1.0", path = "../genome" }
+heart = { workspace = true }
+rhai = { version = "1.25.1", features = ["serde", "sync"] }
+wasmtime = "45.0.1"
+rand = "0.8"
+
+[dev-dependencies]
+tempfile = "3"
+
+

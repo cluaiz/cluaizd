@@ -1,0 +1,13 @@
+[package]
+name = "cnsdb-types"
+version = "0.1.0"
+edition = "2021"
+license = "BSL-1.1"
+description = "Core data types for the Cluaiz Nervous System Database"
+
+[dependencies]
+serde    = { workspace = true }
+bytes    = { workspace = true }
+serde_json = { workspace = true }
+uuid     = { workspace = true }
+rhai = "1.25.1"

@@ -1,0 +1,13 @@
+[package]
+name = "genome"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cnsdb-types = { workspace = true }
+cnsdb-errors = { workspace = true }
+rhai = { version = "1.25.1", features = ["serde", "sync"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+wasmtime = "45.0.1"

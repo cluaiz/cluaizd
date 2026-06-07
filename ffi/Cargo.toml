@@ -1,0 +1,18 @@
+[package]
+name = "cnsdb-ffi"
+version = "0.1.0"
+edition = "2021"
+description = "C-compatible FFI bindings for CNSDB — 0ms local access for robots, AI agents, and embedded systems"
+
+# Build as a C-compatible shared library (.dll / .so / .dylib)
+[lib]
+name = "cnsdb"
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+cnsdb-types = { path = "../components/cnsdb-types" }
+cnsdb-errors = { path = "../components/cnsdb-errors" }
+engine-lmdb = { path = "../crates/storage/engine-lmdb" }
+bytes = "1.9"
+serde_json = "1.0"
+uuid = { version = "1.16", features = ["v4"] }

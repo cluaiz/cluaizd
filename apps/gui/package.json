@@ -1,0 +1,28 @@
+{
+  "name": "@cnsdb/gui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w shell-web",
+    "build:web": "npm run build -w shell-web",
+    "dev:desktop": "npm run tauri dev -w shell-desktop",
+    "build:desktop": "npm run build -w shell-desktop"
+  },
+  "dependencies": {
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "zustand": "^5.0.14",
+    "lucide-react": "^1.17.0",
+    "framer-motion": "^12.40.0",
+    "three": "^0.184.0",
+    "three-spritetext": "^1.10.0",
+    "react-force-graph-3d": "^1.29.1",
+    "d3-force-3d": "^3.0.6"
+  }
+}
