@@ -42,7 +42,7 @@ With CLUAIZD and the `document_nosql` genome, the agent simply dumps its entire 
 import requests
 
 # The AI agent stores whatever it discovers — no schema needed
-requests.post("http://localhost:7331/data", json={
+requests.post("http://localhost:7331/neuron", json={
     "id": "memory_ab34f",
     "tier": "Hot",
     "raw_payload": list(b'{"topic": "user_mood", "value": "frustrated", "confidence": 0.87, "context": "billing_dispute"}'),
@@ -136,7 +136,7 @@ import requests
 class CLUAIZDMemory(BaseMemory):
     def save_context(self, inputs, outputs):
         payload = {"input": inputs["input"], "output": outputs["output"]}
-        requests.post("http://localhost:7331/data", json={
+        requests.post("http://localhost:7331/neuron", json={
             "id": f"episode_{int(time.time())}",
             "tier": "Hot",
             "raw_payload": list(json.dumps(payload).encode()),

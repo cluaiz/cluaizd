@@ -41,7 +41,7 @@ Every `UniversalNeuron` stores its edges here:
 ### Insert Users with Connections
 ```bash
 # Insert User A
-curl -X POST http://localhost:7331/data -d '{
+curl -X POST http://localhost:7331/neuron -d '{
   "id": "user_alice",
   "tier": "Hot",
   "raw_payload": [bytes for {"name": "Alice"}],
@@ -53,7 +53,7 @@ curl -X POST http://localhost:7331/data -d '{
 }'
 
 # Insert User B
-curl -X POST http://localhost:7331/data -d '{
+curl -X POST http://localhost:7331/neuron -d '{
   "id": "user_bob",
   "tier": "Hot",
   "raw_payload": [bytes for {"name": "Bob"}],
@@ -112,7 +112,7 @@ Store an AI agent's causal reasoning as graph edges:
 
 ```bash
 # The AI stores: "Inflation → Rate Hike → Tech Layoffs → Churn Risk"
-curl -X POST http://localhost:7331/data -d '{
+curl -X POST http://localhost:7331/neuron -d '{
   "id": "concept_inflation",
   "tier": "Hot",
   "raw_payload": [bytes for {"concept": "Inflation Rising"}],

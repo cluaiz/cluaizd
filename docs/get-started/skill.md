@@ -173,8 +173,8 @@ pub fn write_neuron(env: &Env, neuron: &UniversalNeuron) -> Result<()> {
 ```
 POST /neuron              — Insert/update a UniversalNeuron
 POST /query             — Execute CDQL query string
-GET  /data/:id          — Get single neuron by ID
-GET  /health            — Server health + metrics
+GET  /neuron/:id          — Get single neuron by ID
+GET  /ws/telemetry            — Server health + metrics
 GET  /state             — RAM, disk, shard info
 
 Query Params:

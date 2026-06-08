@@ -76,7 +76,7 @@ find BCIRecord(electrode: 42)
 For financial systems requiring tamper-proof logs:
 
 ```bash
-curl -X POST "http://localhost:7331/data?tenant_id=audit_ledger" \
+curl -X POST "http://localhost:7331/neuron?tenant_id=audit_ledger" \
   -d '{
     "id": "tx_log_00019234",
     "tier": "Hot",

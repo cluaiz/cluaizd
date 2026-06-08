@@ -34,11 +34,11 @@ Every CLUAIZD HTTP endpoint accepts a `tenant_id` parameter. The Shard Manager u
 
 ```bash
 # Write to the main database (default shard)
-curl -X POST http://localhost:7331/data \
+curl -X POST http://localhost:7331/neuron \
   -d '{"id": "user_aryan", ...}'
 
 # Write to the sensory shard — isolated from main DB
-curl -X POST "http://localhost:7331/data?tenant_id=sensory_tissue" \
+curl -X POST "http://localhost:7331/neuron?tenant_id=sensory_tissue" \
   -d '{"id": "bci_reading_001", ...}'
 
 # Query only within the sensory shard

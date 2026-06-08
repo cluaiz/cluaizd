@@ -45,7 +45,7 @@ Records older than 1 hour (`3,600,000,000,000` nanoseconds) are automatically mo
 ## Writing Telemetry Data
 
 ```bash
-curl -X POST http://localhost:7331/data \
+curl -X POST http://localhost:7331/neuron \
   -H "Content-Type: application/json" \
   -d '{
     "id": "reading_1717789200001",

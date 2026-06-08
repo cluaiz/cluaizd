@@ -32,7 +32,7 @@ Unlike `sql_strict`, the `document_store` genome applies zero schema validation.
 
 ```bash
 # Store a blog post with nested tags array and author sub-object
-curl -X POST http://localhost:7331/data \
+curl -X POST http://localhost:7331/neuron \
   -H "Content-Type: application/json" \
   -d '{
     "id": "post_001",

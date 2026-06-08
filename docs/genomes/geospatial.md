@@ -38,7 +38,7 @@ This gives the true shortest path distance along Earth's curved surface — accu
 Every Neuron that needs geo-spatial capabilities must store its coordinates in the `raw_payload` JSON:
 
 ```bash
-curl -X POST http://localhost:7331/data \
+curl -X POST http://localhost:7331/neuron \
   -H "Content-Type: application/json" \
   -d '{
     "id": "restaurant_001",

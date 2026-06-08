@@ -99,7 +99,7 @@ void cluaizd_close(cluaizddHandle* handle);
 
 int main() {
     // Open a dedicated sensory shard (isolated from main database)
-    cluaizddHandle* handle = cluaizd_open("./data/sensory_tissue", 8192);
+    cluaizddHandle* handle = cluaizd_open("./neuron/sensory_tissue", 8192);
     if (!handle) {
         fprintf(stderr, "Failed to open CLUAIZD\n");
         return 1;
@@ -173,7 +173,7 @@ cluaizd.cluaizd_free_string.argtypes = [ctypes.c_char_p]
 cluaizd.cluaizd_close.argtypes = [ctypes.c_void_p]
 
 # Open database
-handle = cluaizd.cluaizd_open(b"./data/sensory_tissue", 4096)
+handle = cluaizd.cluaizd_open(b"./neuron/sensory_tissue", 4096)
 
 # Write data
 payload = json.dumps({"electrode": 42, "voltage_uv": 0.42, "ts": 1717789200}).encode()

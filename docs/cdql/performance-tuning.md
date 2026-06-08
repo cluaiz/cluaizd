@@ -63,7 +63,7 @@ If your main shard has 10 million neurons and you only ever query the 100,000 "p
 
 ```bash
 # Write products to their own isolated shard
-curl -X POST "http://localhost:7331/data?tenant_id=product_catalog" -d '{...}'
+curl -X POST "http://localhost:7331/neuron?tenant_id=product_catalog" -d '{...}'
 
 # Query only the 100,000 products shard — not 10 million main records
 curl -X POST "http://localhost:7331/query?tenant_id=product_catalog" \
@@ -109,7 +109,7 @@ HTTP overhead limits you to approximately 50,000 writes/second (TCP handshake + 
 ```python
 # ❌ BAD for high throughput — HTTP adds ~20µs per write
 for reading in sensor_readings:
-    requests.post("http://localhost:7331/data", json=reading)  # 20µs per write
+    requests.post("http://localhost:7331/neuron", json=reading)  # 20µs per write
 
 # ✅ GOOD — C-FFI adds ~1µs per write (20x faster)
 import ctypes
@@ -121,12 +121,12 @@ for reading in sensor_readings:
 
 ---
 
-## Rule 7: Monitor with the `/health` Endpoint
+## Rule 7: Monitor with the `/ws/telemetry` Endpoint
 
-Baseline your performance before optimizing. The `/health` endpoint exposes key metrics:
+Baseline your performance before optimizing. The `/ws/telemetry` endpoint exposes key metrics:
 
 ```bash
-curl http://localhost:7331/health
+curl http://localhost:7331/ws/telemetry
 ```
 
 ```json

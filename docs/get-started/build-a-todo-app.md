@@ -20,7 +20,7 @@ We will use the `sql_strict` genome to enforce that every user must have an `id`
 
 ```bash
 # Insert User 1 — Aryan
-curl -X POST http://localhost:7331/data \
+curl -X POST http://localhost:7331/neuron \
   -H "Content-Type: application/json" \
   -d '{
     "id": "user_aryan",
@@ -43,7 +43,7 @@ The `on_write` hook will reject any write that does not contain the `name` field
 ## Step 2: Create a Todo Item (Relational Mode)
 
 ```bash
-curl -X POST http://localhost:7331/data \
+curl -X POST http://localhost:7331/neuron \
   -H "Content-Type: application/json" \
   -d '{
     "id": "todo_001",
@@ -65,7 +65,7 @@ Notice the `adjacency` field — we just created a graph edge from `todo_001` to
 Now let's track which users are online using the `ephemeral_cache` genome with a 5-minute TTL:
 
 ```bash
-curl -X POST http://localhost:7331/data \
+curl -X POST http://localhost:7331/neuron \
   -H "Content-Type: application/json" \
   -d '{
     "id": "presence_aryan",
@@ -109,7 +109,7 @@ curl -X POST http://localhost:7331/query \
 ## Step 5: Mark a Todo as Done (Update)
 
 ```bash
-curl -X PUT http://localhost:7331/data/todo_001 \
+curl -X PUT http://localhost:7331/neuron/todo_001 \
   -H "Content-Type: application/json" \
   -d '{
     "raw_payload": [123,34,116,105,116,108,101,34,58,34,66,117,121,32,109,105,108,107,34,44,34,100,111,110,101,34,58,116,114,117,101,125]

@@ -23,6 +23,18 @@ The **Dreamer** is CLUAIZD's background thread that autonomically manages this t
 
 ---
 
+## The 5 Pillars of the Advanced Engine
+
+CLUAIZD achieves nanosecond performance and biological-like memory management through 5 core architectural pillars:
+
+1. **Dreamer GC (Biological Forgetting):** Autonomic shifting of memory tiers (Hot -> Warm -> Cold) based on live RAM SpO2 pressure.
+2. **Volatile Synaptic Transit Lounge:** A lock-free `crossbeam` RAM ring buffer that ingests neurons at `O(1)` speed, batching them asynchronously to disk.
+3. **CRISPR-Style Atomic Surgery:** Direct access APIs (`/crispr/clamp-vector` and `/crispr/force`) that allow admins to lobotomize traits or inject synaptic edges bypassing standard rules.
+4. **Specular Graph Traversal:** Replaces slow `O(N^2)` relationship loops with a 64-bit spatial Bloom signature, finding mutual connections using native bitwise AND gates in nanoseconds.
+5. **Dreaming Mode (Stochastic Walks):** While idle, the background engine takes random 2-6 step graph walks, discovering deep structural alignments and autonomously forging new synaptic connections.
+
+---
+
 ## How the Dreamer Decides What to Demote
 
 The Dreamer uses **real-time system metrics** via the `sysinfo` crate. It monitors:

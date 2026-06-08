@@ -89,7 +89,7 @@ Copy the `.so` or `.dll` and the `ffi/cluaizd.h` header into your target project
 
 Run the health check:
 ```bash
-curl http://localhost:7331/health
+curl http://localhost:7331/ws/telemetry
 ```
 
 Expected response:

@@ -54,7 +54,7 @@ Every blob larger than 1 MB is immediately pushed to ZSTD Level 9 cold storage b
 
 ```bash
 # Store a video file's metadata — the actual binary is in raw_payload
-curl -X POST "http://localhost:7331/data?tenant_id=media_library" \
+curl -X POST "http://localhost:7331/neuron?tenant_id=media_library" \
   -H "Content-Type: application/json" \
   -d '{
     "id": "video_drone_mumbai_4k",

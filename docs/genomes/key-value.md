@@ -51,7 +51,7 @@ The `ephemeral_cache.json` genome's `on_lifecycle` hook is evaluated by the Drea
 ## Storing a Session Token (In-Memory Cache `SET EX` Equivalent)
 
 ```bash
-curl -X POST http://localhost:7331/data \
+curl -X POST http://localhost:7331/neuron \
   -H "Content-Type: application/json" \
   -d '{
     "id": "session_tok_abc123",

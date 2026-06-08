@@ -27,7 +27,7 @@ CLUAIZD stores these embeddings in the `vector_data` field of every Neuron. The 
 ## Storing Vectors
 
 ```bash
-curl -X POST http://localhost:7331/data \
+curl -X POST http://localhost:7331/neuron \
   -H "Content-Type: application/json" \
   -d '{
     "id": "doc_001",
@@ -89,7 +89,7 @@ doc = "CLUAIZD is a universal database substrate built in Rust"
 embedding = model.encode(doc).tolist()
 
 # Store in CLUAIZD
-requests.post("http://localhost:7331/data", json={
+requests.post("http://localhost:7331/neuron", json={
     "id": "doc_cluaizd_intro",
     "tier": "Hot",
     "raw_payload": list(doc.encode("utf-8")),
