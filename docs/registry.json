@@ -272,6 +272,11 @@
             "file_path": "docs/architecture/crash-recovery.md"
           },
           {
+            "slug": "wal-internals",
+            "title": "📜 WAL Internals",
+            "file_path": "docs/architecture/wal-internals.md"
+          },
+          {
             "slug": "sensory-shards",
             "title": "📡 Sensory Shards",
             "file_path": "docs/architecture/sensory-shards.md"
@@ -290,6 +295,32 @@
             "slug": "ffi-bypass",
             "title": "⚡ FFI Bypass Manual",
             "file_path": "docs/architecture/ffi-bypass.md"
+          },
+          {
+            "slug": "genome-hooks",
+            "title": "🧬 Genome Hooks Reference",
+            "file_path": "docs/architecture/genome-hooks.md"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "deployment",
+    "title": "🚀 Deployment",
+    "groups": [
+      {
+        "group": "Infrastructure",
+        "pages": [
+          {
+            "slug": "docker",
+            "title": "🐳 Docker Setup",
+            "file_path": "docs/deployment/docker.md"
+          },
+          {
+            "slug": "config-reference",
+            "title": "⚙️ Config.toml Reference",
+            "file_path": "docs/deployment/config-reference.md"
           }
         ]
       }
