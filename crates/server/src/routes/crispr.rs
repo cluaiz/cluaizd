@@ -137,3 +137,57 @@ pub async fn handle_force_edge(
         message: format!("Forced synaptic edge to target '{}'", payload.target_id),
     })).into_response()
 }
+
+#[derive(Deserialize)]
+pub struct ClampVectorRequest {
+    /// The index of the 16-dimensional tensor to clamp to 0.0
+    pub index: usize,
+}
+
+/// `POST /crispr/clamp-vector/{id}` — Manually lock a structural vector tensor to 0.0 (Trait Clamping).
+/// This instantly lobotomizes specific operational affordances (e.g., removing a robot's ability to punch).
+pub async fn handle_clamp_vector(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Path(id_str): Path<String>,
+    Json(payload): Json<ClampVectorRequest>,
+) -> impl IntoResponse {
+    if payload.index >= 16 {
+        return (StatusCode::BAD_REQUEST, "Vector index out of bounds. Must be 0-15.").into_response();
+    }
+
+    let uuid = match Uuid::parse_str(&id_str) {
+        Ok(u) => u,
+        Err(_) => return (StatusCode::BAD_REQUEST, "invalid neuron ID format").into_response(),
+    };
+
+    let neuron_id = NeuronId::from_bytes(*uuid.as_bytes());
+
+    let tenant_id = match headers.get("x-tenant-id") {
+        Some(val) => val.to_str().unwrap_or("default_sandbox"),
+        None => "default_sandbox",
+    };
+
+    let shard = match state.shard_manager.get_or_open_shard(tenant_id).await {
+        Ok(s) => s,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, "Failed to open shard").into_response(),
+    };
+
+    let mut neuron = match engine_lmdb::read_neuron(&shard.env, neuron_id, None) {
+        Ok(n) => n,
+        Err(_) => return (StatusCode::NOT_FOUND, "Neuron not found").into_response(),
+    };
+
+    // Lobotomize the specific trait tensor by clamping it to 0.0
+    neuron.vector_data[payload.index] = 0.0;
+    
+    // Write directly to LMDB bypassing any schema validation rules
+    if let Err(e) = engine_lmdb::write_neuron(&shard.env, &neuron) {
+        return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to save vector clamped neuron: {}", e)).into_response();
+    }
+
+    (StatusCode::OK, Json(CrisprResponse {
+        status: "success".to_string(),
+        message: format!("Clamped tensor index {} to 0.0", payload.index),
+    })).into_response()
+}

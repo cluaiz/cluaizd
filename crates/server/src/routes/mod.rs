@@ -38,6 +38,7 @@ pub fn build_router(state: Arc<AppState>) -> Router {
         .route("/juju/state", get(juju::handle_juju_state))
         // CRISPR Surgery API
         .route("/crispr/clamp/{id}", post(crispr::handle_clamp))
+        .route("/crispr/clamp-vector/{id}", post(crispr::handle_clamp_vector))
         .route("/crispr/force/{id}", post(crispr::handle_force_edge))
         // WASM Booster Config
         .route("/booster/upload", post(booster::handle_upload_booster))
