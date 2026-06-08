@@ -148,6 +148,217 @@
     ]
   },
   {
+    "id": "reference-manual",
+    "title": "📚 Reference Manual",
+    "groups": [
+      {
+        "group": "General",
+        "pages": [
+          {
+            "slug": "api_index",
+            "title": "🔌 HTTP / WebSocket API Reference (A-Z)",
+            "file_path": "docs/reference/api_index.md"
+          },
+          {
+            "slug": "cdql_index",
+            "title": "📖 CDQL Master Reference (A-Z)",
+            "file_path": "docs/reference/cdql_index.md"
+          },
+          {
+            "slug": "config_index",
+            "title": "⚙️ Configuration Reference (A-Z)",
+            "file_path": "docs/reference/config_index.md"
+          },
+          {
+            "slug": "dna_index",
+            "title": "🧪 DNA Execution Affordances (A-Z)",
+            "file_path": "docs/reference/dna_index.md"
+          },
+          {
+            "slug": "index",
+            "title": "📚 Cluaizd Reference Manual",
+            "file_path": "docs/reference/index.md"
+          },
+          {
+            "slug": "types_index",
+            "title": "📦 Data Types Reference (A-Z)",
+            "file_path": "docs/reference/types_index.md"
+          }
+        ]
+      },
+      {
+        "group": "Api",
+        "pages": [
+          {
+            "slug": "auth",
+            "title": "Authorization Mechanics",
+            "file_path": "docs/reference/api/auth.md"
+          },
+          {
+            "slug": "post_neuron",
+            "title": "POST /neuron Ingestion API",
+            "file_path": "docs/reference/api/post_neuron.md"
+          },
+          {
+            "slug": "ws_stream",
+            "title": "ws:// /stream WebSocket API",
+            "file_path": "docs/reference/api/ws_stream.md"
+          }
+        ]
+      },
+      {
+        "group": "Cdql",
+        "pages": [
+          {
+            "slug": "cosine_distance",
+            "title": "cosine_distance Reference",
+            "file_path": "docs/reference/cdql/cosine_distance.md"
+          },
+          {
+            "slug": "crispr",
+            "title": "crispr API Reference",
+            "file_path": "docs/reference/cdql/crispr.md"
+          },
+          {
+            "slug": "delete",
+            "title": "delete Command Reference",
+            "file_path": "docs/reference/cdql/delete.md"
+          },
+          {
+            "slug": "euclidean_distance",
+            "title": "euclidean_distance Reference",
+            "file_path": "docs/reference/cdql/euclidean_distance.md"
+          },
+          {
+            "slug": "find",
+            "title": "find Command Reference",
+            "file_path": "docs/reference/cdql/find.md"
+          },
+          {
+            "slug": "force",
+            "title": "force Command Reference",
+            "file_path": "docs/reference/cdql/force.md"
+          },
+          {
+            "slug": "gt",
+            "title": "$gt Command Reference",
+            "file_path": "docs/reference/cdql/gt.md"
+          },
+          {
+            "slug": "insert",
+            "title": "insert Command Reference",
+            "file_path": "docs/reference/cdql/insert.md"
+          },
+          {
+            "slug": "limit",
+            "title": "limit Command Reference",
+            "file_path": "docs/reference/cdql/limit.md"
+          },
+          {
+            "slug": "lt",
+            "title": "$lt Command Reference",
+            "file_path": "docs/reference/cdql/lt.md"
+          },
+          {
+            "slug": "similar",
+            "title": "similar Command Reference",
+            "file_path": "docs/reference/cdql/similar.md"
+          },
+          {
+            "slug": "update",
+            "title": "update Command Reference",
+            "file_path": "docs/reference/cdql/update.md"
+          },
+          {
+            "slug": "where",
+            "title": "where Command Reference",
+            "file_path": "docs/reference/cdql/where.md"
+          }
+        ]
+      },
+      {
+        "group": "Config",
+        "pages": [
+          {
+            "slug": "memory_map_size",
+            "title": "memory_map_size Configuration",
+            "file_path": "docs/reference/config/memory_map_size.md"
+          },
+          {
+            "slug": "wal_sync",
+            "title": "wal_sync Configuration",
+            "file_path": "docs/reference/config/wal_sync.md"
+          }
+        ]
+      },
+      {
+        "group": "Dna",
+        "pages": [
+          {
+            "slug": "avg",
+            "title": "avg Aggregation Reference",
+            "file_path": "docs/reference/dna/avg.md"
+          },
+          {
+            "slug": "ctx_abort",
+            "title": "ctx.abort Engine API",
+            "file_path": "docs/reference/dna/ctx_abort.md"
+          },
+          {
+            "slug": "ctx_fetch",
+            "title": "ctx.fetch Engine API",
+            "file_path": "docs/reference/dna/ctx_fetch.md"
+          },
+          {
+            "slug": "ctx_time",
+            "title": "ctx.time Engine API",
+            "file_path": "docs/reference/dna/ctx_time.md"
+          },
+          {
+            "slug": "group_by",
+            "title": "group_by Aggregation Reference",
+            "file_path": "docs/reference/dna/group_by.md"
+          },
+          {
+            "slug": "on_delete",
+            "title": "on_delete Event Hook",
+            "file_path": "docs/reference/dna/on_delete.md"
+          },
+          {
+            "slug": "on_read",
+            "title": "on_read Event Hook",
+            "file_path": "docs/reference/dna/on_read.md"
+          },
+          {
+            "slug": "on_write",
+            "title": "on_write Event Hook",
+            "file_path": "docs/reference/dna/on_write.md"
+          },
+          {
+            "slug": "sum",
+            "title": "sum Aggregation Reference",
+            "file_path": "docs/reference/dna/sum.md"
+          }
+        ]
+      },
+      {
+        "group": "Types",
+        "pages": [
+          {
+            "slug": "json",
+            "title": "json Data Type",
+            "file_path": "docs/reference/types/json.md"
+          },
+          {
+            "slug": "vector",
+            "title": "vector Data Type",
+            "file_path": "docs/reference/types/vector.md"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "CDQL-mastery",
     "title": "⚡ CDQL Mastery",
     "groups": [
