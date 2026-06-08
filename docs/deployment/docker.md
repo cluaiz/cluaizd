@@ -1,6 +1,11 @@
 # 🐳 Docker Deployment
 
-CLUAIZD is designed to be highly portable. While we recommend running it on bare-metal for maximum NVMe LMDB performance, deploying via Docker is fully supported and recommended for staging environments.
+> [!WARNING]
+> **Docker introduces I/O and networking overhead.** Running a nanosecond-scale database like CLUAIZD inside a container will slow down LMDB memory mapping and weaken the engine's superpower. 
+> 
+> For maximum performance on laptops, servers, or edge devices, we highly recommend **[Bare-Metal Native Deployment](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaizd/docs/deployment/bare-metal.md)** instead.
+
+While CLUAIZD can run in Docker, it is primarily recommended for staging, testing, or environments where ease of deployment outweighs raw performance.
 
 ## The Dockerfile
 

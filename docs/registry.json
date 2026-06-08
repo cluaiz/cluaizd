@@ -313,6 +313,11 @@
         "group": "Infrastructure",
         "pages": [
           {
+            "slug": "bare-metal",
+            "title": "⚡ Bare-Metal (Native)",
+            "file_path": "docs/deployment/bare-metal.md"
+          },
+          {
             "slug": "docker",
             "title": "🐳 Docker Setup",
             "file_path": "docs/deployment/docker.md"
