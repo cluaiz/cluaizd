@@ -12,7 +12,7 @@ Built in Rust on top of LMDB, CLUAIZD is a biological-inspired, autonomic memory
 It is a **10-in-1 shape-shifting engine**.
 
 > [!NOTE]
-> **The Kabadi Rule**
+> **The Zero-Logic Substrate Rule**
 > The core Rust engine contains zero business logic or query optimization rules. It acts solely as a high-speed router. All "database intelligence" is dynamically injected via WASM Genomes.
 
 ## How it works: Genomes (DNA)

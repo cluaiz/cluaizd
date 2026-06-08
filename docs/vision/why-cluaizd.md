@@ -135,9 +135,9 @@ For a seed-stage startup, this translates to **$3,000–$8,000 saved per year**,
 
 ---
 
-## The Philosophy: The "Kabadi" Rule
+## The Philosophy: The Zero-Logic Substrate Rule
 
-Our core engineering rule for CLUAIZD is called the **Kabadi Rule**: *"The Rust core engine must contain zero business logic."*
+Our core engineering rule for CLUAIZD is called the **Zero-Logic Substrate Rule**: *"The Rust core engine must contain zero business logic."*
 
 If a feature can be implemented in a Genome (DNA script), it must not be hardcoded into the Rust binary. This guarantees that:
 

@@ -126,7 +126,7 @@ PipelineStage (in order of cheapness — cheapest first):
 
 ---
 
-## 🔒 The Kabadi Rule (THE LAW)
+## 🔒 The Zero-Logic Substrate Rule (THE LAW)
 
 > "The Rust core engine must contain zero business logic."
 
@@ -146,7 +146,7 @@ pub fn write_neuron(env: &Env, neuron: &UniversalNeuron) -> Result<()> {
 ```rust
 // engine-lmdb/src/lib.rs — NEVER DO THIS
 pub fn write_neuron(env: &Env, neuron: &UniversalNeuron) -> Result<()> {
-    if neuron.raw_payload.contains("password") {  // ← WRONG! This is Kabadi violation
+    if neuron.raw_payload.contains("password") {  // ← WRONG! This is a Zero-Logic violation
         return Err("Cannot store password field");
     }
     // ...
@@ -159,7 +159,7 @@ pub fn write_neuron(env: &Env, neuron: &UniversalNeuron) -> Result<()> {
 
 | Mistake | Why It's Wrong | Correct Approach |
 |---|---|---|
-| Adding schema validation in Rust | Violates Kabadi Rule | Write an `on_write` Rhai hook in a Genome JSON file |
+| Adding schema validation in Rust | Violates Zero-Logic Rule | Write an `on_write` Rhai hook in a Genome JSON file |
 | Using `HashMap` for neuron storage | Bypasses LMDB mmap | Always use `engine-lmdb` crate functions |
 | Calling `serde_json::from_slice` in engine-lmdb | Engine must be payload-agnostic | Parse in CDQL executor or Genome script |
 | Writing a cron job for TTL eviction | Dreamer engine handles this | Set `on_lifecycle` hook in the Genome |
@@ -185,7 +185,7 @@ Query Params:
 
 ## ✅ Before Submitting Any Code Change
 
-- [ ] Does this add logic to `engine-lmdb`? (It shouldn't. Kabadi Rule.)
+- [ ] Does this add logic to `engine-lmdb`? (It shouldn't. Zero-Logic Rule.)
 - [ ] Does this bypass the WAL? (It shouldn't. Crash safety.)
 - [ ] Does this hardcode a schema? (It shouldn't. Use a Genome.)
 - [ ] Does this assume all data is JSON? (`raw_payload` is raw bytes, can be any format.)
