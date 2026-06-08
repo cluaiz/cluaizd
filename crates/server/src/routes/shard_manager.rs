@@ -14,21 +14,25 @@ pub struct ActiveShard {
     /// The memory-mapped LMDB environment wrapped in an Arc.
     pub env: Arc<LmdbEnv>,
     /// The active WAL writer protected by a tokio Mutex.
-    pub wal_writer: Mutex<WalWriter>,
+    pub wal_writer: Arc<Mutex<WalWriter>>,
+    /// The RAM ring-buffer for extreme high-frequency writes before LMDB.
+    pub transit_lounge: crate::routes::transit::TransitLounge,
 }
 
 /// Dynamic registry managing multi-tenant database environments.
 pub struct ShardManager {
     base_path: PathBuf,
     shards: RwLock<HashMap<String, Arc<ActiveShard>>>,
+    telemetry: Arc<RwLock<heart::Telemetry>>,
 }
 
 impl ShardManager {
     /// Create a new ShardManager under the specified directory path.
-    pub fn new(base_path: &Path) -> Self {
+    pub fn new(base_path: &Path, telemetry: Arc<RwLock<heart::Telemetry>>) -> Self {
         Self {
             base_path: base_path.to_path_buf(),
             shards: RwLock::new(HashMap::new()),
+            telemetry,
         }
     }
 
@@ -76,14 +80,18 @@ impl ShardManager {
         })?;
 
         // 3. Open WalWriter for subsequent transactions
-        let wal_writer = WalWriter::open(&wal_path)?;
+        let wal_writer = Arc::new(Mutex::new(WalWriter::open(&wal_path)?));
 
-        // 4. Spawn the low-priority biological GC thread for this shard
-        engine_lmdb::spawn_biological_gc(Arc::clone(&env));
+        // 4. Spawn the low-priority biological GC thread for this shard (The Dreamer Engine Tier Shifter)
+        engine_lmdb::spawn_biological_gc(Arc::clone(&env), Arc::clone(&self.telemetry));
+
+        // 5. Initialize the Volatile Synaptic Transit Lounge
+        let transit_lounge = crate::routes::transit::TransitLounge::new(100_000, Arc::clone(&env), Arc::clone(&wal_writer));
 
         let active_shard = Arc::new(ActiveShard {
             env,
-            wal_writer: Mutex::new(wal_writer),
+            wal_writer,
+            transit_lounge,
         });
 
         shards_guard.insert(tenant_id.to_string(), Arc::clone(&active_shard));
@@ -104,9 +112,14 @@ impl ShardManager {
     /// Forcefully run a biological GC sweep cycle on all open database shards.
     pub async fn run_gc_sweep_on_all_shards(&self) -> Result<(), StorageError> {
         let shards_guard = self.shards.read().await;
+        let spo2 = {
+            let tel = self.telemetry.read().await;
+            tel.spo2
+        };
+
         for (tenant_id, shard) in shards_guard.iter() {
             info!(tenant = %tenant_id, "GC Sweep dynamically triggered on shard");
-            if let Err(e) = engine_lmdb::run_gc_sweep(&shard.env) {
+            if let Err(e) = engine_lmdb::run_gc_sweep(&shard.env, spo2) {
                 warn!(tenant = %tenant_id, error = %e, "GC Sweep failed on shard");
             }
         }

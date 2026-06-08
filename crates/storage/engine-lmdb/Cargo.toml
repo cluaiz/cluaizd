@@ -26,4 +26,6 @@ rhai = { version = "1.25.1", features = ["serde", "sync"] }
 wasmtime = "45.0.1"
 genome = { version = "0.1.0", path = "../../genome" }
 bincode = "1.3"
+heart = { version = "0.1.0", path = "../../heart" }
+crossbeam = "0.8.4"
 

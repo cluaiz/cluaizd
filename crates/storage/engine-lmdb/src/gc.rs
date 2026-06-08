@@ -1,6 +1,7 @@
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::time;
+use tokio::sync::RwLock;
 use tracing::info;
 use cluaizd_types::{StorageTier, UniversalNeuron};
 use bytes::Bytes;
@@ -9,24 +10,30 @@ use rhai::{Engine, Scope, Map};
 
 use crate::LmdbEnv;
 
-/// Spawns the low-priority biological GC thread.
-pub fn spawn_biological_gc(env: Arc<LmdbEnv>) {
+/// Spawns the low-priority biological GC thread (The Dreamer Engine Tier Shifter).
+pub fn spawn_biological_gc(env: Arc<LmdbEnv>, telemetry: Arc<RwLock<heart::Telemetry>>) {
     tokio::spawn(async move {
-        let mut interval = time::interval(Duration::from_secs(3600)); // Run every hour
+        // Run every 10 seconds to respond quickly to RAM pressure
+        let mut interval = time::interval(Duration::from_secs(10)); 
         loop {
             interval.tick().await;
-            info!("Biological GC running 3-Tier storage sweeps...");
+            
+            // Read current SpO2 (Available RAM percentage)
+            let spo2 = {
+                let tel = telemetry.read().await;
+                tel.spo2
+            };
 
             let env_clone = env.clone();
             let _ = tokio::task::spawn_blocking(move || {
-                run_gc_sweep(&env_clone)
+                let _ = run_gc_sweep(&env_clone, spo2);
             }).await;
         }
     });
 }
 
-/// Run a single GC sweep cycle to degrade expired or aged neurons dynamically based on node rules.
-pub fn run_gc_sweep(env: &LmdbEnv) -> anyhow::Result<()> {
+/// Run a single GC sweep cycle to degrade expired or aged neurons dynamically based on node rules and RAM pressure.
+pub fn run_gc_sweep(env: &LmdbEnv, spo2: u8) -> anyhow::Result<()> {
     let now_ns = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
@@ -112,6 +119,20 @@ pub fn run_gc_sweep(env: &LmdbEnv) -> anyhow::Result<()> {
                         }
                     }
                 }
+            }
+
+            // Global RAM Pressure Demotions (The Dreamer Autonomic Forgetfulness)
+            if spo2 < 20 && neuron.tier == StorageTier::Hot {
+                // Warning threshold: Drop payload, enter Shadow State (Warm)
+                neuron.tier = StorageTier::Warm;
+                neuron.raw_payload = Bytes::new();
+                changed = true;
+                tracing::debug!("Dreamer Engine: Low RAM (SpO2 {}%). Demoting neuron {} to WARM (payload purged).", spo2, neuron.id);
+            } else if spo2 < 5 && neuron.tier == StorageTier::Warm {
+                // Critical threshold: ZSTD compress the shell into Cold state
+                neuron.tier = StorageTier::Cold;
+                changed = true;
+                tracing::debug!("Dreamer Engine: CRITICAL RAM (SpO2 {}%). Demoting neuron {} to COLD.", spo2, neuron.id);
             }
 
             if changed {

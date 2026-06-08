@@ -169,22 +169,26 @@ pub async fn handle_write(
         }
     }
 
-    // Append mutation to the WAL first
-    if let Err(e) = shard.wal_writer.lock().await.append_write(&neuron) {
-        warn!(error = %e, tenant = %tenant_id, "Failed to write to WAL");
-        return (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(serde_json::json!({ "error": format!("WAL write failure: {}", e) })),
-        ).into_response();
-    }
+    // Push to Transit Lounge (O(1) lock-free RAM ring buffer)
+    if let Err(returned_neuron) = shard.transit_lounge.push(neuron) {
+        // Fallback to synchronous write if Transit Lounge is full
+        tracing::warn!(tenant = %tenant_id, "Transit Lounge full! Falling back to synchronous disk write.");
+        
+        if let Err(e) = shard.wal_writer.lock().await.append_write(&returned_neuron) {
+            warn!(error = %e, tenant = %tenant_id, "Failed to write to WAL");
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": format!("WAL write failure: {}", e) })),
+            ).into_response();
+        }
 
-    // Write to LMDB database
-    if let Err(e) = engine_lmdb::write_neuron(&shard.env, &neuron) {
-        warn!(error = %e, tenant = %tenant_id, "Failed to write to LMDB");
-        return (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(serde_json::json!({ "error": format!("LMDB write failure: {}", e) })),
-        ).into_response();
+        if let Err(e) = engine_lmdb::write_neuron(&shard.env, &returned_neuron) {
+            warn!(error = %e, tenant = %tenant_id, "Failed to write to LMDB");
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": format!("LMDB write failure: {}", e) })),
+            ).into_response();
+        }
     }
 
     (

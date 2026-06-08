@@ -13,10 +13,10 @@ Currently, Cluaizd is in active development. Only the latest release on the `mai
 
 We take the security of Cluaizd and the data it handles very seriously. 
 
-If you discover a security vulnerability within Cluaizd, please **do not open a public issue**. Instead, send an email to the maintainers at **security@cluaiz.com** (or Aryan directly).
+If you discover a security vulnerability within Cluaizd, please **do not open a public issue**. Instead, send an email to the maintainers at **support@cluaiz.com**.
 
 Please include:
-1. A detailed description of the vulnerability.
+1. A detailed description of the vulnerability. 
 2. Steps to reproduce the issue.
 3. Potential impact on the database or host system.
 

@@ -8,6 +8,7 @@ mod ws;
 mod state;
 mod shard_manager;
 mod validate;
+pub mod transit;
 
 mod query;
 mod graph;

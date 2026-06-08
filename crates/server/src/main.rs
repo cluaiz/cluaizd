@@ -57,8 +57,13 @@ async fn main() -> Result<()> {
         Err(e) => warn!("Could not open default shard for WAL recovery (clean boot?): {}", e),
     }
 
+    info!("Starting Cluaizd-HEART Autonomic Telemetry Engine");
+    let data_dir = Path::new("data");
+    let heart = heart::Heart::new(data_dir);
+    heart.start_heartbeat();
+
     info!("Initializing CLUAIZD Shard Manager at {:?}", shards_path);
-    let shard_manager = routes::ShardManager::new(shards_path);
+    let shard_manager = routes::ShardManager::new(shards_path, Arc::clone(&heart.telemetry));
 
     info!("Opening CLUAIZD Sensory Shard at {:?}", sensory_path);
     // Sensory shard capacity: 10,000 entries (ring buffer limit)
@@ -71,10 +76,7 @@ async fn main() -> Result<()> {
         tracing::warn!("Failed to load some genomes: {}", e);
     }
 
-    info!("Starting Cluaizd-HEART Autonomic Telemetry Engine");
-    let data_dir = Path::new("data");
-    let heart = heart::Heart::new(data_dir);
-    heart.start_heartbeat();
+    // Heart is already started above
 
     // Build the shared app state
     let state = routes::AppState::new(shard_manager, sensory_shard, genome_registry, Arc::clone(&heart.telemetry), Arc::clone(&heart.booster_state));

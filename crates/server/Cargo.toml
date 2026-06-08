@@ -32,6 +32,7 @@ heart = { workspace = true }
 rhai = { version = "1.25.1", features = ["serde", "sync"] }
 wasmtime = "45.0.1"
 rand = "0.8"
+crossbeam = { version = "0.8.4", features = ["crossbeam-queue"] }
 
 [dev-dependencies]
 tempfile = "3"
