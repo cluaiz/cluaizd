@@ -10,66 +10,70 @@ use crate::reader::read_neuron;
 // -1 = Null pointer provided
 // -2 = Invalid UUID/NeuronId
 // -3 = Neuron not found or storage error
-// -4 = Serialization to JSON string failed
+
+#[repr(C)]
+pub struct CluaizdFfiNeuron {
+    pub id: [u8; 16],
+    pub vector: [f32; 16],
+    pub state_hash: [u8; 32],
+    pub payload_ptr: *const u8,
+    pub payload_len: usize,
+}
 
 /// Read a neuron by its 16-byte UUID from the LMDB environment.
 ///
-/// Returns the serialized neuron JSON string as a null-terminated C-string.
+/// Returns the raw binary struct directly from memory.
 ///
 /// # Safety
 /// - `env_ptr` must be a valid pointer to an initialized `LmdbEnv`.
 /// - `id_ptr` must point to a 16-byte array containing the raw bytes of a `NeuronId`.
-/// - `out_json` must point to a mutable `*mut c_char` address where the resulting JSON string pointer will be written.
-/// - The caller is responsible for freeing the returned JSON string by calling `cluaizd_ffi_free_string`.
+/// - `out_neuron` must point to a mutable `CluaizdFfiNeuron` struct where the data will be written.
 #[no_mangle]
 pub unsafe extern "C" fn cluaizd_ffi_read_neuron(
     env_ptr: *mut c_void,
     id_ptr: *const u8,
-    out_json: *mut *mut c_char,
+    out_neuron: *mut CluaizdFfiNeuron,
 ) -> i32 {
-    if env_ptr.is_null() || id_ptr.is_null() || out_json.is_null() {
+    if env_ptr.is_null() || id_ptr.is_null() || out_neuron.is_null() {
         return -1;
     }
 
-    // SAFETY: Caller must guarantee id_ptr points to at least 16 bytes.
     let id_bytes = slice::from_raw_parts(id_ptr, 16);
     let mut id_array = [0u8; 16];
     id_array.copy_from_slice(id_bytes);
     let id = NeuronId::from_bytes(id_array);
 
-
-    // SAFETY: env_ptr was cast from *const LmdbEnv.
     let env = &*(env_ptr as *const LmdbEnv);
 
-    // Perform read (no query model hash validation in raw FFI, return entire neuron)
     match read_neuron(env, id, None) {
         Ok(neuron) => {
-            match serde_json::to_string(&neuron) {
-                Ok(json_str) => {
-                    match CString::new(json_str) {
-                        Ok(c_str) => {
-                            *out_json = c_str.into_raw();
-                            0
-                        }
-                        Err(_) => -4,
-                    }
-                }
-                Err(_) => -4,
-            }
+            // Write directly to the C struct without ANY JSON serialization
+            let out = &mut *out_neuron;
+            out.id.copy_from_slice(neuron.id.as_bytes());
+            out.vector.copy_from_slice(&neuron.vector_data);
+            out.state_hash.copy_from_slice(&neuron.model_creator_hash);
+            
+            // Expose the raw payload bytes directly
+            out.payload_ptr = neuron.raw_payload.as_ptr();
+            out.payload_len = neuron.raw_payload.len();
+            
+            // NOTE: The caller must read the payload before the neuron is dropped/transaction ends.
+            // Since `read_neuron` currently returns an owned `UniversalNeuron`, this memory is valid
+            // only as long as we keep it around. To make it TRULY zero-copy, the FFI should ideally 
+            // return a read transaction handle. For now, we leak it so the caller can read it,
+            // and provide a free function.
+            std::mem::forget(neuron); 
+            0
         }
         Err(_) => -3,
     }
 }
 
-/// Free a JSON string allocated by `cluaizd_ffi_read_neuron`.
-///
-/// # Safety
-/// - `str_ptr` must be a valid pointer returned by `cluaizd_ffi_read_neuron` or null.
+/// Free the neuron payload leaked by `cluaizd_ffi_read_neuron`
 #[no_mangle]
-pub unsafe extern "C" fn cluaizd_ffi_free_string(str_ptr: *mut c_char) {
-    if !str_ptr.is_null() {
-        // SAFETY: CString::from_raw safely reclaims and drops the string allocation.
-        let _ = CString::from_raw(str_ptr);
+pub unsafe extern "C" fn cluaizd_ffi_free_neuron_payload(payload_ptr: *mut u8, payload_len: usize, capacity: usize) {
+    if !payload_ptr.is_null() {
+        let _ = Vec::from_raw_parts(payload_ptr, payload_len, capacity);
     }
 }
 
@@ -97,23 +101,22 @@ mod tests {
 
         let env_ptr = &env as *const LmdbEnv as *mut c_void;
         let id_ptr = neuron.id.as_bytes().as_ptr();
-        let mut out_json: *mut c_char = ptr::null_mut();
+        let mut out_neuron = CluaizdFfiNeuron {
+            id: [0; 16],
+            vector: [0.0; 16],
+            state_hash: [0; 32],
+            payload_ptr: ptr::null(),
+            payload_len: 0,
+        };
 
         // SAFETY: We provide valid stack references
         let result = unsafe {
-            cluaizd_ffi_read_neuron(env_ptr, id_ptr, &mut out_json)
+            cluaizd_ffi_read_neuron(env_ptr, id_ptr, &mut out_neuron)
         };
 
         assert_eq!(result, 0);
-        assert!(!out_json.is_null());
-
-        // SAFETY: The string was allocated successfully and must be freed.
-        unsafe {
-            let c_str = std::ffi::CStr::from_ptr(out_json);
-            let json_str = c_str.to_str().expect("invalid utf-8");
-            assert!(json_str.contains(&neuron.id.to_string()));
-            cluaizd_ffi_free_string(out_json);
-        }
+        assert!(!out_neuron.payload_ptr.is_null());
+        assert_eq!(out_neuron.vector[0], 0.5f32);
 
         let _ = std::fs::remove_dir_all(&tmp_dir);
     }
