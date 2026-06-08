@@ -15,7 +15,7 @@ Real-world use cases: Brain-Computer Interface (BCI) neural signal capture, robo
 
 ## The Core Principle: Append-Only Immutability
 
-Wide-column databases like Cassandra achieve extreme write speeds because they never update records — they only append new ones. Updates are achieved by writing a new record with a newer timestamp. The "latest" record wins during reads.
+Wide-column databases like Wide-Column DB achieve extreme write speeds because they never update records — they only append new ones. Updates are achieved by writing a new record with a newer timestamp. The "latest" record wins during reads.
 
 CLUAIZD's `sensory_stream` genome enforces this constraint at the DNA level:
 
@@ -33,7 +33,7 @@ Any write that includes `"is_update": true` is **blocked**. This prevents accide
 
 ## BCI (Brain-Computer Interface) Use Case
 
-A BCI device records 1000 neural samples per second per electrode, across 256 electrodes. That is **256,000 writes/second** — a throughput that would destroy a standard Postgres setup.
+A BCI device records 1000 neural samples per second per electrode, across 256 electrodes. That is **256,000 writes/second** — a throughput that would destroy a standard Relational DB setup.
 
 CLUAIZD handles this through:
 1. **Sensory Shard Isolation:** BCI traffic is routed to `?tenant_id=sensory_tissue` — a completely separate LMDB memory-map that does not block the main cortical database.
@@ -44,7 +44,7 @@ CLUAIZD handles this through:
 // BCI C++ firmware writing to CLUAIZD at 256,000 writes/second
 #include "cluaizd.h"
 
-CluaizdHandle* handle = cluaizd_open("./out/sensory_tissue", 8192);
+cluaizddHandle* handle = cluaizd_open("./out/sensory_tissue", 8192);
 
 while (recording) {
     char payload[256];
@@ -58,7 +58,7 @@ while (recording) {
 
 ---
 
-## Ordered Range Scans (Cassandra CQL Equivalent)
+## Ordered Range Scans (Wide-Column DB CDQL Equivalent)
 
 After data is captured, you can replay any time range:
 
@@ -88,13 +88,13 @@ Any attempt to modify this record is blocked by the `sensory_stream` genome's ap
 
 ---
 
-## Comparison: CLUAIZD vs Cassandra
+## Comparison: CLUAIZD vs Wide-Column DB
 
-| Feature | Cassandra | CLUAIZD (sensory_stream) |
+| Feature | Wide-Column DB | CLUAIZD (sensory_stream) |
 |---|---|---|
 | Append-Only Enforcement | ⚠️ (convention only) | ✅ (DNA-enforced) |
 | Partition Key Routing | ✅ | ✅ (via tenant_id sharding) |
-| CQL Range Scans | ✅ | ✅ (via CNQL range_scan) |
+| CDQL Range Scans | ✅ | ✅ (via CDQL range_scan) |
 | JVM Dependency | ✅ (requires JVM) | ❌ (pure Rust) |
 | Vector Search on Stream | ❌ | ✅ |
 | Graph on Stream Records | ❌ | ✅ |

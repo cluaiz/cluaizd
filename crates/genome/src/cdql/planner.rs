@@ -1,9 +1,9 @@
-/// CNQL Query Planner (10-Database Unified Architecture)
+/// CDQL Query Planner (10-Database Unified Architecture)
 ///
-/// Converts a `CnqlQuery` AST into an ordered `QueryPlan` that the
+/// Converts a `CdqlQuery` AST into an ordered `QueryPlan` that the
 /// server's execution engine can run against LMDB + WASM DNA.
 
-use super::parser::{CnqlOp, CnqlQuery, CompareOp, CnqlValue, Filter, JoinType, AggFunc};
+use super::parser::{CdqlOp, CdqlQuery, CompareOp, CdqlValue, Filter, JoinType, AggFunc};
 
 /// A resolved, executable step in the query execution pipeline
 #[derive(Debug, Clone)]
@@ -26,7 +26,7 @@ pub enum PlanStep {
     FilterResults {
         field: String,
         op: CompareOp,
-        value: CnqlValue,
+        value: CdqlValue,
     },
     Unwind {
         field: String,
@@ -101,8 +101,8 @@ pub enum PlanStep {
     // ---------------------------------------------------------
     RangeScan {
         field: String,
-        start: CnqlValue,
-        end: CnqlValue,
+        start: CdqlValue,
+        end: CdqlValue,
     },
 
     // ---------------------------------------------------------
@@ -123,7 +123,7 @@ pub enum PlanStep {
     },
 }
 
-/// The full execution plan for a CNQL query
+/// The full execution plan for a CDQL query
 #[derive(Debug, Clone)]
 pub struct QueryPlan {
     pub steps: Vec<PlanStep>,
@@ -143,34 +143,34 @@ impl QueryPlan {
     }
 }
 
-/// Build an executable `QueryPlan` from a parsed `CnqlQuery`
-pub fn build_plan(query: &CnqlQuery) -> Result<QueryPlan, String> {
+/// Build an executable `QueryPlan` from a parsed `CdqlQuery`
+pub fn build_plan(query: &CdqlQuery) -> Result<QueryPlan, String> {
     let mut plan = QueryPlan::new();
 
     for op in &query.ops {
         match op {
-            CnqlOp::FindById { id } => {
+            CdqlOp::FindById { id } => {
                 plan.is_fast_path = true;
                 plan.steps.push(PlanStep::FastPathIdLookup { id: id.clone() });
             }
-            CnqlOp::Find { label, filters } => {
+            CdqlOp::Find { label, filters } => {
                 let label_filter = if label == "*" { None } else { Some(label.clone()) };
                 plan.steps.push(PlanStep::ScanAll {
                     label_filter,
                     filters: filters.clone(),
                 });
             }
-            CnqlOp::Filter { field, op, value } => {
+            CdqlOp::Filter { field, op, value } => {
                 plan.steps.push(PlanStep::FilterResults {
                     field: field.clone(),
                     op: op.clone(),
                     value: value.clone(),
                 });
             }
-            CnqlOp::Unwind { field } => plan.steps.push(PlanStep::Unwind { field: field.clone() }),
-            CnqlOp::Project { keep } => plan.steps.push(PlanStep::Project { keep: keep.clone() }),
+            CdqlOp::Unwind { field } => plan.steps.push(PlanStep::Unwind { field: field.clone() }),
+            CdqlOp::Project { keep } => plan.steps.push(PlanStep::Project { keep: keep.clone() }),
             
-            CnqlOp::Traverse { edge, min_hops, max_hops, min_weight } => {
+            CdqlOp::Traverse { edge, min_hops, max_hops, min_weight } => {
                 plan.steps.push(PlanStep::GraphTraverse {
                     edge: edge.clone(),
                     min_hops: *min_hops,
@@ -178,9 +178,9 @@ pub fn build_plan(query: &CnqlQuery) -> Result<QueryPlan, String> {
                     min_weight: *min_weight,
                 });
             }
-            CnqlOp::ShortestPath { to_node } => plan.steps.push(PlanStep::ShortestPath { to_node: to_node.clone() }),
+            CdqlOp::ShortestPath { to_node } => plan.steps.push(PlanStep::ShortestPath { to_node: to_node.clone() }),
             
-            CnqlOp::Join { target, on_left, on_right, join_type } => {
+            CdqlOp::Join { target, on_left, on_right, join_type } => {
                 plan.steps.push(PlanStep::RelationalJoin {
                     target: target.clone(),
                     on_left: on_left.clone(),
@@ -188,26 +188,26 @@ pub fn build_plan(query: &CnqlQuery) -> Result<QueryPlan, String> {
                     join_type: join_type.clone(),
                 });
             }
-            CnqlOp::GroupBy { fields } => plan.steps.push(PlanStep::GroupBy { fields: fields.clone() }),
-            CnqlOp::Aggregate { functions } => plan.steps.push(PlanStep::Aggregate { functions: functions.clone() }),
+            CdqlOp::GroupBy { fields } => plan.steps.push(PlanStep::GroupBy { fields: fields.clone() }),
+            CdqlOp::Aggregate { functions } => plan.steps.push(PlanStep::Aggregate { functions: functions.clone() }),
             
-            CnqlOp::TimeWindow { size } => plan.steps.push(PlanStep::TimeWindow { size: size.clone() }),
+            CdqlOp::TimeWindow { size } => plan.steps.push(PlanStep::TimeWindow { size: size.clone() }),
             
-            CnqlOp::SimilarTo { vector, metric } => plan.steps.push(PlanStep::VectorScan { vector: vector.clone(), metric: metric.clone() }),
+            CdqlOp::SimilarTo { vector, metric } => plan.steps.push(PlanStep::VectorScan { vector: vector.clone(), metric: metric.clone() }),
             
-            CnqlOp::Search { query, fuzzy } => plan.steps.push(PlanStep::FullTextSearch { query: query.clone(), fuzzy: *fuzzy }),
+            CdqlOp::Search { query, fuzzy } => plan.steps.push(PlanStep::FullTextSearch { query: query.clone(), fuzzy: *fuzzy }),
             
-            CnqlOp::GeoNear { lat, lon, radius_km } => plan.steps.push(PlanStep::GeoNear { lat: *lat, lon: *lon, radius_km: *radius_km }),
+            CdqlOp::GeoNear { lat, lon, radius_km } => plan.steps.push(PlanStep::GeoNear { lat: *lat, lon: *lon, radius_km: *radius_km }),
             
-            CnqlOp::RangeScan { field, start, end } => plan.steps.push(PlanStep::RangeScan { field: field.clone(), start: start.clone(), end: end.clone() }),
+            CdqlOp::RangeScan { field, start, end } => plan.steps.push(PlanStep::RangeScan { field: field.clone(), start: start.clone(), end: end.clone() }),
             
-            CnqlOp::Stream { start_byte, end_byte } => plan.steps.push(PlanStep::ByteStream { start_byte: *start_byte, end_byte: *end_byte }),
+            CdqlOp::Stream { start_byte, end_byte } => plan.steps.push(PlanStep::ByteStream { start_byte: *start_byte, end_byte: *end_byte }),
             
-            CnqlOp::Limit(n) => {
+            CdqlOp::Limit(n) => {
                 plan.limit = *n;
                 plan.steps.push(PlanStep::Limit(*n));
             }
-            CnqlOp::SortBy { field, ascending } => {
+            CdqlOp::SortBy { field, ascending } => {
                 plan.steps.push(PlanStep::SortBy {
                     field: field.clone(),
                     ascending: *ascending,
@@ -217,7 +217,7 @@ pub fn build_plan(query: &CnqlQuery) -> Result<QueryPlan, String> {
     }
 
     if plan.steps.is_empty() {
-        return Err("CNQL plan has no executable steps".to_string());
+        return Err("CDQL plan has no executable steps".to_string());
     }
 
     Ok(plan)
@@ -229,7 +229,7 @@ pub fn build_plan(query: &CnqlQuery) -> Result<QueryPlan, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::cnql::parser::parse;
+    use crate::cdql::parser::parse;
 
     #[test]
     fn test_plan_fast_path() {

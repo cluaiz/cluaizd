@@ -6,8 +6,16 @@
       {
         "group": "Philosophy",
         "pages": [
-          { "slug": "why-cluaizd", "title": "💡 Why CLUAIZD?", "file_path": "docs/vision/why-cluaizd.md" },
-          { "slug": "for-ai-agents", "title": "🤖 For AI Agents", "file_path": "docs/vision/for-ai-agents.md" }
+          {
+            "slug": "why-cluaizd",
+            "title": "💡 Why CLUAIZD?",
+            "file_path": "docs/vision/why-cluaizd.md"
+          },
+          {
+            "slug": "for-ai-agents",
+            "title": "🤖 For AI Agents",
+            "file_path": "docs/vision/for-ai-agents.md"
+          }
         ]
       }
     ]
@@ -19,16 +27,36 @@
       {
         "group": "AI & Cursor Rules",
         "pages": [
-          { "slug": "skill", "title": "🤖 AI Agent Skill File", "file_path": "docs/get-started/skill.md" }
+          {
+            "slug": "skill",
+            "title": "🤖 AI Agent Skill File",
+            "file_path": "docs/get-started/skill.md"
+          }
         ]
       },
       {
         "group": "Overview",
         "pages": [
-          { "slug": "introduction", "title": "📖 What is CLUAIZD?", "file_path": "docs/get-started/introduction.md" },
-          { "slug": "quickstart", "title": "⚡ Quickstart", "file_path": "docs/get-started/quickstart.md" },
-          { "slug": "installation", "title": "📦 Installation", "file_path": "docs/get-started/installation.md" },
-          { "slug": "build-a-todo-app", "title": "🛠️ Build Your First App", "file_path": "docs/get-started/build-a-todo-app.md" }
+          {
+            "slug": "introduction",
+            "title": "📖 What is CLUAIZD?",
+            "file_path": "docs/get-started/introduction.md"
+          },
+          {
+            "slug": "quickstart",
+            "title": "⚡ Quickstart",
+            "file_path": "docs/get-started/quickstart.md"
+          },
+          {
+            "slug": "installation",
+            "title": "📦 Installation",
+            "file_path": "docs/get-started/installation.md"
+          },
+          {
+            "slug": "build-a-todo-app",
+            "title": "🛠️ Build Your First App",
+            "file_path": "docs/get-started/build-a-todo-app.md"
+          }
         ]
       }
     ]
@@ -40,55 +68,127 @@
       {
         "group": "DNA Architecture",
         "pages": [
-          { "slug": "dna-architecture", "title": "⚙️ DNA Architecture & Hooks", "file_path": "docs/genomes/dna-architecture.md" },
-          { "slug": "supported-dnas", "title": "🧩 All 10 Paradigms", "file_path": "docs/genomes/supported-dnas.md" }
+          {
+            "slug": "dna-architecture",
+            "title": "⚙️ DNA Architecture & Hooks",
+            "file_path": "docs/genomes/dna-architecture.md"
+          },
+          {
+            "slug": "supported-dnas",
+            "title": "🧩 All 10 Paradigms",
+            "file_path": "docs/genomes/supported-dnas.md"
+          }
         ]
       },
       {
         "group": "Core Paradigms",
         "pages": [
-          { "slug": "relational-sql", "title": "🗄️ Relational SQL", "file_path": "docs/genomes/relational-sql.md" },
-          { "slug": "document-nosql", "title": "📑 Document NoSQL", "file_path": "docs/genomes/document-nosql.md" },
-          { "slug": "key-value", "title": "⚡ Key-Value", "file_path": "docs/genomes/key-value.md" }
+          {
+            "slug": "relational-sql",
+            "title": "🗄️ Relational SQL",
+            "file_path": "docs/genomes/relational-sql.md"
+          },
+          {
+            "slug": "document-nosql",
+            "title": "📑 Document NoSQL",
+            "file_path": "docs/genomes/document-nosql.md"
+          },
+          {
+            "slug": "key-value",
+            "title": "⚡ Key-Value",
+            "file_path": "docs/genomes/key-value.md"
+          }
         ]
       },
       {
         "group": "Advanced Analytics",
         "pages": [
-          { "slug": "graph-network", "title": "🕸️ Graph Network", "file_path": "docs/genomes/graph-network.md" },
-          { "slug": "time-series", "title": "⏱️ Time-Series", "file_path": "docs/genomes/time-series.md" },
-          { "slug": "wide-column", "title": "🏛️ Wide-Column", "file_path": "docs/genomes/wide-column.md" }
+          {
+            "slug": "graph-network",
+            "title": "🕸️ Graph Network",
+            "file_path": "docs/genomes/graph-network.md"
+          },
+          {
+            "slug": "time-series",
+            "title": "⏱️ Time-Series",
+            "file_path": "docs/genomes/time-series.md"
+          },
+          {
+            "slug": "wide-column",
+            "title": "🏛️ Wide-Column",
+            "file_path": "docs/genomes/wide-column.md"
+          }
         ]
       },
       {
         "group": "Specialized Engines",
         "pages": [
-          { "slug": "vector-ai", "title": "🧠 Vector AI", "file_path": "docs/genomes/vector-ai.md" },
-          { "slug": "full-text-search", "title": "🔍 Full-Text Search", "file_path": "docs/genomes/full-text-search.md" },
-          { "slug": "geospatial", "title": "🌍 Geo-Spatial", "file_path": "docs/genomes/geospatial.md" },
-          { "slug": "blob-storage", "title": "📦 Blob Storage", "file_path": "docs/genomes/blob-storage.md" }
+          {
+            "slug": "vector-ai",
+            "title": "🧠 Vector AI",
+            "file_path": "docs/genomes/vector-ai.md"
+          },
+          {
+            "slug": "full-text-search",
+            "title": "🔍 Full-Text Search",
+            "file_path": "docs/genomes/full-text-search.md"
+          },
+          {
+            "slug": "geospatial",
+            "title": "🌍 Geo-Spatial",
+            "file_path": "docs/genomes/geospatial.md"
+          },
+          {
+            "slug": "blob-storage",
+            "title": "📦 Blob Storage",
+            "file_path": "docs/genomes/blob-storage.md"
+          }
         ]
       }
     ]
   },
   {
-    "id": "cnql-mastery",
-    "title": "⚡ CNQL Mastery",
+    "id": "CDQL-mastery",
+    "title": "⚡ CDQL Mastery",
     "groups": [
       {
         "group": "Reference",
         "pages": [
-          { "slug": "rosetta-stone", "title": "🗺️ Rosetta Stone Cheatsheet", "file_path": "docs/cnql/rosetta-stone.md" },
-          { "slug": "cnql-intro", "title": "🔍 CNQL Introduction", "file_path": "docs/query-language/cnql-intro.md" },
-          { "slug": "syntax-reference", "title": "📖 Syntax Reference", "file_path": "docs/query-language/syntax-reference.md" }
+          {
+            "slug": "rosetta-stone",
+            "title": "🗺️ Rosetta Stone Cheatsheet",
+            "file_path": "docs/CDQL/rosetta-stone.md"
+          },
+          {
+            "slug": "CDQL-intro",
+            "title": "🔍 CDQL Introduction",
+            "file_path": "docs/query-language/CDQL-intro.md"
+          },
+          {
+            "slug": "syntax-reference",
+            "title": "📖 Syntax Reference",
+            "file_path": "docs/query-language/syntax-reference.md"
+          }
         ]
       },
       {
         "group": "Pipelines",
         "pages": [
-          { "slug": "hybrid-pipelines", "title": "🧩 Hybrid Pipelines", "file_path": "docs/cnql/hybrid-pipelines.md" },
-          { "slug": "advanced-pipelines", "title": "⚡ Advanced Pipelines", "file_path": "docs/cnql/advanced-pipelines.md" },
-          { "slug": "performance-tuning", "title": "🚀 Performance Tuning", "file_path": "docs/cnql/performance-tuning.md" }
+          {
+            "slug": "hybrid-pipelines",
+            "title": "🧩 Hybrid Pipelines",
+            "file_path": "docs/CDQL/hybrid-pipelines.md"
+          },
+          {
+            "slug": "advanced-pipelines",
+            "title": "⚡ Advanced Pipelines",
+            "file_path": "docs/CDQL/advanced-pipelines.md"
+          },
+          {
+            "slug": "performance-tuning",
+            "title": "🚀 Performance Tuning",
+            "file_path": "docs/CDQL/performance-tuning.md"
+          }
         ]
       }
     ]
@@ -100,19 +200,51 @@
       {
         "group": "Core Endpoints",
         "pages": [
-          { "slug": "rest-api", "title": "🌐 REST API", "file_path": "docs/clients/rest-api.md" },
-          { "slug": "c-ffi", "title": "⚡ C-FFI Bindings", "file_path": "docs/clients/c-ffi.md" }
+          {
+            "slug": "rest-api",
+            "title": "🌐 REST API",
+            "file_path": "docs/clients/rest-api.md"
+          },
+          {
+            "slug": "c-ffi",
+            "title": "⚡ C-FFI Bindings",
+            "file_path": "docs/clients/c-ffi.md"
+          }
         ]
       },
       {
         "group": "Advanced System APIs",
         "pages": [
-          { "slug": "juju", "title": "🧿 JUJU Spatial Canvas", "file_path": "docs/api/juju.md" },
-          { "slug": "crispr", "title": "🔬 CRISPR Surgery API", "file_path": "docs/api/crispr.md" },
-          { "slug": "booster", "title": "🚀 Booster WASM Engine", "file_path": "docs/api/booster.md" },
-          { "slug": "websocket", "title": "💓 WebSocket Telemetry", "file_path": "docs/api/websocket.md" },
-          { "slug": "ingest-stream", "title": "📡 Sensor Stream Ingestion", "file_path": "docs/api/ingest-stream.md" },
-          { "slug": "sandbox-validate", "title": "🧪 Deep Archer Sandbox", "file_path": "docs/api/sandbox-validate.md" }
+          {
+            "slug": "juju",
+            "title": "🧿 JUJU Spatial Canvas",
+            "file_path": "docs/api/juju.md"
+          },
+          {
+            "slug": "crispr",
+            "title": "🔬 CRISPR Surgery API",
+            "file_path": "docs/api/crispr.md"
+          },
+          {
+            "slug": "booster",
+            "title": "🚀 Booster WASM Engine",
+            "file_path": "docs/api/booster.md"
+          },
+          {
+            "slug": "websocket",
+            "title": "💓 WebSocket Telemetry",
+            "file_path": "docs/api/websocket.md"
+          },
+          {
+            "slug": "ingest-stream",
+            "title": "📡 Sensor Stream Ingestion",
+            "file_path": "docs/api/ingest-stream.md"
+          },
+          {
+            "slug": "sandbox-validate",
+            "title": "🧪 Deep Archer Sandbox",
+            "file_path": "docs/api/sandbox-validate.md"
+          }
         ]
       }
     ]
@@ -124,17 +256,41 @@
       {
         "group": "Storage Internals",
         "pages": [
-          { "slug": "bits-to-atoms", "title": "🧊 Bits to Atoms (LMDB)", "file_path": "docs/architecture/bits-to-atoms.md" },
-          { "slug": "lmdb-zero-copy", "title": "💾 LMDB & Zero-Copy", "file_path": "docs/architecture/lmdb-zero-copy.md" },
-          { "slug": "crash-recovery", "title": "🛡️ WAL Crash Recovery", "file_path": "docs/architecture/crash-recovery.md" },
-          { "slug": "sensory-shards", "title": "📡 Sensory Shards", "file_path": "docs/architecture/sensory-shards.md" }
+          {
+            "slug": "bits-to-atoms",
+            "title": "🧊 Bits to Atoms (LMDB)",
+            "file_path": "docs/architecture/bits-to-atoms.md"
+          },
+          {
+            "slug": "lmdb-zero-copy",
+            "title": "💾 LMDB & Zero-Copy",
+            "file_path": "docs/architecture/lmdb-zero-copy.md"
+          },
+          {
+            "slug": "crash-recovery",
+            "title": "🛡️ WAL Crash Recovery",
+            "file_path": "docs/architecture/crash-recovery.md"
+          },
+          {
+            "slug": "sensory-shards",
+            "title": "📡 Sensory Shards",
+            "file_path": "docs/architecture/sensory-shards.md"
+          }
         ]
       },
       {
         "group": "Autonomic Systems",
         "pages": [
-          { "slug": "dreamer-engine", "title": "🌌 The Dreamer Engine", "file_path": "docs/architecture/dreamer-engine.md" },
-          { "slug": "ffi-bypass", "title": "⚡ FFI Bypass Manual", "file_path": "docs/architecture/ffi-bypass.md" }
+          {
+            "slug": "dreamer-engine",
+            "title": "🌌 The Dreamer Engine",
+            "file_path": "docs/architecture/dreamer-engine.md"
+          },
+          {
+            "slug": "ffi-bypass",
+            "title": "⚡ FFI Bypass Manual",
+            "file_path": "docs/architecture/ffi-bypass.md"
+          }
         ]
       }
     ]

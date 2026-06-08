@@ -13,15 +13,10 @@ use crate::env::LmdbEnv;
 /// # Errors
 /// Returns `StorageError` if the write transaction or serialization fails.
 pub fn write_neuron(env: &LmdbEnv, neuron: &UniversalNeuron) -> Result<(), StorageError> {
-    let key = neuron.id.as_bytes().to_vec();
-
-    let value =
-        serde_json::to_vec(neuron).map_err(|e| StorageError::SerializationFailed(e.to_string()))?;
-
     let mut wtxn = env.write_txn()?;
 
     env.db
-        .put(&mut wtxn, &key, &value)
+        .put(&mut wtxn, &neuron.id, neuron)
         .map_err(|e| StorageError::WriteTxnFailed(e.to_string()))?;
 
     wtxn.commit().map_err(|e| StorageError::WriteTxnFailed(e.to_string()))?;

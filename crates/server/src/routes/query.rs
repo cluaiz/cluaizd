@@ -4,20 +4,21 @@ use serde::{Deserialize, Serialize};
 
 use cluaizd_types::{UniversalNeuron, StorageTier};
 use crate::routes::AppState;
-use genome::cnql::{parser::{parse, CnqlValue, CompareOp}, planner::{build_plan, PlanStep}};
+use genome::cdql::{parser::{parse, CdqlValue, CompareOp}, planner::{build_plan, PlanStep}};
 
 /// Request payload for `POST /query`.
 #[derive(Debug, Deserialize)]
 pub struct QueryRequest {
     /// Target database/tenant (e.g. "default_sandbox")
     pub tenant_id: Option<String>,
-    /// CNQL Universal Query String (e.g. `find *(name: "Aryan") -> get friends`)
-    pub cnql: Option<String>,
+    /// CDQL Universal Query String (e.g. `find *(name: "Aryan") -> get friends`)
+    #[serde(alias = "CDQL")]
+    pub cdql: Option<String>,
     /// Raw DNA query string (JSON match, for WASM DNA engine)
     pub query_string: Option<String>,
     /// Legacy: Search Vector for Vector/Geospatial searching
     pub query_vector: Option<Vec<f32>>,
-    /// Top-K results to return (overridden by CNQL `limit` clause if present)
+    /// Top-K results to return (overridden by CDQL `limit` clause if present)
     pub limit: Option<usize>,
 }
 
@@ -25,14 +26,14 @@ pub struct QueryRequest {
 pub struct QueryResult {
     pub neuron: UniversalNeuron,
     pub score: f32,
-    /// Which query path matched: "cnql", "wasm", "rhai", "vector"
+    /// Which query path matched: "CDQL", "wasm", "rhai", "vector"
     pub matched_by: String,
 }
 
 /// `POST /query` — Universal Query Handler
 ///
 /// Supports three query modes (in priority order):
-/// 1. **CNQL** — `find *(name: "Aryan") -> get friends -> limit 10`
+/// 1. **CDQL** — `find *(name: "Aryan") -> get friends -> limit 10`
 /// 2. **WASM DNA** — Raw query string passed into the Neuron's `.wasm` module
 /// 3. **Rhai DNA** — Legacy script-based query via `on_index`
 pub async fn handle_query(
@@ -62,10 +63,10 @@ pub async fn handle_query(
     };
 
     // ──────────────────────────────────────────────────────────────
-    // PATH 1: CNQL Universal Query
+    // PATH 1: CDQL Universal Query
     // ──────────────────────────────────────────────────────────────
-    if let Some(ref cnql_str) = payload.cnql {
-        return execute_cnql(cnql_str, all_neurons, global_limit).into_response();
+    if let Some(ref cdql_str) = payload.cdql {
+        return execute_cdql(cdql_str, all_neurons, global_limit).into_response();
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -139,20 +140,20 @@ pub async fn handle_query(
 }
 
 // ──────────────────────────────────────────────────────────────────
-// CNQL Execution Engine
+// CDQL Execution Engine
 // ──────────────────────────────────────────────────────────────────
 
-fn execute_cnql(
-    cnql_str: &str,
+fn execute_cdql(
+    cdql_str: &str,
     all_neurons: Vec<UniversalNeuron>,
     global_limit: usize,
 ) -> impl IntoResponse {
     // Step 1: Parse
-    let query = match parse(cnql_str) {
+    let query = match parse(cdql_str) {
         Ok(q) => q,
         Err(e) => return (
             StatusCode::BAD_REQUEST,
-            Json(serde_json::json!({ "error": format!("CNQL parse error: {}", e) })),
+            Json(serde_json::json!({ "error": format!("CDQL parse error: {}", e) })),
         ).into_response(),
     };
 
@@ -161,7 +162,7 @@ fn execute_cnql(
         Ok(p) => p,
         Err(e) => return (
             StatusCode::BAD_REQUEST,
-            Json(serde_json::json!({ "error": format!("CNQL plan error: {}", e) })),
+            Json(serde_json::json!({ "error": format!("CDQL plan error: {}", e) })),
         ).into_response(),
     };
 
@@ -246,7 +247,7 @@ fn execute_cnql(
         QueryResult {
             neuron: n.clone(),
             score: if n.tier == StorageTier::Hot { 1.0 } else { 0.5 },
-            matched_by: "cnql".to_string(),
+            matched_by: "CDQL".to_string(),
         }
     }).collect();
 
@@ -256,7 +257,7 @@ fn execute_cnql(
 /// Check if a neuron matches a single filter condition
 fn matches_filter(
     _neuron: &UniversalNeuron,
-    filter: &genome::cnql::parser::Filter,
+    filter: &genome::cdql::parser::Filter,
     payload_str: &str,
 ) -> bool {
     // Try to parse payload as JSON for field extraction
@@ -264,28 +265,28 @@ fn matches_filter(
         let field_val = json_val.get(&filter.field);
 
         match (&filter.op, &filter.value, field_val) {
-            (CompareOp::Eq, CnqlValue::Text(t), Some(v)) => {
+            (CompareOp::Eq, CdqlValue::Text(t), Some(v)) => {
                 v.as_str().map(|s| s == t.as_str()).unwrap_or(false)
             }
-            (CompareOp::Eq, CnqlValue::Number(n), Some(v)) => {
+            (CompareOp::Eq, CdqlValue::Number(n), Some(v)) => {
                 v.as_f64().map(|x| (x - n).abs() < 1e-9).unwrap_or(false)
             }
-            (CompareOp::NotEq, CnqlValue::Text(t), Some(v)) => {
+            (CompareOp::NotEq, CdqlValue::Text(t), Some(v)) => {
                 v.as_str().map(|s| s != t.as_str()).unwrap_or(true)
             }
-            (CompareOp::Gt, CnqlValue::Number(n), Some(v)) => {
+            (CompareOp::Gt, CdqlValue::Number(n), Some(v)) => {
                 v.as_f64().map(|x| x > *n).unwrap_or(false)
             }
-            (CompareOp::Lt, CnqlValue::Number(n), Some(v)) => {
+            (CompareOp::Lt, CdqlValue::Number(n), Some(v)) => {
                 v.as_f64().map(|x| x < *n).unwrap_or(false)
             }
-            (CompareOp::Gte, CnqlValue::Number(n), Some(v)) => {
+            (CompareOp::Gte, CdqlValue::Number(n), Some(v)) => {
                 v.as_f64().map(|x| x >= *n).unwrap_or(false)
             }
-            (CompareOp::Lte, CnqlValue::Number(n), Some(v)) => {
+            (CompareOp::Lte, CdqlValue::Number(n), Some(v)) => {
                 v.as_f64().map(|x| x <= *n).unwrap_or(false)
             }
-            (CompareOp::Contains, CnqlValue::Text(t), Some(v)) => {
+            (CompareOp::Contains, CdqlValue::Text(t), Some(v)) => {
                 v.as_str().map(|s| s.contains(t.as_str())).unwrap_or(false)
             }
             // Field not found — no match
@@ -295,7 +296,7 @@ fn matches_filter(
     } else {
         // Non-JSON payload: fallback to string contains match
         matches!(&filter.op, CompareOp::Contains | CompareOp::Eq) &&
-            matches!(&filter.value, CnqlValue::Text(t) if payload_str.contains(t.as_str()))
+            matches!(&filter.value, CdqlValue::Text(t) if payload_str.contains(t.as_str()))
     }
 }
 
@@ -303,9 +304,9 @@ fn matches_filter(
 fn cluaizd_types_filter_ref<'a>(
     field: &'a str,
     op: &'a CompareOp,
-    value: &'a CnqlValue,
-) -> genome::cnql::parser::Filter {
-    genome::cnql::parser::Filter {
+    value: &'a CdqlValue,
+) -> genome::cdql::parser::Filter {
+    genome::cdql::parser::Filter {
         field: field.to_string(),
         op: op.clone(),
         value: value.clone(),

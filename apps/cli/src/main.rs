@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "cli")]
-#[command(about = "Cluaiz CLUAIZD Administration CLI", long_about = None)]
+#[command(about = "Cluaizd CLUAIZD Administration CLI", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,

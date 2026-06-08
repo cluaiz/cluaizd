@@ -15,7 +15,7 @@ async fn main() -> Result<()> {
         .with_env_filter(EnvFilter::from_default_env())
         .init();
 
-    info!("Cluaiz CLUAIZD Server v0.0.1 — starting");
+    info!("Cluaizd CLUAIZD Server v0.0.1 — starting");
 
     let shards_path = Path::new("data/shards");
     let sensory_path = Path::new("data/sensory");
@@ -71,7 +71,7 @@ async fn main() -> Result<()> {
         tracing::warn!("Failed to load some genomes: {}", e);
     }
 
-    info!("Starting Cluaiz-HEART Autonomic Telemetry Engine");
+    info!("Starting Cluaizd-HEART Autonomic Telemetry Engine");
     let data_dir = Path::new("data");
     let heart = heart::Heart::new(data_dir);
     heart.start_heartbeat();

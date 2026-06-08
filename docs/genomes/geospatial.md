@@ -137,4 +137,4 @@ If the query returns a result, the driver is inside the geofence. If empty, they
 | Spatial Indexes (R-Tree) | ✅ | 🔜 (Planned — currently linear scan) |
 | Graph Traversal from Points | ❌ | ✅ |
 | Vector Similarity on Points | ❌ | ✅ |
-| Requires PostgreSQL + Extension | ✅ | ❌ (standalone) |
+| Requires Relational DB + Extension | ✅ | ❌ (standalone) |

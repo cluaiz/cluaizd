@@ -1,3 +1,6 @@
+# API Tests
+api_tests/
+
 # Rust build artifacts
 target/
 Cargo.lock

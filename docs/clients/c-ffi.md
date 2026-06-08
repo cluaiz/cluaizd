@@ -40,7 +40,7 @@ Copy the output library and `ffi/cluaizd.h` into your project.
 // @map_size_mb: Maximum database size in MB (e.g. 8192 = 8 GB)
 // @return:      Opaque handle, or NULL on failure
 // ─────────────────────────────────────────────
-CluaizdHandle* cluaizd_open(const char* path, unsigned long map_size_mb);
+cluaizddHandle* cluaizd_open(const char* path, unsigned long map_size_mb);
 
 // ─────────────────────────────────────────────
 // cluaizd_write()
@@ -52,7 +52,7 @@ CluaizdHandle* cluaizd_open(const char* path, unsigned long map_size_mb);
 // @payload_json: JSON string payload
 // @return:       0 on success, -1 on failure
 // ─────────────────────────────────────────────
-int cluaizd_write(CluaizdHandle* handle, const char* neuron_id, const char* payload_json);
+int cluaizd_write(cluaizddHandle* handle, const char* neuron_id, const char* payload_json);
 
 // ─────────────────────────────────────────────
 // cluaizd_read()
@@ -62,17 +62,17 @@ int cluaizd_write(CluaizdHandle* handle, const char* neuron_id, const char* payl
 // @neuron_id: The key to look up
 // @return:    Heap-allocated JSON string. CALLER MUST FREE with cluaizd_free_string().
 // ─────────────────────────────────────────────
-char* cluaizd_read(CluaizdHandle* handle, const char* neuron_id);
+char* cluaizd_read(cluaizddHandle* handle, const char* neuron_id);
 
 // ─────────────────────────────────────────────
 // cluaizd_query()
-// Execute a CNQL query string against this shard.
+// Execute a CDQL query string against this shard.
 //
 // @handle: Handle from cluaizd_open()
-// @cnql:   CNQL query string
+// @cdql:   CDQL query string
 // @return: Heap-allocated JSON array string. CALLER MUST FREE with cluaizd_free_string().
 // ─────────────────────────────────────────────
-char* cluaizd_query(CluaizdHandle* handle, const char* cnql);
+char* cluaizd_query(cluaizddHandle* handle, const char* cdql);
 
 // ─────────────────────────────────────────────
 // cluaizd_free_string()
@@ -85,7 +85,7 @@ void cluaizd_free_string(char* ptr);
 // cluaizd_close()
 // Flush all pending writes and close the LMDB environment.
 // ─────────────────────────────────────────────
-void cluaizd_close(CluaizdHandle* handle);
+void cluaizd_close(cluaizddHandle* handle);
 ```
 
 ---
@@ -99,7 +99,7 @@ void cluaizd_close(CluaizdHandle* handle);
 
 int main() {
     // Open a dedicated sensory shard (isolated from main database)
-    CluaizdHandle* handle = cluaizd_open("./data/sensory_tissue", 8192);
+    cluaizddHandle* handle = cluaizd_open("./data/sensory_tissue", 8192);
     if (!handle) {
         fprintf(stderr, "Failed to open CLUAIZD\n");
         return 1;
@@ -120,14 +120,14 @@ int main() {
         }
     }
 
-    // Direct key lookup — bypasses CNQL entirely
+    // Direct key lookup — bypasses CDQL entirely
     char* result = cluaizd_read(handle, "reading_0000500");
     if (result) {
         printf("Record: %s\n", result);
         cluaizd_free_string(result);  // Always free!
     }
 
-    // CNQL query via FFI
+    // CDQL query via FFI
     char* query_result = cluaizd_query(handle,
         "find * -> filter sensor: \"temp_01\" -> limit 10");
     if (query_result) {

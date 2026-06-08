@@ -35,8 +35,7 @@ impl DeepArcherSandbox {
     pub fn simulate_mutation(&self, original_id: NeuronId, proposed_neuron: &UniversalNeuron) -> Result<bool> {
         // Step 1: Write proposed changes to volatile LMDB
         let mut wtxn = self.volatile_env.write_txn().map_err(|e| anyhow!("Sandbox write txn failed: {}", e))?;
-        let bytes = serde_json::to_vec(proposed_neuron)?;
-        self.volatile_env.db.put(&mut wtxn, proposed_neuron.id.as_bytes().as_slice(), &bytes)
+        self.volatile_env.db.put(&mut wtxn, &proposed_neuron.id, proposed_neuron)
             .map_err(|e| anyhow!("Sandbox put failed: {}", e))?;
         wtxn.commit().map_err(|e| anyhow!("Sandbox commit failed: {}", e))?;
 

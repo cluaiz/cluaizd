@@ -22,7 +22,7 @@ When memory pressure builds, the Dreamer engine evaluates TTL (Time-To-Live) and
 - **Use Case:** The system cannot read the exact payload, but it retains an "intuition" about the data. You can still run Vector Searches and Graph Traversals on Warm neurons, scoring them lower than Hot neurons.
 
 ### 3. Tier 3: Cold (Deep Memory)
-- **Location:** Compressed file chunks on disk (or S3).
+- **Location:** Compressed file chunks on disk (or Object Store).
 - **Latency:** `> 50 ms` (Requires Rehydration).
 - **Payload:** The entire Neuron is aggressively compressed using the ZSTD algorithm.
 - **Use Case:** Archival logs, heavy Blob media. The data is not lost, but fetching it requires an asynchronous background process to "rehydrate" it back into the Hot tier.

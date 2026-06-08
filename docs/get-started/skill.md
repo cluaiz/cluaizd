@@ -20,7 +20,7 @@ CLUAIZD is a **shape-shifting memory substrate** built in Rust on top of LMDB. Y
 ```
 cluaizd/
 ├── crates/
-│   ├── genome/src/cnql/      ← CNQL parser.rs + planner.rs (THE QUERY BRAIN)
+│   ├── genome/src/cdql/      ← CDQL parser.rs + planner.rs (THE QUERY BRAIN)
 │   ├── server/src/routes/    ← HTTP API (query.rs, data.rs, state.rs)
 │   └── storage/
 │       ├── engine-lmdb/      ← Raw LMDB read/write (NEVER add business logic here)
@@ -66,7 +66,7 @@ pub struct Dna {
 
 ---
 
-## ⚡ CNQL Grammar (Always Use This Syntax)
+## ⚡ CDQL Grammar (Always Use This Syntax)
 
 ```
 Query = FindClause ("->" PipelineStage)*
@@ -161,7 +161,7 @@ pub fn write_neuron(env: &Env, neuron: &UniversalNeuron) -> Result<()> {
 |---|---|---|
 | Adding schema validation in Rust | Violates Kabadi Rule | Write an `on_write` Rhai hook in a Genome JSON file |
 | Using `HashMap` for neuron storage | Bypasses LMDB mmap | Always use `engine-lmdb` crate functions |
-| Calling `serde_json::from_slice` in engine-lmdb | Engine must be payload-agnostic | Parse in CNQL executor or Genome script |
+| Calling `serde_json::from_slice` in engine-lmdb | Engine must be payload-agnostic | Parse in CDQL executor or Genome script |
 | Writing a cron job for TTL eviction | Dreamer engine handles this | Set `on_lifecycle` hook in the Genome |
 | Hardcoding the port `8080` | Should read from config | Use `config.server.port` from `config.toml` |
 | Ignoring WAL on writes | Data loss on crash | Always append to WAL before LMDB |
@@ -172,7 +172,7 @@ pub fn write_neuron(env: &Env, neuron: &UniversalNeuron) -> Result<()> {
 
 ```
 POST /neuron              — Insert/update a UniversalNeuron
-POST /query             — Execute CNQL query string
+POST /query             — Execute CDQL query string
 GET  /data/:id          — Get single neuron by ID
 GET  /health            — Server health + metrics
 GET  /state             — RAM, disk, shard info

@@ -1,4 +1,4 @@
-# CNQL Syntax & Operators — Complete Reference
+# CDQL Syntax & Operators — Complete Reference
 
 > All operators, all parameters, all return types in one place.
 
@@ -7,7 +7,7 @@
 ## Root Selectors (Every Query Starts Here)
 
 ### `find id("uuid")` — O(1) Fast-Path ⚡
-Bypasses CNQL Planner and WASM entirely. Single LMDB key lookup.
+Bypasses CDQL Planner and WASM entirely. Single LMDB key lookup.
 ```text
 find id("user_aryan_001")
 ```

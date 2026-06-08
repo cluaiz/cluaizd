@@ -9,9 +9,9 @@ Large Language Models (LLMs) are stateless by design. Every conversation starts 
 | Memory Approach | The Problem |
 |---|---|
 | **Context Window Stuffing** | 128K tokens fills up in minutes during a long agentic task. Expensive and lossy. |
-| **ChromaDB / Milvus (Vector only)** | Pure vector DBs can only search by semantic *similarity*. They cannot filter by date, type, or structured attributes. |
+| **ChromaDB / Vector DB (Vector only)** | Pure vector DBs can only search by semantic *similarity*. They cannot filter by date, type, or structured attributes. |
 | **SQL Database** | LLMs cannot reliably write SQL schema migrations. Every new attribute requires an `ALTER TABLE`. |
-| **Redis Cache** | Flat key-value. No relationships. No vector math. No history. |
+| **In-Memory Cache Cache** | Flat key-value. No relationships. No vector math. No history. |
 
 CLUAIZD was designed from the ground up to be the **universal long-term memory** for autonomous AI agents. It covers all four memory types that modern agents need simultaneously.
 
@@ -21,8 +21,8 @@ CLUAIZD was designed from the ground up to be the **universal long-term memory**
 
 | Memory Type | What AI Needs | How CLUAIZD Handles It |
 |---|---|---|
-| **Semantic Memory** | Retrieve facts by meaning, not keywords | `vector_space.json` genome + `similar_to()` in CNQL |
-| **Episodic Memory** | Remember timestamped events ("what happened last Tuesday") | `time_series.json` genome + `time_window()` in CNQL |
+| **Semantic Memory** | Retrieve facts by meaning, not keywords | `vector_space.json` genome + `similar_to()` in CDQL |
+| **Episodic Memory** | Remember timestamped events ("what happened last Tuesday") | `time_series.json` genome + `time_window()` in CDQL |
 | **Procedural Memory** | Know how to do tasks (stored reasoning chains) | `graph_network.json` genome — action nodes linked by edge type `"causes"` |
 | **Working Memory** | Fast, temporary scratchpad during active reasoning | `ephemeral_cache.json` genome with TTL eviction |
 
@@ -34,7 +34,7 @@ A single CLUAIZD instance handles all four simultaneously. Your LangChain or Aut
 
 Traditional databases require a fixed schema defined **before** data is inserted. But AI agents encounter **unknown unknowns** — they memorize things they didn't plan to memorize.
 
-An agent processing a conversation might suddenly need to store `user_emotional_state`, `confidence_level`, or `spatial_context_last_seen`. None of these can be pre-defined in a Postgres `CREATE TABLE`.
+An agent processing a conversation might suddenly need to store `user_emotional_state`, `confidence_level`, or `spatial_context_last_seen`. None of these can be pre-defined in a Relational DB `CREATE TABLE`.
 
 With CLUAIZD and the `document_nosql` genome, the agent simply dumps its entire JSON payload directly:
 
@@ -89,7 +89,7 @@ Pure vector search has a critical flaw. If an agent searches for memories about 
 
 This creates hallucination-prone memory retrieval — the AI recalls the wrong memory with high confidence.
 
-CLUAIZD solves this with **CNQL Hybrid Pipelines**: hard-filter by structured metadata first, then apply vector similarity only within the matching set.
+CLUAIZD solves this with **CDQL Hybrid Pipelines**: hard-filter by structured metadata first, then apply vector similarity only within the matching set.
 
 ```text
 // WRONG approach (pure vector — may return pink trucks):
@@ -147,7 +147,7 @@ class CLUAIZDMemory(BaseMemory):
     def load_memory_variables(self, inputs):
         query_vector = embed(inputs["input"])
         res = requests.post("http://localhost:7331/query", json={
-            "cnql": f"find * -> similar_to(vector: {query_vector}, metric: 'cosine') -> limit 5"
+            "cdql": f"find * -> similar_to(vector: {query_vector}, metric: 'cosine') -> limit 5"
         })
         return {"history": res.json()}
 ```
@@ -158,7 +158,7 @@ This gives your LangChain agent a persistent, hybrid-searchable, graph-traversab
 
 ## Why Not Just Use a Vector DB?
 
-| Feature | Pinecone / ChromaDB | CLUAIZD |
+| Feature | Vector DB / ChromaDB | CLUAIZD |
 |---|---|---|
 | Semantic (Vector) Search | ✅ | ✅ |
 | Structured Attribute Filters | ⚠️ Basic metadata only | ✅ Full JSON filter |

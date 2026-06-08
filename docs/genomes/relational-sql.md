@@ -1,6 +1,6 @@
 # Relational SQL Genome (`sql_strict.json`)
 
-> *"All the power of PostgreSQL, without a single line of SQL DDL."*
+> *"All the power of Relational DB, without a single line of SQL DDL."*
 
 ## When to Use This Genome
 Use the `sql_strict` genome when your data requires:
@@ -15,7 +15,7 @@ Real-world use cases: User accounts, billing records, inventory management, fina
 ## How It Works (Under the Hood)
 
 ### Schema Enforcement via `on_write`
-Unlike PostgreSQL where the schema is compiled into the engine's C code, CLUAIZD enforces schemas entirely through the `on_write` Rhai hook in the Genome script. When a Neuron write is requested, the core engine **calls this hook before committing to LMDB**.
+Unlike Relational DB where the schema is compiled into the engine's C code, CLUAIZD enforces schemas entirely through the `on_write` Rhai hook in the Genome script. When a Neuron write is requested, the core engine **calls this hook before committing to LMDB**.
 
 If the hook returns `"Abort"`, the transaction is rolled back atomically. No partial writes. No dirty state.
 
@@ -70,13 +70,13 @@ You are not limited to the default `sql_strict.json`. You can define custom per-
 }
 ```
 
-This genome enforces a schema with 5 required fields and two business rules — exactly like a PostgreSQL `CHECK CONSTRAINT`.
+This genome enforces a schema with 5 required fields and two business rules — exactly like a Relational DB `CHECK CONSTRAINT`.
 
 ---
 
-## Relational Joins with CNQL
+## Relational Joins with CDQL
 
-CLUAIZD does not have foreign keys in the SQL sense. Relationships are expressed through Graph **edges** (`adjacency` field). However, CNQL's `join()` operator allows you to merge payload data from related Neurons at query time.
+CLUAIZD does not have foreign keys in the SQL sense. Relationships are expressed through Graph **edges** (`adjacency` field). However, CDQL's `join()` operator allows you to merge payload data from related Neurons at query time.
 
 ### Example: Join Orders with Products
 ```text

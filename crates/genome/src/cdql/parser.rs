@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-/// A single value in a CNQL expression
+/// A single value in a CDQL expression
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum CnqlValue {
+pub enum CdqlValue {
     Text(String),
     Number(f64),
     Bool(bool),
@@ -27,7 +27,7 @@ pub enum CompareOp {
 pub struct Filter {
     pub field: String,
     pub op: CompareOp,
-    pub value: CnqlValue,
+    pub value: CdqlValue,
 }
 
 /// Join types for Relational queries
@@ -49,9 +49,9 @@ pub enum AggFunc {
     Max(String),
 }
 
-/// Each "step" in a CNQL pipeline (Supporting 10 Database Paradigms)
+/// Each "step" in a CDQL pipeline (Supporting 10 Database Paradigms)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum CnqlOp {
+pub enum CdqlOp {
     // ---------------------------------------------------------
     // 1. CORE / DOCUMENT (MongoDB style)
     // ---------------------------------------------------------
@@ -68,7 +68,7 @@ pub enum CnqlOp {
     Filter {
         field: String,
         op: CompareOp,
-        value: CnqlValue,
+        value: CdqlValue,
     },
     /// `-> project(keep: ["name"], compute: {...})` — Shape document
     Project {
@@ -156,8 +156,8 @@ pub enum CnqlOp {
     /// `-> range_scan(start: X, end: Y)`
     RangeScan {
         field: String,
-        start: CnqlValue,
-        end: CnqlValue,
+        start: CdqlValue,
+        end: CdqlValue,
     },
 
     // ---------------------------------------------------------
@@ -179,17 +179,17 @@ pub enum CnqlOp {
     },
 }
 
-/// The full CNQL query — an ordered pipeline of operations
+/// The full CDQL query — an ordered pipeline of operations
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct CnqlQuery {
-    pub ops: Vec<CnqlOp>,
+pub struct CdqlQuery {
+    pub ops: Vec<CdqlOp>,
 }
 
-/// Parse a CNQL string into a structured `CnqlQuery`.
-pub fn parse(input: &str) -> Result<CnqlQuery, String> {
+/// Parse a CDQL string into a structured `CdqlQuery`.
+pub fn parse(input: &str) -> Result<CdqlQuery, String> {
     let input = input.trim();
     if input.is_empty() {
-        return Err("Empty CNQL query".to_string());
+        return Err("Empty CDQL query".to_string());
     }
 
     // A real parser would use a robust lexer/PEG parser (like `pest` or `nom`).
@@ -211,11 +211,11 @@ pub fn parse(input: &str) -> Result<CnqlQuery, String> {
         ops.push(op);
     }
 
-    Ok(CnqlQuery { ops })
+    Ok(CdqlQuery { ops })
 }
 
 /// Parse `find <label>(<filters...>)` or `find id("123")`
-fn parse_find(segment: &str) -> Result<CnqlOp, String> {
+fn parse_find(segment: &str) -> Result<CdqlOp, String> {
     let segment = segment.trim();
 
     if !segment.starts_with("find") {
@@ -231,7 +231,7 @@ fn parse_find(segment: &str) -> Result<CnqlOp, String> {
             .and_then(|s| s.strip_suffix(')'))
             .map(|s| s.trim_matches('"'))
             .ok_or("Malformed find id()")?;
-        return Ok(CnqlOp::FindById { id: id_str.to_string() });
+        return Ok(CdqlOp::FindById { id: id_str.to_string() });
     }
 
     // Normal path: `find User(name: "Aryan")`
@@ -248,17 +248,17 @@ fn parse_find(segment: &str) -> Result<CnqlOp, String> {
     let label = if label.is_empty() { "*".to_string() } else { label };
     let filters = if filter_str.is_empty() { vec![] } else { parse_filters(filter_str)? };
 
-    Ok(CnqlOp::Find { label, filters })
+    Ok(CdqlOp::Find { label, filters })
 }
 
 /// Parse pipeline operations (`traverse`, `join`, `geo_near`, etc.)
-fn parse_pipeline_op(segment: &str) -> Result<CnqlOp, String> {
+fn parse_pipeline_op(segment: &str) -> Result<CdqlOp, String> {
     let segment = segment.trim();
 
     // Support legacy `get friends`
     if segment.starts_with("get ") {
         let relation = segment["get ".len()..].trim().to_string();
-        return Ok(CnqlOp::Traverse {
+        return Ok(CdqlOp::Traverse {
             edge: relation,
             min_hops: 1,
             max_hops: 1,
@@ -270,19 +270,19 @@ fn parse_pipeline_op(segment: &str) -> Result<CnqlOp, String> {
         let filter_body = &segment["filter ".len()..];
         let filters = parse_filters(filter_body)?;
         if let Some(f) = filters.into_iter().next() {
-            return Ok(CnqlOp::Filter { field: f.field, op: f.op, value: f.value });
+            return Ok(CdqlOp::Filter { field: f.field, op: f.op, value: f.value });
         }
     }
 
     if segment.starts_with("limit ") {
         let n_str = segment["limit ".len()..].trim();
         let n: usize = n_str.parse().unwrap_or(10);
-        return Ok(CnqlOp::Limit(n));
+        return Ok(CdqlOp::Limit(n));
     }
 
     if segment.starts_with("traverse(") {
         // Mock parsing for MVP: `traverse(edge: "friends")`
-        return Ok(CnqlOp::Traverse {
+        return Ok(CdqlOp::Traverse {
             edge: "friends".to_string(),
             min_hops: 1,
             max_hops: 3,
@@ -292,7 +292,7 @@ fn parse_pipeline_op(segment: &str) -> Result<CnqlOp, String> {
 
     if segment.starts_with("join(") {
         // Mock parsing for MVP
-        return Ok(CnqlOp::Join {
+        return Ok(CdqlOp::Join {
             target: "target_table".to_string(),
             on_left: "id".to_string(),
             on_right: "target_id".to_string(),
@@ -301,19 +301,19 @@ fn parse_pipeline_op(segment: &str) -> Result<CnqlOp, String> {
     }
 
     if segment.starts_with("time_window(") {
-        return Ok(CnqlOp::TimeWindow { size: "1h".to_string() });
+        return Ok(CdqlOp::TimeWindow { size: "1h".to_string() });
     }
 
     if segment.starts_with("geo_near(") {
-        return Ok(CnqlOp::GeoNear { lat: 0.0, lon: 0.0, radius_km: 5.0 });
+        return Ok(CdqlOp::GeoNear { lat: 0.0, lon: 0.0, radius_km: 5.0 });
     }
 
     if segment.starts_with("search(") {
-        return Ok(CnqlOp::Search { query: "test".to_string(), fuzzy: true });
+        return Ok(CdqlOp::Search { query: "test".to_string(), fuzzy: true });
     }
 
     if segment.starts_with("stream(") {
-        return Ok(CnqlOp::Stream { start_byte: 0, end_byte: 1024 });
+        return Ok(CdqlOp::Stream { start_byte: 0, end_byte: 1024 });
     }
 
     Err(format!("Unknown or unimplemented pipeline operation: '{}'", segment))
@@ -357,14 +357,14 @@ fn parse_single_filter(input: &str) -> Result<Filter, String> {
     Err(format!("Cannot parse filter: '{}'", input))
 }
 
-fn parse_value(input: &str) -> Result<CnqlValue, String> {
+fn parse_value(input: &str) -> Result<CdqlValue, String> {
     let input = input.trim();
     if input.starts_with('"') && input.ends_with('"') {
-        return Ok(CnqlValue::Text(input[1..input.len() - 1].to_string()));
+        return Ok(CdqlValue::Text(input[1..input.len() - 1].to_string()));
     }
-    if input == "true" { return Ok(CnqlValue::Bool(true)); }
-    if input == "false" { return Ok(CnqlValue::Bool(false)); }
-    if input == "null" { return Ok(CnqlValue::Null); }
-    if let Ok(n) = input.parse::<f64>() { return Ok(CnqlValue::Number(n)); }
-    Ok(CnqlValue::Text(input.to_string()))
+    if input == "true" { return Ok(CdqlValue::Bool(true)); }
+    if input == "false" { return Ok(CdqlValue::Bool(false)); }
+    if input == "null" { return Ok(CdqlValue::Null); }
+    if let Ok(n) = input.parse::<f64>() { return Ok(CdqlValue::Number(n)); }
+    Ok(CdqlValue::Text(input.to_string()))
 }

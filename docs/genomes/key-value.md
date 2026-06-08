@@ -15,11 +15,11 @@ Real-world use cases: Session tokens, API rate limiting, leaderboard counters, o
 
 ## The O(1) Fast-Path: How It Actually Works
 
-This is CLUAIZD's most powerful optimization. When the CNQL Planner sees a `find id("...")` query, it **completely skips** all query planning and WASM/Rhai evaluation. Instead, it calls LMDB's direct key lookup which is a single memory-mapped pointer dereference.
+This is CLUAIZD's most powerful optimization. When the CDQL Planner sees a `find id("...")` query, it **completely skips** all query planning and WASM/Rhai evaluation. Instead, it calls LMDB's direct key lookup which is a single memory-mapped pointer dereference.
 
 ```
 Normal Query Path:
-  CNQL String → Lexer → Parser → Planner → WASM Eval → LMDB Scan → Filter → Result
+  CDQL String → Lexer → Parser → Planner → WASM Eval → LMDB Scan → Filter → Result
 
 Fast-Path (Key-Value):
   find id("x") → LMDB Direct Get → Result
@@ -48,7 +48,7 @@ The `ephemeral_cache.json` genome's `on_lifecycle` hook is evaluated by the Drea
 
 ---
 
-## Storing a Session Token (Redis `SET EX` Equivalent)
+## Storing a Session Token (In-Memory Cache `SET EX` Equivalent)
 
 ```bash
 curl -X POST http://localhost:7331/data \
@@ -76,7 +76,7 @@ This session expires in 30 minutes (1,800,000,000,000 nanoseconds).
 ```bash
 curl -X POST http://localhost:7331/query \
   -H "Content-Type: application/json" \
-  -d '{"cnql": "find id(\"session_tok_abc123\")"}'
+  -d '{"cdql": "find id(\"session_tok_abc123\")"}'
 ```
 
 The Planner detects `id(...)` and bypasses the entire WASM engine, returning the result in under `0.1ms`.
@@ -102,9 +102,9 @@ CLUAIZD does not yet have native atomic increment. The recommended pattern is to
 
 ---
 
-## Comparison: CLUAIZD vs Redis
+## Comparison: CLUAIZD vs In-Memory Cache
 
-| Feature | Redis | CLUAIZD (ephemeral_cache) |
+| Feature | In-Memory Cache | CLUAIZD (ephemeral_cache) |
 |---|---|---|
 | O(1) Get | ✅ | ✅ (via Fast-Path) |
 | TTL Eviction | ✅ | ✅ (via Dreamer lifecycle hook) |
@@ -112,4 +112,4 @@ CLUAIZD does not yet have native atomic increment. The recommended pattern is to
 | Vector Similarity | ❌ | ✅ (switch genome) |
 | Graph Edges | ❌ | ✅ (switch genome) |
 | Persistence (Crash Recovery) | ⚠️ (RDB/AOF) | ✅ (WAL always on) |
-| Horizontal Cluster | ✅ (Redis Cluster) | 🔜 (Planned) |
+| Horizontal Cluster | ✅ (In-Memory Cache Cluster) | 🔜 (Planned) |

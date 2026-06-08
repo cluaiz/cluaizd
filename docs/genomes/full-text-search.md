@@ -96,7 +96,7 @@ find Article(published: true, category: "tech")
 ```python
 # User types "blak shoez" (typo)
 response = requests.post("http://localhost:7331/query", json={
-    "cnql": """
+    "cdql": """
         find Product(in_stock: true)
           -> search(fields: {name: 3.0, description: 1.0}, query: "blak shoez", fuzzy: true)
           -> sort_by_score()
@@ -108,9 +108,9 @@ response = requests.post("http://localhost:7331/query", json={
 
 ---
 
-## Comparison: CLUAIZD vs Elasticsearch
+## Comparison: CLUAIZD vs Search Engine
 
-| Feature | Elasticsearch | CLUAIZD (search_index) |
+| Feature | Search Engine | CLUAIZD (search_index) |
 |---|---|---|
 | Inverted Index | ✅ | ✅ (via on_index hook) |
 | BM25 Relevance | ✅ | ✅ |

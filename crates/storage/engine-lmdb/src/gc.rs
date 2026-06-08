@@ -40,84 +40,82 @@ pub fn run_gc_sweep(env: &LmdbEnv) -> anyhow::Result<()> {
         let rtxn = env.env.read_txn()?;
         let iter = env.db.iter(&rtxn)?;
         for result in iter {
-            let (_key, val) = result?;
+            let (key, mut neuron) = result?;
             
-            if let Ok(mut neuron) = serde_json::from_slice::<UniversalNeuron>(val) {
-                let mut changed = false;
-                let mut custom_compress_lvl = 3; // Default fallback
+            let mut changed = false;
+            let mut custom_compress_lvl = 3; // Default fallback
 
-                // Evaluate Neuron-level DNA sequence
-                if let Some(ref dna) = neuron.dna {
-                    if dna.engine == "rhai" {
-                        let engine = Engine::new();
-                        let mut scope = Scope::new();
-                        
-                        let age_ns = now_ns.saturating_sub(neuron.created_at_ns);
-                        scope.push("age_ns", age_ns as i64);
-                        scope.push("current_tier", format!("{:?}", neuron.tier));
+            // Evaluate Neuron-level DNA sequence
+            if let Some(ref dna) = neuron.dna {
+                if dna.engine == "rhai" {
+                    let engine = Engine::new();
+                    let mut scope = Scope::new();
+                    
+                    let age_ns = now_ns.saturating_sub(neuron.created_at_ns);
+                    scope.push("age_ns", age_ns as i64);
+                    scope.push("current_tier", format!("{:?}", neuron.tier));
 
-                        if let Ok(dynamic_config) = rhai::serde::to_dynamic(&dna.parameters) {
-                            scope.push_dynamic("config", dynamic_config);
-                        }
-                        
-                        if let Some(lifecycle_script) = &dna.on_lifecycle {
-                            if let Ok(result_map) = engine.eval_with_scope::<Map>(&mut scope, lifecycle_script) {
-                                
-                                // Explicit Deletion
-                                if let Some(del) = result_map.get("delete_neuron").and_then(|v| v.as_bool().ok()) {
-                                    if del {
-                                        targets_to_delete.push(neuron.id);
-                                        continue;
-                                    }
+                    if let Ok(dynamic_config) = rhai::serde::to_dynamic(&dna.parameters) {
+                        scope.push_dynamic("config", dynamic_config);
+                    }
+                    
+                    if let Some(lifecycle_script) = &dna.on_lifecycle {
+                        if let Ok(result_map) = engine.eval_with_scope::<Map>(&mut scope, lifecycle_script) {
+                            
+                            // Explicit Deletion
+                            if let Some(del) = result_map.get("delete_neuron").and_then(|v| v.as_bool().ok()) {
+                                if del {
+                                    targets_to_delete.push(neuron.id);
+                                    continue;
                                 }
+                            }
 
-                                // Explicit Tier Transitions
-                                if let Some(new_tier) = result_map.get("new_tier").and_then(|v| v.clone().into_string().ok()) {
-                                    if new_tier == "Warm" && neuron.tier != StorageTier::Warm {
-                                        neuron.tier = StorageTier::Warm;
-                                        changed = true;
-                                    } else if new_tier == "Cold" && neuron.tier != StorageTier::Cold {
-                                        neuron.tier = StorageTier::Cold;
-                                        changed = true;
-                                    }
-                                }
-
-                                // Explicit Payload Clearing
-                                if let Some(clear) = result_map.get("clear_payload").and_then(|v| v.as_bool().ok()) {
-                                    if clear && !neuron.raw_payload.is_empty() {
-                                        neuron.raw_payload = Bytes::new();
-                                        changed = true;
-                                    }
-                                }
-
-                                // Custom Compression Level
-                                if let Some(lvl) = result_map.get("compress_level").and_then(|v| v.as_int().ok()) {
-                                    custom_compress_lvl = lvl;
+                            // Explicit Tier Transitions
+                            if let Some(new_tier) = result_map.get("new_tier").and_then(|v| v.clone().into_string().ok()) {
+                                if new_tier == "Warm" && neuron.tier != StorageTier::Warm {
+                                    neuron.tier = StorageTier::Warm;
+                                    changed = true;
+                                } else if new_tier == "Cold" && neuron.tier != StorageTier::Cold {
+                                    neuron.tier = StorageTier::Cold;
                                     changed = true;
                                 }
+                            }
 
-                                // Explicit Edge Decay
-                                if let Some(decay_factor) = result_map.get("edge_decay_factor").and_then(|v| v.as_float().ok()) {
-                                    if !neuron.adjacency.is_empty() {
-                                        let prune_threshold = result_map.get("edge_prune_threshold").and_then(|v| v.as_float().ok()).unwrap_or(0.0) as f32;
-                                        let original_len = neuron.adjacency.len();
-                                        for edge in &mut neuron.adjacency {
-                                            edge.weight *= decay_factor as f32;
-                                        }
-                                        neuron.adjacency.retain(|edge| edge.weight >= prune_threshold);
-                                        if neuron.adjacency.len() != original_len {
-                                            changed = true;
-                                        }
+                            // Explicit Payload Clearing
+                            if let Some(clear) = result_map.get("clear_payload").and_then(|v| v.as_bool().ok()) {
+                                if clear && !neuron.raw_payload.is_empty() {
+                                    neuron.raw_payload = Bytes::new();
+                                    changed = true;
+                                }
+                            }
+
+                            // Custom Compression Level
+                            if let Some(lvl) = result_map.get("compress_level").and_then(|v| v.as_int().ok()) {
+                                custom_compress_lvl = lvl;
+                                changed = true;
+                            }
+
+                            // Explicit Edge Decay
+                            if let Some(decay_factor) = result_map.get("edge_decay_factor").and_then(|v| v.as_float().ok()) {
+                                if !neuron.adjacency.is_empty() {
+                                    let prune_threshold = result_map.get("edge_prune_threshold").and_then(|v| v.as_float().ok()).unwrap_or(0.0) as f32;
+                                    let original_len = neuron.adjacency.len();
+                                    for edge in &mut neuron.adjacency {
+                                        edge.weight *= decay_factor as f32;
+                                    }
+                                    neuron.adjacency.retain(|edge| edge.weight >= prune_threshold);
+                                    if neuron.adjacency.len() != original_len {
+                                        changed = true;
                                     }
                                 }
                             }
                         }
                     }
                 }
+            }
 
-                if changed {
-                    targets_to_update.push((neuron, custom_compress_lvl));
-                }
+            if changed {
+                targets_to_update.push((neuron, custom_compress_lvl));
             }
         }
     }
@@ -125,19 +123,12 @@ pub fn run_gc_sweep(env: &LmdbEnv) -> anyhow::Result<()> {
     if !targets_to_update.is_empty() {
         let mut wtxn = env.env.write_txn()?;
         
-        for (neuron, compress_lvl) in targets_to_update {
-            if neuron.tier == StorageTier::Cold {
-                let bytes = serde_json::to_vec(&neuron)?;
-                let compressed = encode_all(&bytes[..], compress_lvl as i32)?;
-                env.db.put(&mut wtxn, neuron.id.as_bytes().as_slice(), &compressed)?;
-            } else {
-                let bytes = serde_json::to_vec(&neuron)?;
-                env.db.put(&mut wtxn, neuron.id.as_bytes().as_slice(), &bytes)?;
-            }
+        for (neuron, _compress_lvl) in targets_to_update {
+            env.db.put(&mut wtxn, &neuron.id, &neuron)?;
         }
 
         for id in targets_to_delete {
-            env.db.delete(&mut wtxn, id.as_bytes().as_slice())?;
+            env.db.delete(&mut wtxn, &id)?;
         }
 
         wtxn.commit()?;

@@ -66,7 +66,7 @@ No schema was defined. No `CREATE TABLE`. No migration. It just works.
 
 ## Querying Nested Fields
 
-CNQL can filter on top-level fields. For nested fields, use dot notation:
+CDQL can filter on top-level fields. For nested fields, use dot notation:
 
 ```text
 // Find all published posts
@@ -94,7 +94,7 @@ find Post(published: true)
 
 ---
 
-## Array Unwinding (MongoDB `$unwind` Equivalent)
+## Array Unwinding (Document Store `$unwind` Equivalent)
 
 If a document has a `tags` array and you want to analyze each tag individually:
 

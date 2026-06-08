@@ -43,7 +43,7 @@ pub struct NeuronDna {
     /// Path to a .wasm file on disk. Loaded by GenomeRegistry on startup.
     pub wasm_module_path: Option<String>,
     
-    /// Dynamic parameters injected into the DNA (controlled via Cluaiz-JUJU UI).
+    /// Dynamic parameters injected into the DNA (controlled via Cluaizd-JUJU UI).
     pub parameters: serde_json::Value,
 
     /// The type of DNA engine to execute these sequences (e.g. "rhai", "wasm").
@@ -61,7 +61,7 @@ pub enum StorageTier {
     Cold,
 }
 
-/// The fundamental atomic unit of storage in Cluaiz CLUAIZD.
+/// The fundamental atomic unit of storage in Cluaizd CLUAIZD.
 ///
 /// Every piece of data — text, audio, video, or raw voltage streams —
 /// is stored as a `UniversalNeuron`. Fields are co-located on disk

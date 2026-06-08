@@ -1,10 +1,10 @@
-# Advanced CNQL Pipelines
+# Advanced CDQL Pipelines
 
 > *"One pipeline. Ten databases. Zero compromises."*
 
 ## The Pipeline Mental Model
 
-Think of CNQL like a Unix pipe (`|`). Data flows from left to right through a series of transformation stages. Each stage receives the output of the previous stage, processes it, and passes results forward.
+Think of CDQL like a Unix pipe (`|`). Data flows from left to right through a series of transformation stages. Each stage receives the output of the previous stage, processes it, and passes results forward.
 
 ```
 find User(active: true) -> traverse(edge: "friends") -> filter age > 25 -> limit 50
@@ -13,7 +13,7 @@ find User(active: true) -> traverse(edge: "friends") -> filter age > 25 -> limit
       matching neurons)        adjacency edges)       the result set)        results)
 ```
 
-The power of CNQL is that these stages can span entirely different database paradigms — all within the same memory space, with zero network hops.
+The power of CDQL is that these stages can span entirely different database paradigms — all within the same memory space, with zero network hops.
 
 ---
 
@@ -31,7 +31,7 @@ find User(status: "active")
   -> limit 20
 ```
 
-In a Database Zoo this requires: Neo4j query → join with Postgres → PostGIS filter → Pinecone query → Python merge sort. That is 5 API calls. CLUAIZD does it in 1.
+In a Database Zoo this requires: Graph DB query → join with Relational DB → PostGIS filter → Vector DB query → Python merge sort. That is 5 API calls. CLUAIZD does it in 1.
 
 ---
 

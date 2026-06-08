@@ -1,9 +1,9 @@
 # What is CLUAIZD?
 
-Welcome to the official documentation for **CLUAIZD (Central Nervous System Database)**.
+Welcome to the official documentation for **CLUAIZD (Core Network System Database)**.
 
 ## The Autonomic Memory Substrate
-Traditional databases force you to choose an architecture before you start building. If you need relationships, you pick Neo4j. If you need search, you pick Elasticsearch. If you need JSON documents, you pick MongoDB. This results in massive architectural fragmentation, data syncing headaches, and system bloat.
+Traditional databases force you to choose an architecture before you start building. If you need relationships, you pick Graph DB. If you need search, you pick Search Engine. If you need JSON documents, you pick Document Store. This results in massive architectural fragmentation, data syncing headaches, and system bloat.
 
 **CLUAIZD shatters this paradigm.**
 
@@ -21,10 +21,10 @@ Instead of hardcoding features into the core engine, CLUAIZD relies on **Genomes
 For example:
 - Attach `sql_strict.json` and the Neuron acts like a strict Relational table.
 - Attach `time_series.json` and the Neuron will automatically compress old data and aggregate time windows.
-- Attach `ephemeral_cache.json` and the Neuron behaves like Redis, evicting itself from memory based on TTL.
+- Attach `ephemeral_cache.json` and the Neuron behaves like In-Memory Cache, evicting itself from memory based on TTL.
 
-## The Cluaiz Neural Query Language (CNQL)
-To command these diverse Genomes, CLUAIZD introduces **CNQL** — a universal, pipeline-based query language. CNQL allows you to run Graph traversals, Vector searches, and Geo-Spatial queries seamlessly within the exact same pipeline string.
+## The cluaizd Neural Query Language (CDQL)
+To command these diverse Genomes, CLUAIZD introduces **CDQL** — a universal, pipeline-based query language. CDQL allows you to run Graph traversals, Vector searches, and Geo-Spatial queries seamlessly within the exact same pipeline string.
 
 ```text
 // Find blue cars, traverse their owner graph, and filter by radius

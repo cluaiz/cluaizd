@@ -16,8 +16,10 @@ pub mod gc;
 pub mod sandbox;
 pub mod manifest;
 pub mod ffi;
+pub mod codecs;
 
 // Flat public API surface
+pub use codecs::*;
 pub use env::LmdbEnv;
 pub use reader::{read_neuron, iter_all_neurons};
 pub use sensory_shard::SensoryShard;

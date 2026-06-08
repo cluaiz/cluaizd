@@ -11,7 +11,7 @@ use tracing::{info, warn};
 
 use crate::routes::AppState;
 
-/// System telemetry data mapping to Cluaiz-HEART biomarkers.
+/// System telemetry data mapping to Cluaizd-HEART biomarkers.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HeartTelemetry {
     pub heart_rate_bpm: u32,
@@ -42,7 +42,7 @@ pub async fn handle_ws(
 }
 
 async fn handle_socket(state: Arc<AppState>, socket: WebSocket) {
-    info!("Cluaiz-HEART WebSocket telemetry client connected");
+    info!("Cluaizd-HEART WebSocket telemetry client connected");
 
     // Spawn a receiver task to handle incoming controls
     let (mut sender, mut receiver) = socket.split();
@@ -79,39 +79,22 @@ async fn handle_socket(state: Arc<AppState>, socket: WebSocket) {
     // Telemetry sender loop (every 500ms)
     let state_tx = Arc::clone(&state);
     let tx_task = tokio::spawn(async move {
-        let mut heart_rate = 72;
-        let mut sys = 120;
-        let mut dia = 80;
-        let mut spo2 = 98.5;
-        let mut metabolic = 1.0;
-
         loop {
-            // Compute real database metrics to influence telemetry biomarkers
-            let open_shards = state_tx.shard_manager.active_shards_count().await as u32;
-            let target_heart_rate = (72 + open_shards * 8).min(180);
+            // Read real metrics from Cluaizd-HEART autonomic controller
+            let tel = {
+                let lock = state_tx.heart_telemetry.read().await;
+                *lock
+            };
 
-            // Simulate minor biometric fluctuations drifting towards the target load indicator
-            heart_rate = (heart_rate as i32 + rand_range(-2, 2)).max(60).min(180) as u32;
-            if heart_rate < target_heart_rate {
-                heart_rate += 1;
-            } else if heart_rate > target_heart_rate {
-                heart_rate -= 1;
-            }
-
-            sys = (sys as i32 + rand_range(-2, 2)).max(100).min(150) as u32;
-            dia = (dia as i32 + rand_range(-1, 1)).max(60).min(95) as u32;
-            spo2 = (spo2 + rand_range_f32(-0.1, 0.1)).max(95.0).min(100.0);
-            
             // Metabolic rate reflects the number of active database shards
-            let target_metabolic = 1.0 + (open_shards as f32 * 0.25);
-            metabolic = (metabolic + (target_metabolic - metabolic) * 0.1 + rand_range_f32(-0.02, 0.02)).max(0.2).min(3.0);
-
+            let open_shards = state_tx.shard_manager.active_shards_count().await as u32;
+            let metabolic = 1.0 + (open_shards as f32 * 0.25);
 
             let telemetry = HeartTelemetry {
-                heart_rate_bpm: heart_rate,
-                blood_pressure_systolic: sys,
-                blood_pressure_diastolic: dia,
-                oxygen_level_spo2: spo2,
+                heart_rate_bpm: tel.bpm,
+                blood_pressure_systolic: tel.bp_systolic as u32,
+                blood_pressure_diastolic: 80, // Static for now, can be mapped if needed
+                oxygen_level_spo2: tel.spo2 as f32,
                 metabolic_rate: metabolic,
             };
 
@@ -131,22 +114,6 @@ async fn handle_socket(state: Arc<AppState>, socket: WebSocket) {
         _ = rx_task => {},
         _ = tx_task => {},
     }
-    info!("Cluaiz-HEART WebSocket client disconnected");
-}
-
-// Simple LCG helper functions for generating telemetry fluctuations
-fn rand_range(min: i32, max: i32) -> i32 {
-    let mut seed = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_nanos();
-    seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
-    let rand_val = (seed & 0x7FFFFFFF) as i32;
-    min + (rand_val % (max - min + 1))
-}
-
-fn rand_range_f32(min: f32, max: f32) -> f32 {
-    let r = rand_range(0, 1000) as f32 / 1000.0;
-    min + r * (max - min)
+    info!("Cluaizd-HEART WebSocket client disconnected");
 }
 

@@ -3,7 +3,7 @@ name = "cluaizd-server"
 version = "0.1.0"
 edition = "2021"
 license = "BSL-1.1"
-description = "HTTP/gRPC server daemon for Cluaiz CLUAIZD"
+description = "HTTP/gRPC server daemon for Cluaizd CLUAIZD"
 
 [[bin]]
 name = "cluaizd-server"

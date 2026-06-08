@@ -72,7 +72,7 @@ find Sensor(sensor_id: "temp_01")
 
 ---
 
-## Time-Window Aggregation (InfluxDB `GROUP BY time()` Equivalent)
+## Time-Window Aggregation (Time-Series DB `GROUP BY time()` Equivalent)
 
 ```text
 // Average temperature per 5-minute window over the last 6 hours
@@ -113,16 +113,16 @@ As data ages, granularity becomes less important. Instead of storing every 1-sec
 }
 ```
 
-Paired with periodic CNQL aggregation jobs that write hourly summaries, you can store months of historical data on a $5/month server.
+Paired with periodic CDQL aggregation jobs that write hourly summaries, you can store months of historical data on a $5/month server.
 
 ---
 
-## Comparison: CLUAIZD vs InfluxDB
+## Comparison: CLUAIZD vs Time-Series DB
 
-| Feature | InfluxDB | CLUAIZD (time_series) |
+| Feature | Time-Series DB | CLUAIZD (time_series) |
 |---|---|---|
 | Timestamp Enforcement | ✅ | ✅ |
-| Time-Window Aggregations | ✅ | ✅ (via CNQL) |
+| Time-Window Aggregations | ✅ | ✅ (via CDQL) |
 | Automatic Downsampling | ✅ | ✅ (via Genome lifecycle) |
 | Vector Search on Readings | ❌ | ✅ (hybrid genome) |
 | Graph Relationships | ❌ | ✅ (via adjacency) |

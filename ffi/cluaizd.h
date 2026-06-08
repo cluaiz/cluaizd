@@ -1,8 +1,8 @@
 /**
  * cluaizd.h — CLUAIZD C FFI Header
  *
- * Cluaiz Nervous System Database — C-Compatible Interface
- * Copyright (c) 2024 Cluaiz. All rights reserved.
+ * Cluaizd Nervous System Database — C-Compatible Interface
+ * Copyright (c) 2024 Cluaizd. All rights reserved.
  *
  * BSL-1.1 License — Free for personal use and research.
  * Commercial cloud service deployment requires a separate license.
@@ -54,13 +54,13 @@ extern "C" {
 #endif
 
 /**
- * Opaque handle to an open CLUAIZD database instance.
+ * Opaque handle to an open CLUAIZD instance.
  * Never access the internal fields directly.
  */
 typedef struct CluaizdHandle CluaizdHandle;
 
 /**
- * Open a CLUAIZD database at the given filesystem path.
+ * Open a CLUAIZD at the given filesystem path.
  *
  * @param path          UTF-8 encoded path to the database directory.
  *                      Will be created if it doesn't exist.
@@ -108,17 +108,17 @@ uint8_t* cluaizd_read(
 );
 
 /**
- * Query CLUAIZD using a CNQL string or keyword.
+ * Query CLUAIZD using a CDQL string or keyword.
  * Returns a JSON array of matching Neuron IDs.
  *
  * @param handle    A valid handle from cluaizd_open().
- * @param cnql      A null-terminated query string.
+ * @param CDQL      A null-terminated query string.
  *                  Example: `find *(name: "Aryan")` or just `Aryan`
  *
  * @return A heap-allocated null-terminated JSON string: ["id1", "id2", ...]
  *         MUST be freed with cluaizd_free_string(). Returns NULL on failure.
  */
-char* cluaizd_query(CluaizdHandle* handle, const char* cnql);
+char* cluaizd_query(CluaizdHandle* handle, const char* CDQL);
 
 /**
  * Close a CLUAIZD handle and release all associated memory.

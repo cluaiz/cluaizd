@@ -43,7 +43,7 @@ curl -X POST "http://localhost:7331/data?tenant_id=sensory_tissue" \
 
 # Query only within the sensory shard
 curl -X POST "http://localhost:7331/query?tenant_id=sensory_tissue" \
-  -d '{"cnql": "find * -> range_scan(field: \"timestamp\", start: X, end: Y)"}'
+  -d '{"cdql": "find * -> range_scan(field: \"timestamp\", start: X, end: Y)"}'
 ```
 
 ---
@@ -65,7 +65,7 @@ Because LMDB environments are completely independent:
 | Operation | Affected Shards |
 |---|---|
 | BCI writes at 256,000/s to `sensory_tissue` | ❌ Does NOT affect `default_sandbox` reads |
-| Heavy CNQL query scan on `default_sandbox` | ❌ Does NOT block `sensory_tissue` writes |
+| Heavy CDQL query scan on `default_sandbox` | ❌ Does NOT block `sensory_tissue` writes |
 | ZSTD compression of cold `media_library` blob | ❌ Does NOT affect either database |
 
 This is **hardware-level isolation** — each shard maps its own section of physical memory.
@@ -91,7 +91,7 @@ For maximum performance on the `sensory_tissue` shard (bypassing TCP/HTTP entire
 
 ```c
 // Open the sensory shard directly from C code
-CluaizdHandle* handle = cluaizd_open("./out/sensory_tissue", 8192);
+cluaizddHandle* handle = cluaizd_open("./out/sensory_tissue", 8192);
 
 // Write 256,000 BCI readings/second directly via memory-mapped I/O
 for (int i = 0; i < 256000; i++) {

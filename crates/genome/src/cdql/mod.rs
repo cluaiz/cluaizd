@@ -1,4 +1,4 @@
-/// Cluaiz Neural Query Language (CNQL)
+///  Cluaiz Database Query Language (CDQL)
 /// 
 /// A universal, Python-like query language that works uniformly
 /// across ALL 9 database paradigms (Document, Graph, SQL, Vector, etc.)
@@ -13,5 +13,5 @@
 pub mod parser;
 pub mod planner;
 
-pub use parser::{parse, CnqlQuery};
+pub use parser::{parse, CdqlQuery};
 pub use planner::{build_plan, QueryPlan};

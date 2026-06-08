@@ -71,23 +71,23 @@ Copy `ffi/cluaizd.h` and the `.so`/`.dll` into your project.
 // path: filesystem path to LMDB directory
 // map_size_mb: max database size in MB (e.g. 8192 = 8GB)
 // Returns: opaque handle, or NULL on failure
-CluaizdHandle* cluaizd_open(const char* path, unsigned long map_size_mb);
+cluaizddHandle* cluaizd_open(const char* path, unsigned long map_size_mb);
 
 // Write raw bytes directly to LMDB (no JSON, no HTTP)
 // neuron_id: unique string key
 // payload_json: serialized payload bytes
 // Returns: 0 on success, -1 on failure
-int cluaizd_write(CluaizdHandle* handle, const char* neuron_id, const char* payload_json);
+int cluaizd_write(cluaizddHandle* handle, const char* neuron_id, const char* payload_json);
 
 // Direct key lookup — bypasses ALL query planning
 // Returns: allocated JSON string, caller must free
-char* cluaizd_read(CluaizdHandle* handle, const char* neuron_id);
+char* cluaizd_read(cluaizddHandle* handle, const char* neuron_id);
 
-// Execute a CNQL query string
-char* cluaizd_query(CluaizdHandle* handle, const char* cnql);
+// Execute a CDQL query string
+char* cluaizd_query(cluaizddHandle* handle, const char* cdql);
 
 // Close and flush all pending writes
-void cluaizd_close(CluaizdHandle* handle);
+void cluaizd_close(cluaizddHandle* handle);
 ```
 
 ---
@@ -102,7 +102,7 @@ A ROS2 node receiving LiDAR point clouds at 100 Hz, storing each scan frame dire
 #include <cstdio>
 
 class LidarStorageNode {
-    CluaizdHandle* db_handle;
+    cluaizddHandle* db_handle;
     
 public:
     LidarStorageNode() {
@@ -227,7 +227,7 @@ void sensor_callback(RingBuffer& ring, const char* id, const char* payload) {
 }
 
 // Background writer thread (drains ring into CLUAIZD)
-void writer_thread(RingBuffer& ring, CluaizdHandle* db) {
+void writer_thread(RingBuffer& ring, cluaizddHandle* db) {
     while (true) {
         size_t tail = ring.read_head.load(std::memory_order_relaxed);
         size_t head = ring.write_head.load(std::memory_order_acquire);

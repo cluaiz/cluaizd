@@ -2,8 +2,8 @@
 
 In this tutorial, we will build a **real-time collaborative todo app** backend using CLUAIZD. Unlike a typical "Hello World" tutorial, we will use CLUAIZD as 3 different databases simultaneously:
 - **Relational (SQL-like):** For structured Todo items with strict validation.
-- **Real-Time Cache (Redis-like):** For storing online user presence with TTL.
-- **Graph (Neo4j-like):** For linking todos to users via ownership edges.
+- **Real-Time Cache (In-Memory Cache-like):** For storing online user presence with TTL.
+- **Graph (Graph DB-like):** For linking todos to users via ownership edges.
 
 This is CLUAIZD's core superpower on full display.
 
@@ -91,7 +91,7 @@ After 5 minutes, the Dreamer thread will automatically evict `presence_aryan` fr
 curl -X POST http://localhost:7331/query \
   -H "Content-Type: application/json" \
   -d '{
-    "cnql": "find * -> filter done: false -> limit 50"
+    "cdql": "find * -> filter done: false -> limit 50"
   }'
 ```
 
@@ -100,7 +100,7 @@ For a graph-aware query to get all todos owned by Aryan:
 curl -X POST http://localhost:7331/query \
   -H "Content-Type: application/json" \
   -d '{
-    "cnql": "find id(\"user_aryan\") -> traverse(edge: \"owned_by\")"
+    "cdql": "find id(\"user_aryan\") -> traverse(edge: \"owned_by\")"
   }'
 ```
 
@@ -121,9 +121,9 @@ curl -X PUT http://localhost:7331/data/todo_001 \
 ## What We Just Built
 
 In this single tutorial, we used CLUAIZD as:
-1. **PostgreSQL** — Strict schema enforcement via `on_write` Rhai hooks.
-2. **Neo4j** — Graph edges (`owned_by`) linking Todos to Users.
-3. **Redis** — TTL-based presence cache with auto-eviction.
+1. **Relational DB** — Strict schema enforcement via `on_write` Rhai hooks.
+2. **Graph DB** — Graph edges (`owned_by`) linking Todos to Users.
+3. **In-Memory Cache** — TTL-based presence cache with auto-eviction.
 
 All from one HTTP API. Zero additional databases. Zero infrastructure sprawl.
 

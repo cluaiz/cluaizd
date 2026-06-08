@@ -16,7 +16,7 @@ cargo run -p cluaizd-server
 
 You should see:
 ```
-INFO Cluaiz CLUAIZD Server v0.0.1 starting
+INFO cluaizd CLUAIZD Server v0.0.1 starting
 INFO Running WAL crash recovery...
 INFO WAL boot recovery complete ✅
 INFO Server listening on 0.0.0.0:7331
@@ -47,20 +47,20 @@ curl -X POST http://localhost:7331/neuron \
 
 **Response:** `{ "status": "written", "id": "user_aryan" }`
 
-## 3. Query via CNQL
+## 3. Query via CDQL
 
-Now, we can query our neuron using the Cluaiz Neural Query Language (CNQL). 
+Now, we can query our neuron using the cluaizd Neural Query Language (CDQL). 
 
 ```bash
 curl -X POST http://localhost:7331/query \
      -H "Content-Type: application/json" \
      -d '{
-       "cnql": "find id(\"user_1\")"
+       "cdql": "find id(\"user_1\")"
      }'
 ```
 
 ### The Fast Path
-Because we used `find id(...)`, the CNQL Planner automatically engages the **Fast Path**. It bypasses the WASM execution engine entirely and hits LMDB directly, returning the data in `0ms`.
+Because we used `find id(...)`, the CDQL Planner automatically engages the **Fast Path**. It bypasses the WASM execution engine entirely and hits LMDB directly, returning the data in `0ms`.
 
 ---
 

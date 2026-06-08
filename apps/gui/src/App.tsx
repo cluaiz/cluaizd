@@ -27,7 +27,7 @@ export default function App() {
 
     const mockNodes = [
       // IDENTITY CLUSTER
-      { id: '1', name: 'Cluaiz Core identity', label: 'OrgNeuron', cluster: 'IDENTITY', isRoot: true },
+      { id: '1', name: 'Cluaizd Core identity', label: 'OrgNeuron', cluster: 'IDENTITY', isRoot: true },
       { id: '2', name: 'Aryan Owner Node', label: 'BossNeuron', cluster: 'IDENTITY' },
       { id: '3', name: 'Engineering Core', label: 'DeptNeuron', cluster: 'IDENTITY' },
       // WORKFORCE CLUSTER

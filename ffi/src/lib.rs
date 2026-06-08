@@ -32,13 +32,13 @@ use bytes::Bytes;
 use cluaizd_types::{PayloadType, UniversalNeuron};
 use engine_lmdb::LmdbEnv;
 
-/// Opaque handle representing an open CLUAIZD database instance.
+/// Opaque handle representing an open CLUAIZD  instance.
 /// The caller holds a raw pointer — they must call `cluaizd_close` to free it.
 pub struct CluaizdHandle {
     env: Mutex<LmdbEnv>,
 }
 
-/// Open a CLUAIZD database at the given path.
+/// Open a CLUAIZD at the given path.
 ///
 /// # Arguments
 /// - `path`: UTF-8 path to the database directory (will be created if absent)
@@ -191,11 +191,11 @@ pub extern "C" fn cluaizd_read(
     }
 }
 
-/// Query CLUAIZD using a CNQL string.
+/// Query CLUAIZD using a CDQL string.
 ///
 /// # Arguments
 /// - `handle`: A valid `CluaizdHandle*`
-/// - `cnql`: A null-terminated CNQL query string (e.g. `find *(name: "Aryan")`)
+/// - `cdql`: A null-terminated CDQL query string (e.g. `find *(name: "Aryan")`)
 ///
 /// # Returns
 /// A heap-allocated null-terminated JSON string containing the array of matched neuron IDs.
@@ -204,13 +204,13 @@ pub extern "C" fn cluaizd_read(
 #[no_mangle]
 pub extern "C" fn cluaizd_query(
     handle: *mut CluaizdHandle,
-    cnql: *const c_char,
+    cdql: *const c_char,
 ) -> *mut c_char {
-    if handle.is_null() || cnql.is_null() {
+    if handle.is_null() || cdql.is_null() {
         return std::ptr::null_mut();
     }
 
-    let query_str = unsafe { CStr::from_ptr(cnql) }
+    let query_str = unsafe { CStr::from_ptr(cdql) }
         .to_str()
         .unwrap_or("");
 
@@ -221,7 +221,7 @@ pub extern "C" fn cluaizd_query(
     };
 
     // Get all neurons and do a simple payload search
-    // (Full CNQL execution requires the genome crate — this is a simplified FFI version)
+    // (Full CDQL execution requires the genome crate — this is a simplified FFI version)
     match engine_lmdb::iter_all_neurons(&env) {
         Ok(neurons) => {
             let ids: Vec<String> = neurons.iter()

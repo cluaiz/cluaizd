@@ -24,24 +24,10 @@ pub fn read_neuron(
 ) -> Result<UniversalNeuron, StorageError> {
     let rtxn = env.read_txn()?;
 
-    let bytes = match env.db.get(&rtxn, &id.as_bytes().as_slice())
+    let mut neuron: UniversalNeuron = match env.db.get(&rtxn, &id)
         .map_err(|e| StorageError::ReadTxnFailed(e.to_string()))? {
-        Some(b) => b,
+        Some(n) => n,
         None => return Err(StorageError::NeuronNotFound(id)),
-    };
-
-    // Check for ZSTD magic number (0xFD2FB528 in little endian)
-    // ZSTD frame starts with 28 B5 2F FD
-    let is_compressed = bytes.len() >= 4 && bytes[0..4] == [0x28, 0xB5, 0x2F, 0xFD];
-
-    let mut neuron: UniversalNeuron = if is_compressed {
-        let decompressed = zstd::stream::decode_all(std::io::Cursor::new(bytes))
-            .map_err(|e| StorageError::DeserializationFailed(format!("Decompression failed: {}", e)))?;
-        serde_json::from_slice(&decompressed)
-            .map_err(|e| StorageError::DeserializationFailed(format!("Deserialization error after decompress: {}", e)))?
-    } else {
-        serde_json::from_slice(bytes)
-            .map_err(|e| StorageError::DeserializationFailed(format!("Deserialization error: {}", e)))?
     };
 
     // Validate model hash if a query hash was provided.
@@ -163,18 +149,7 @@ pub fn iter_all_neurons(env: &crate::env::LmdbEnv) -> Result<Vec<UniversalNeuron
 
     let iter = env.db.iter(&rtxn).map_err(|e| StorageError::ReadTxnFailed(e.to_string()))?;
     for result in iter {
-        let (_k, v) = result.map_err(|e| StorageError::ReadTxnFailed(e.to_string()))?;
-        
-        let is_compressed = v.len() >= 4 && v[0..4] == [0x28, 0xB5, 0x2F, 0xFD];
-        let neuron: UniversalNeuron = if is_compressed {
-            let decompressed = zstd::stream::decode_all(std::io::Cursor::new(v))
-                .map_err(|e| StorageError::DeserializationFailed(format!("Decompress failed: {}", e)))?;
-            serde_json::from_slice(&decompressed)
-                .map_err(|e| StorageError::DeserializationFailed(format!("Deserialize failed: {}", e)))?
-        } else {
-            serde_json::from_slice(v)
-                .map_err(|e| StorageError::DeserializationFailed(format!("Deserialize failed: {}", e)))?
-        };
+        let (_k, neuron) = result.map_err(|e| StorageError::ReadTxnFailed(e.to_string()))?;
         neurons.push(neuron);
     }
 

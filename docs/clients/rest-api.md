@@ -12,7 +12,7 @@
 |---|---|---|
 | `POST` | `/neuron` | Insert or update a UniversalNeuron |
 | `GET` | `/neuron/{id}` | Fetch a single neuron by UUID |
-| `POST` | `/query` | Execute a CNQL query pipeline |
+| `POST` | `/query` | Execute a CDQL query pipeline |
 | `GET` | `/stream/{id}` | Zero-copy byte-range media streaming |
 | `GET` | `/graph/{id}/traverse` | Deep graph traversal from a node |
 | `GET` | `/juju/state` | Live spatial map of all neurons and edges |
@@ -112,16 +112,16 @@ curl http://localhost:7331/neuron/user_aryan_001
 
 ---
 
-## `POST /query` — Execute a CNQL Pipeline
+## `POST /query` — Execute a CDQL Pipeline
 
-Executes any CNQL query string against a shard.
+Executes any CDQL query string against a shard.
 
 ```bash
 curl -X POST http://localhost:7331/query \
   -H "Content-Type: application/json" \
   -d '{
     "tenant_id": "default_sandbox",
-    "cnql": "find User(status: \"active\") -> traverse(edge: \"friends\") -> limit 10"
+    "cdql": "find User(status: \"active\") -> traverse(edge: \"friends\") -> limit 10"
   }'
 ```
 
@@ -129,7 +129,7 @@ curl -X POST http://localhost:7331/query \
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `cnql` | `string` | ✅ | The CNQL pipeline query string |
+| `cdql` | `string` | ✅ | The CDQL pipeline query string |
 | `tenant_id` | `string` | ❌ | Shard to query. Default: `default_sandbox` |
 
 **Response: `200 OK`** — Array of matched neurons with scores:
@@ -137,7 +137,7 @@ curl -X POST http://localhost:7331/query \
 [
   {
     "score": 1.0,
-    "matched_by": "cnql",
+    "matched_by": "cdql",
     "neuron": {
       "id": "user_bob_002",
       "tier": "Hot",

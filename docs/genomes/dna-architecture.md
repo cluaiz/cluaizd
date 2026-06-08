@@ -1,6 +1,6 @@
 # DNA Architecture (Genomes)
 
-CLUAIZD relies on a revolutionary concept called **Genomes**. The core rust engine (`engine-lmdb`) contains zero business logic, schemas, or indexing optimizations. It only understands how to rapidly serialize and deserialize byte arrays.
+CLUAIZD relies on a Modern concept called **Genomes**. The core rust engine (`engine-lmdb`) contains zero business logic, schemas, or indexing optimizations. It only understands how to rapidly serialize and deserialize byte arrays.
 
 All intelligence is injected into the engine using DNA.
 
@@ -27,7 +27,7 @@ Every Genome can implement up to **5 hooks**. Each hook is a Rhai script string 
 ---
 
 #### 2. `on_read` — Access Control & Transformation
-**Fires:** When a CNQL query reads this neuron's payload.  
+**Fires:** When a CDQL query reads this neuron's payload.  
 **Returns:** `#{ payload: modified_payload }`.  
 **Use for:** Row-Level Security (decrypt for authorized users), field masking, live data reshaping.
 
@@ -55,7 +55,7 @@ Every Genome can implement up to **5 hooks**. Each hook is a Rhai script string 
 #### 4. `on_lifecycle` — Dreamer Eviction & Tiering
 **Fires:** Every N seconds by the background Dreamer engine (configurable in `config.toml`).  
 **Returns:** `#{}` for no action, `#{ action: "Evict" }` to delete, `#{ new_tier: "Cold", compress_level: 9 }` to compress.  
-**Use for:** TTL eviction (Redis-like), automatic Cold-tier demotion for old data.
+**Use for:** TTL eviction (In-Memory Cache-like), automatic Cold-tier demotion for old data.
 
 ```json
 {
@@ -79,7 +79,7 @@ Every Genome can implement up to **5 hooks**. Each hook is a Rhai script string 
 ```
 
 > [!NOTE]
-> `on_traverse` is only evaluated by `GET /graph/{id}/traverse`. The CNQL `traverse()` pipeline operator uses its own `min_weight` parameter instead. Use `on_traverse` for HTTP graph traversal with per-neuron access control policies.
+> `on_traverse` is only evaluated by `GET /graph/{id}/traverse`. The CDQL `traverse()` pipeline operator uses its own `min_weight` parameter instead. Use `on_traverse` for HTTP graph traversal with per-neuron access control policies.
 
 ---
 

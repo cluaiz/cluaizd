@@ -6,7 +6,7 @@
 
 Traditional databases have one strategy for memory management: **"Keep everything in RAM until you can't, then crash."**
 
-PostgreSQL has `shared_buffers`. Redis has `maxmemory`. InfluxDB has TSM compaction. All of them require manual tuning, and all of them have the same failure mode: when RAM runs out, the OS kills the process.
+Relational DB has `shared_buffers`. In-Memory Cache has `maxmemory`. Time-Series DB has TSM compaction. All of them require manual tuning, and all of them have the same failure mode: when RAM runs out, the OS kills the process.
 
 CLUAIZD takes a radically different approach inspired by biological nervous systems.
 
@@ -54,7 +54,7 @@ Every N seconds, for each Hot Neuron:
 ### Tier 1: Hot (Conscious Working Memory)
 - **Data:** Full `raw_payload` + `vector_data` + `adjacency` in RAM.
 - **Latency:** `< 1ms` — LMDB mmap pointer dereference.
-- **Queries:** All CNQL operations work at full speed.
+- **Queries:** All CDQL operations work at full speed.
 
 ### Tier 2: Warm (Subconscious Cache)
 - **Data:** `raw_payload` is DELETED from LMDB to save space. Only the neuron shell (ID, `vector_data`, `adjacency`) is retained.
@@ -73,7 +73,7 @@ Every N seconds, for each Hot Neuron:
 
 When a query targets a Cold neuron, the Dreamer automatically rehydrates it:
 
-1. CNQL query hits a Cold-tier Neuron ID.
+1. CDQL query hits a Cold-tier Neuron ID.
 2. Dreamer is notified: "Rehydrate `neuron_xyz`".
 3. Dreamer decompresses the ZSTD blob in a background thread.
 4. Writes the decompressed data back to LMDB as a Hot neuron.
@@ -105,7 +105,7 @@ default_cold_ttl_seconds = 3600
 
 ## Why This Approach is Superior to Manual Tuning
 
-| Approach | PostgreSQL `shared_buffers` | Redis `maxmemory` | CLUAIZD Dreamer |
+| Approach | Relational DB `shared_buffers` | In-Memory Cache `maxmemory` | CLUAIZD Dreamer |
 |---|---|---|---|
 | Configuration | Manual, requires DBA expertise | Manual, single limit | Automatic, self-calibrating |
 | Behavior at RAM limit | Query slowdown, OOM kill | Evict or crash | Graceful Hot→Warm→Cold |

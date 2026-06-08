@@ -1,16 +1,16 @@
-# CNQL Rosetta Stone — Universal Query Cheatsheet
+# CDQL Rosetta Stone — Universal Query Cheatsheet
 
-> *"दुनिया के किसी भी database से आओ — 10 minutes में CNQL सीख लो।"*
+> *"दुनिया के किसी भी database से आओ — 10 minutes में CDQL सीख लो।"*
 
-यह single page हमारे entire database universe का निचोड़ है। MongoDB developer हो, PostgreSQL veteran हो, या Neo4j specialist — अपनी पुरानी भाषा को नीचे दिए गए table में ढूंढो और उसका CNQL equivalent तुरंत मिल जाएगा।
+यह single page हमारे entire database universe का निचोड़ है। Document Store developer हो, Relational DB veteran हो, या Graph DB specialist — अपनी पुरानी भाषा को नीचे दिए गए table में ढूंढो और उसका CDQL equivalent तुरंत मिल जाएगा।
 
 ---
 
 ## 🗺️ The Complete Translation Matrix
 
-### 1. Relational SQL (PostgreSQL / MySQL)
+### 1. Relational SQL (Relational DB / Relational DB)
 
-| SQL Command | CNQL Equivalent | Under the Hood |
+| SQL Command | CDQL Equivalent | Under the Hood |
 |---|---|---|
 | `SELECT * FROM users` | `find User` | Full shard scan |
 | `SELECT * FROM users WHERE age > 18` | `find User -> filter age > 18` | WASM filter on payload |
@@ -25,9 +25,9 @@
 
 ---
 
-### 2. Document NoSQL (MongoDB)
+### 2. Document NoSQL (Document Store)
 
-| MongoDB Command | CNQL Equivalent | Under the Hood |
+| Document Store Command | CDQL Equivalent | Under the Hood |
 |---|---|---|
 | `db.users.find({status: "active"})` | `find User(status: "active")` | JSON field filter |
 | `db.users.find({age: {$gt: 18}})` | `find User -> filter age > 18` | Numeric compare |
@@ -40,9 +40,9 @@
 
 ---
 
-### 3. Graph Database (Neo4j Cypher)
+### 3. Graph Database (Graph DB Cypher)
 
-| Cypher Command | CNQL Equivalent | Under the Hood |
+| Cypher Command | CDQL Equivalent | Under the Hood |
 |---|---|---|
 | `MATCH (u:User {id: "alice"}) RETURN u` | `find id("user_alice")` | Fast-Path |
 | `MATCH (u:User)-[:FRIENDS]->(f) RETURN f` | `find User -> traverse(edge: "friends", hops: 1..1)` | Index-free adjacency |
@@ -53,9 +53,9 @@
 
 ---
 
-### 4. Vector / AI Database (Pinecone / Milvus)
+### 4. Vector / AI Database (Vector DB / Vector DB)
 
-| Vector DB Command | CNQL Equivalent | Under the Hood |
+| Vector DB Command | CDQL Equivalent | Under the Hood |
 |---|---|---|
 | `index.query(vector=[...], top_k=10)` | `find * -> similar_to(vector: [...], metric: "cosine") -> limit 10` | Float32 dot products |
 | `index.query(vector=[...], filter={"color": "red"})` | `find Product(color: "red") -> similar_to(vector: [...])` | **Hybrid Search** |
@@ -64,9 +64,9 @@
 
 ---
 
-### 5. Time-Series (InfluxDB / TimescaleDB)
+### 5. Time-Series (Time-Series DB / Time-Series DB)
 
-| InfluxDB / SQL Command | CNQL Equivalent | Under the Hood |
+| Time-Series DB / SQL Command | CDQL Equivalent | Under the Hood |
 |---|---|---|
 | `SELECT * FROM sensors WHERE time > now() - 1h` | `find Sensor -> filter time between "now-1h" and "now"` | Time range filter |
 | `SELECT mean(value) FROM sensors GROUP BY time(5m)` | `find Sensor -> time_window(size: "5m") -> aggregate(avg(value))` | Time bucket grouping |
@@ -74,9 +74,9 @@
 
 ---
 
-### 6. Key-Value (Redis)
+### 6. Key-Value (In-Memory Cache)
 
-| Redis Command | CNQL Equivalent | Under the Hood |
+| In-Memory Cache Command | CDQL Equivalent | Under the Hood |
 |---|---|---|
 | `GET key` | `find id("key")` | **0ms Fast-Path, LMDB direct** |
 | `SET key value EX 600` | `POST /neuron` with `on_lifecycle` TTL genome | Dreamer eviction |
@@ -85,9 +85,9 @@
 
 ---
 
-### 7. Wide-Column (Cassandra CQL)
+### 7. Wide-Column (Wide-Column DB CDQL)
 
-| CQL Command | CNQL Equivalent | Under the Hood |
+| CDQL Command | CDQL Equivalent | Under the Hood |
 |---|---|---|
 | `SELECT * FROM events WHERE partition = 'sensor_x'` | `find Event(partition: "sensor_x")` | Partition filter |
 | `SELECT * FROM events WHERE ts BETWEEN X AND Y` | `find Event -> range_scan(field: "ts", start: X, end: Y)` | Ordered scan |
@@ -95,9 +95,9 @@
 
 ---
 
-### 8. Full-Text Search (Elasticsearch)
+### 8. Full-Text Search (Search Engine)
 
-| Elasticsearch Query | CNQL Equivalent | Under the Hood |
+| Search Engine Query | CDQL Equivalent | Under the Hood |
 |---|---|---|
 | `{ "match": { "content": "pizza" } }` | `find * -> search(query: "pizza", fuzzy: false)` | Inverted index lookup |
 | `{ "fuzzy": { "content": { "value": "pizaa" } } }` | `find * -> search(query: "pizaa", fuzzy: true)` | Levenshtein distance |
@@ -106,9 +106,9 @@
 
 ---
 
-### 9. Geo-Spatial (PostGIS / MongoDB Geo)
+### 9. Geo-Spatial (PostGIS / Document Store Geo)
 
-| Geo Query | CNQL Equivalent | Under the Hood |
+| Geo Query | CDQL Equivalent | Under the Hood |
 |---|---|---|
 | `ST_DWithin(point, center, 5000)` | `find * -> geo_near(lat: 28.6, lon: 77.2, radius: "5km")` | Haversine formula |
 | `ST_Contains(polygon, point)` | `find * -> geo_within(polygon: [[...], [...]])` | Polygon containment |
@@ -116,9 +116,9 @@
 
 ---
 
-### 10. Blob / Object Storage (S3 / MinIO)
+### 10. Blob / Object Storage (Object Store / Object Store)
 
-| S3 Operation | CNQL Equivalent | Under the Hood |
+| Object Store Operation | CDQL Equivalent | Under the Hood |
 |---|---|---|
 | `GET object` (full) | `find id("uuid")` | ZSTD decompress + return |
 | `GET object` (Range: bytes=0-1048576) | `find id("uuid") -> stream(bytes: 0..1048576)` | Byte-range streaming |

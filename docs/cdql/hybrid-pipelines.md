@@ -4,15 +4,15 @@
 
 ## The Core Insight
 
-Most developers think about databases as silos. You query PostgreSQL for structured data. You query Pinecone for vectors. You query Neo4j for relationships. Then you write Python code to merge the results.
+Most developers think about databases as silos. You query Relational DB for structured data. You query Vector DB for vectors. You query Graph DB for relationships. Then you write Python code to merge the results.
 
-CLUAIZD breaks this paradigm. Because Genomes are dynamic policies attached to Neurons rather than hardcoded engine modes, a single CNQL pipeline can transparently invoke multiple paradigm engines in sequence — all within the same Rust memory process, zero network hops between steps.
+CLUAIZD breaks this paradigm. Because Genomes are dynamic policies attached to Neurons rather than hardcoded engine modes, a single CDQL pipeline can transparently invoke multiple paradigm engines in sequence — all within the same Rust memory process, zero network hops between steps.
 
 ---
 
 ## How Cross-Genome Synthesis Works (Under the Hood)
 
-When the CNQL Planner receives a pipeline like:
+When the CDQL Planner receives a pipeline like:
 ```text
 find Product(color: "red") -> traverse(edge: "bought_by") -> similar_to(vector: [...])
 ```
@@ -54,7 +54,7 @@ find Restaurant(cuisine: "Italian", rating >= 4.5, open_now: true)
   -> limit 10
 ```
 
-**Traditional approach:** PostGIS query → Elasticsearch query → Python merge → sort. 3 API calls, 2-3 seconds.
+**Traditional approach:** PostGIS query → Search Engine query → Python merge → sort. 3 API calls, 2-3 seconds.
 **CLUAIZD:** 1 pipeline, ~15ms.
 
 ---

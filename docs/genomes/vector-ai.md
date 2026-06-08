@@ -20,7 +20,7 @@ A vector embedding is a mathematical representation of the "meaning" of data, pr
 - The sentence **"I enjoy espresso"** maps to `[0.13, -0.42, 0.91, ...]` — very close!
 - The sentence **"The rocket launches tomorrow"** maps to `[-0.82, 0.31, -0.05, ...]` — far away.
 
-CLUAIZD stores these embeddings in the `vector_data` field of every Neuron. The CNQL `similar_to()` operator then computes the mathematical distance between a query vector and all stored vectors, returning the closest matches.
+CLUAIZD stores these embeddings in the `vector_data` field of every Neuron. The CDQL `similar_to()` operator then computes the mathematical distance between a query vector and all stored vectors, returning the closest matches.
 
 ---
 
@@ -102,15 +102,15 @@ query = "Rust systems programming database"
 query_vector = model.encode(query).tolist()
 
 results = requests.post("http://localhost:7331/query", json={
-    "cnql": f"find * -> similar_to(vector: {query_vector}, metric: \"cosine\") -> limit 5"
+    "cdql": f"find * -> similar_to(vector: {query_vector}, metric: \"cosine\") -> limit 5"
 }).json()
 ```
 
 ---
 
-## Comparison: CLUAIZD vs Pinecone
+## Comparison: CLUAIZD vs Vector DB
 
-| Feature | Pinecone | CLUAIZD (vector_space) |
+| Feature | Vector DB | CLUAIZD (vector_space) |
 |---|---|---|
 | Cosine / L2 Similarity | ✅ | ✅ |
 | Metadata Hybrid Filtering | ✅ | ✅ |

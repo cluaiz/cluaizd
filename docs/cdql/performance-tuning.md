@@ -1,10 +1,10 @@
-# CNQL Performance Tuning
+# CDQL Performance Tuning
 
 > *"A fast query is not an accident. It is a design decision."*
 
-## Understanding the CNQL Execution Layers
+## Understanding the CDQL Execution Layers
 
-Every CNQL query passes through 3 layers. Understanding which layer your query uses is the key to optimization.
+Every CDQL query passes through 3 layers. Understanding which layer your query uses is the key to optimization.
 
 ```
 Layer 1: Fast-Path (0ms)
@@ -43,7 +43,7 @@ find id("user_aryan_xyz123")             // < 0.1ms
 
 ## Rule 2: Filter Early, Compute Late
 
-The CNQL Planner executes pipeline stages in the order you write them. A `similar_to()` computation is expensive — it computes dot products against every vector in the working set. Reduce the working set first.
+The CDQL Planner executes pipeline stages in the order you write them. A `similar_to()` computation is expensive — it computes dot products against every vector in the working set. Reduce the working set first.
 
 ```text
 // ❌ BAD — runs vector search on ALL 1 million users
@@ -67,7 +67,7 @@ curl -X POST "http://localhost:7331/data?tenant_id=product_catalog" -d '{...}'
 
 # Query only the 100,000 products shard — not 10 million main records
 curl -X POST "http://localhost:7331/query?tenant_id=product_catalog" \
-  -d '{"cnql": "find Product(category: \"electronics\") -> limit 20"}'
+  -d '{"cdql": "find Product(category: \"electronics\") -> limit 20"}'
 ```
 
 ---

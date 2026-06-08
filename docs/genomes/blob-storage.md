@@ -17,7 +17,7 @@ Real-world use cases: Video hosting platforms, scientific datasets (genome seque
 
 A 4K video file is ~4 GB. If you try to store 1,000 videos in a database that keeps everything in RAM, you need 4 TB of RAM — a $50,000/month server bill.
 
-Traditional object stores (S3, MinIO) solve this by pushing everything to disk, but then you lose the ability to add metadata, search relationships, or graph-traverse between blobs.
+Traditional object stores (Object Store, Object Store) solve this by pushing everything to disk, but then you lose the ability to add metadata, search relationships, or graph-traverse between blobs.
 
 CLUAIZD solves this differently with the **Bits-to-Atoms tiering system**:
 
@@ -113,14 +113,14 @@ The vector search runs entirely on the Hot-tier Neuron shells (which are small).
 
 ---
 
-## Comparison: CLUAIZD vs Amazon S3
+## Comparison: CLUAIZD vs Object Store
 
-| Feature | Amazon S3 | CLUAIZD (object_store) |
+| Feature | Object Store | CLUAIZD (object_store) |
 |---|---|---|
 | Blob Storage (TB scale) | ✅ | ✅ (via ZSTD Cold tier) |
 | Byte-Range Streaming | ✅ | ✅ |
-| Metadata + Blob in One | ⚠️ (S3 Object Tags only) | ✅ (full JSON metadata) |
+| Metadata + Blob in One | ⚠️ (Object Store Object Tags only) | ✅ (full JSON metadata) |
 | Graph Relations Between Blobs | ❌ | ✅ |
 | Semantic Vector Search Over Blobs | ❌ | ✅ |
-| Self-Hosted | ✅ (MinIO) | ✅ |
+| Self-Hosted | ✅ (Object Store) | ✅ |
 | Cost (10 TB storage) | ~$230/mo | ~$5/mo (local SSD) |

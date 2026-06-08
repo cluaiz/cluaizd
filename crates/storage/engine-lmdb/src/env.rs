@@ -5,15 +5,19 @@ use tracing::info;
 
 use cluaizd_errors::StorageError;
 
+use heed::types::*;
+use cluaizd_types::NeuronId;
+use crate::codecs::UniversalNeuronCodec;
+
 /// The LMDB environment wrapper.
 /// This struct owns the connection to the physical `.mdb` file on disk.
 /// One `LmdbEnv` per database shard.
 pub struct LmdbEnv {
     pub(crate) env: Env,
     /// The primary neuron key-value store within this environment.
-    /// Key: NeuronId bytes (16 bytes)
-    /// Value: serialized UniversalNeuron (JSON for MVP, binary in future)
-    pub(crate) db: Database<heed::types::Bytes, heed::types::Bytes>,
+    /// Key: NeuronId (16 bytes, zero-copy bincode)
+    /// Value: UniversalNeuron (zero-copy bincode via custom codec)
+    pub(crate) db: Database<SerdeBincode<NeuronId>, UniversalNeuronCodec>,
 }
 
 impl LmdbEnv {
