@@ -17,6 +17,7 @@ pub mod sandbox;
 pub mod manifest;
 pub mod ffi;
 pub mod codecs;
+pub mod specular;
 
 // Flat public API surface
 pub use codecs::*;
@@ -27,4 +28,5 @@ pub use writer::write_neuron;
 pub use gc::{spawn_biological_gc, run_gc_sweep};
 pub use sandbox::DeepArcherSandbox;
 pub use manifest::{GeneRegistryManifest, GeneTrait, ManifestError};
+pub use specular::SpecularGraph;
 
