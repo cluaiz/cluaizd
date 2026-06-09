@@ -1,0 +1,13 @@
+{
+  "on_write": "let payload_str = payload; let doc = json(payload_str); if doc.type == \"\" { return #{\"action\": \"Abort\", \"error\": \"Missing doc type\"}; } return #{\"action\": \"Allow\"};",
+  "on_read": null,
+  "on_index": "let vec = vector_data; let query = query_vector; if query.len() == 0 { return #{\"score\": 0.0}; } let d = cosine_similarity(vec, query); return #{\"score\": d};",
+  "on_traverse": null,
+  "on_dream": null,
+  "on_lifecycle": "let age_ns = neuron.age_ns; if age_ns > (config.ttl * 1000000000) { return #{\"delete_neuron\": true}; } return #{};",
+  "parameters": {
+    "ttl": 86400,
+    "min_weight": 0.5
+  },
+  "engine": "rhai"
+}
