@@ -148,6 +148,71 @@
     ]
   },
   {
+    "id": "cluaizd-types",
+    "title": "🗃️ 30 Database Paradigms",
+    "groups": [
+      {
+        "group": "Paradigms 01-10",
+        "pages": [
+          { "slug": "01-key-value", "title": "⚡ 01: Key-Value", "file_path": "docs/cluaizd-types/01-key-value.md" },
+          { "slug": "02-document-nosql", "title": "📑 02: Document NoSQL", "file_path": "docs/cluaizd-types/02-document-nosql.md" },
+          { "slug": "03-relational-oltp", "title": "🗄️ 03: Relational OLTP", "file_path": "docs/cluaizd-types/03-relational-oltp.md" },
+          { "slug": "04-columnar-olap", "title": "📊 04: Columnar OLAP", "file_path": "docs/cluaizd-types/04-columnar-olap.md" },
+          { "slug": "05-vector-similarity", "title": "🧠 05: Vector Similarity", "file_path": "docs/cluaizd-types/05-vector-similarity.md" },
+          { "slug": "06-labeled-property-graph", "title": "🕸️ 06: Labeled Property Graph", "file_path": "docs/cluaizd-types/06-labeled-property-graph.md" },
+          { "slug": "07-rdf-triple-store", "title": "🌐 07: RDF Triple Store", "file_path": "docs/cluaizd-types/07-rdf-triple-store.md" },
+          { "slug": "08-time-series", "title": "⏱️ 08: Time-Series", "file_path": "docs/cluaizd-types/08-time-series.md" },
+          { "slug": "09-spatial-gis", "title": "🌍 09: Geo-Spatial / GIS", "file_path": "docs/cluaizd-types/09-spatial-gis.md" },
+          { "slug": "10-blob-object", "title": "📦 10: Blob / Object", "file_path": "docs/cluaizd-types/10-blob-object.md" }
+        ]
+      },
+      {
+        "group": "Paradigms 11-20",
+        "pages": [
+          { "slug": "11-inverted-index", "title": "🔍 11: Inverted Index", "file_path": "docs/cluaizd-types/11-inverted-index.md" },
+          { "slug": "12-hierarchical", "title": "🌳 12: Hierarchical", "file_path": "docs/cluaizd-types/12-hierarchical.md" },
+          { "slug": "13-network-model", "title": "🕸️ 13: Network Model", "file_path": "docs/cluaizd-types/13-network-model.md" },
+          { "slug": "14-event-store", "title": "⏱️ 14: Event Store / Sourcing", "file_path": "docs/cluaizd-types/14-event-store.md" },
+          { "slug": "15-pub-sub", "title": "📡 15: Pub-Sub / Message Queue", "file_path": "docs/cluaizd-types/15-pub-sub.md" },
+          { "slug": "16-blockchain-ledger", "title": "🔗 16: Blockchain Ledger", "file_path": "docs/cluaizd-types/16-blockchain-ledger.md" },
+          { "slug": "17-ledger-blockchain", "title": "📜 17: Immutable Ledger", "file_path": "docs/cluaizd-types/17-ledger-blockchain.md" },
+          { "slug": "18-content-addressable", "title": "🔑 18: Content-Addressable", "file_path": "docs/cluaizd-types/18-content-addressable.md" },
+          { "slug": "19-grid-data", "title": "🏁 19: Grid / In-Memory Data", "file_path": "docs/cluaizd-types/19-grid-data.md" },
+          { "slug": "20-multi-valued", "title": "📦 20: Multivalued Tables", "file_path": "docs/cluaizd-types/20-multi-valued.md" }
+        ]
+      },
+      {
+        "group": "Paradigms 21-30",
+        "pages": [
+          { "slug": "21-probabilistic", "title": "📊 21: Probabilistic Sketches", "file_path": "docs/cluaizd-types/21-probabilistic.md" },
+          { "slug": "22-crdt", "title": "🤝 22: CRDT (State/Op-Based)", "file_path": "docs/cluaizd-types/22-crdt.md" },
+          { "slug": "23-operational-transformation", "title": "🔄 23: Operational Transformation", "file_path": "docs/cluaizd-types/23-operational-transformation.md" },
+          { "slug": "24-array-tensor", "title": "🔲 24: Array / Tensor", "file_path": "docs/cluaizd-types/24-array-tensor.md" },
+          { "slug": "25-semantic-web", "title": "🕸️ 25: Semantic Web (RDF)", "file_path": "docs/cluaizd-types/25-semantic-web.md" },
+          { "slug": "26-multivalued", "title": "📈 26: Multi-Valued Attributes", "file_path": "docs/cluaizd-types/26-multivalued.md" },
+          { "slug": "27-probabilistic-sketches", "title": "🎲 27: HyperLogLog & Bloom", "file_path": "docs/cluaizd-types/27-probabilistic-sketches.md" },
+          { "slug": "28-crdt-collaborative", "title": "👥 28: Collaborative CRDT", "file_path": "docs/cluaizd-types/28-crdt-collaborative.md" },
+          { "slug": "29-analytical-cube", "title": "🧊 29: Analytical OLAP Cube", "file_path": "docs/cluaizd-types/29-analytical-cube.md" },
+          { "slug": "30-embedded-in-process", "title": "🔌 30: Embedded In-Process", "file_path": "docs/cluaizd-types/30-embedded-in-process.md" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dna-templates",
+    "title": "🧬 DNA Templates & Serialization",
+    "groups": [
+      {
+        "group": "Templates & Hubs",
+        "pages": [
+          { "slug": "dna-templates-readme", "title": "📦 DNA Templates Hub", "file_path": "docs/cluaizd-dna-templates/README.md" },
+          { "slug": "serialization-formats", "title": "📦 FlatBuffers & Protobuf Guide", "file_path": "docs/cluaizd-dna-templates/serialization_formats.md" },
+          { "slug": "cdql-example", "title": "⚡ CDQL DNA Rule Example", "file_path": "docs/cluaizd-dna-templates/cdql_example.md" }
+        ]
+      }
+    ]
+  },
+  {
     "id": "reference-manual",
     "title": "📚 Reference Manual",
     "groups": [
@@ -168,6 +233,11 @@
             "slug": "config_index",
             "title": "⚙️ Configuration Reference (A-Z)",
             "file_path": "docs/reference/config_index.md"
+          },
+          {
+            "slug": "dictionary",
+            "title": "📖 Master Technical Dictionary (A-Z)",
+            "file_path": "docs/reference/dictionary.md"
           },
           {
             "slug": "dna_index",
@@ -325,6 +395,11 @@
             "file_path": "docs/reference/dna/on_delete.md"
           },
           {
+            "slug": "on_lifecycle",
+            "title": "on_lifecycle Event Hook",
+            "file_path": "docs/reference/dna/on_lifecycle.md"
+          },
+          {
             "slug": "on_read",
             "title": "on_read Event Hook",
             "file_path": "docs/reference/dna/on_read.md"
@@ -345,14 +420,34 @@
         "group": "Types",
         "pages": [
           {
+            "slug": "binary",
+            "title": "binary Data Type",
+            "file_path": "docs/reference/types/binary.md"
+          },
+          {
+            "slug": "code",
+            "title": "code Data Type",
+            "file_path": "docs/reference/types/code.md"
+          },
+          {
             "slug": "json",
             "title": "json Data Type",
             "file_path": "docs/reference/types/json.md"
           },
           {
+            "slug": "text",
+            "title": "text Data Type",
+            "file_path": "docs/reference/types/text.md"
+          },
+          {
             "slug": "vector",
             "title": "vector Data Type",
             "file_path": "docs/reference/types/vector.md"
+          },
+          {
+            "slug": "voltage_stream",
+            "title": "voltage_stream Data Type",
+            "file_path": "docs/reference/types/voltage_stream.md"
           }
         ]
       }
