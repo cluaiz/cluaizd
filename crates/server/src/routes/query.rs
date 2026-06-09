@@ -73,7 +73,7 @@ pub async fn handle_query(
     // PATH 2 & 3: Legacy DNA-based queries (WASM or Rhai)
     // ──────────────────────────────────────────────────────────────
     let mut results: Vec<QueryResult> = Vec::new();
-    let rhai_engine = rhai::Engine::new();
+    let rhai_engine = genome::create_rhai_engine();
 
     for neuron in all_neurons {
         let mut score = 0.0f32;

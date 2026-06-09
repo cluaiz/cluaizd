@@ -78,7 +78,17 @@ pub async fn handle_traverse(
             if let Some(ref dna) = curr_neuron.dna {
                 if let Some(traverse_script) = &dna.on_traverse {
                     if dna.engine == "rhai" {
-                        let engine = rhai::Engine::new();
+                        let mut engine = genome::create_rhai_engine();
+                        let env_clone = shard.env.clone();
+                        engine.register_fn("fast_bitwise_intersection", move |a_id_str: String, b_id_str: String| -> bool {
+                            if let (Ok(a_uuid), Ok(b_uuid)) = (uuid::Uuid::parse_str(&a_id_str), uuid::Uuid::parse_str(&b_id_str)) {
+                                let a_id = cluaizd_types::NeuronId::from_bytes(*a_uuid.as_bytes());
+                                let b_id = cluaizd_types::NeuronId::from_bytes(*b_uuid.as_bytes());
+                                engine_lmdb::SpecularGraph::fast_bitwise_intersection(&env_clone, a_id, b_id).unwrap_or(false)
+                            } else {
+                                false
+                            }
+                        });
                         
                         for edge in &curr_neuron.adjacency {
                             let mut scope = rhai::Scope::new();

@@ -12,6 +12,7 @@ use crate::codecs::UniversalNeuronCodec;
 /// The LMDB environment wrapper.
 /// This struct owns the connection to the physical `.mdb` file on disk.
 /// One `LmdbEnv` per database shard.
+#[derive(Clone)]
 pub struct LmdbEnv {
     pub(crate) env: Env,
     /// The primary neuron key-value store within this environment.

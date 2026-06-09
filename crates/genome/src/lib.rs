@@ -9,4 +9,4 @@ pub use registry::GenomeRegistry;
 pub use wasm_executor::WasmExecutor;
 pub use crispr::CrisprSandbox;
 pub use cdql::{parse as parse_cdql, CdqlQuery, QueryPlan, build_plan};
-pub use executor::{GenomeExecutor, GenomeWriteAction, Durability};
+pub use executor::{GenomeExecutor, GenomeWriteAction, Durability, create_rhai_engine};

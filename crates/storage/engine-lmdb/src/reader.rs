@@ -117,3 +117,22 @@ pub fn iter_all_neurons(env: &crate::env::LmdbEnv) -> Result<Vec<UniversalNeuron
 
     Ok(neurons)
 }
+
+/// Scans the database and returns neurons matching a specific payload type.
+pub fn scan_neurons_by_type(
+    env: &crate::env::LmdbEnv,
+    payload_type: cluaizd_types::PayloadType,
+) -> Result<Vec<UniversalNeuron>, StorageError> {
+    let rtxn = env.read_txn()?;
+    let mut neurons = Vec::new();
+
+    let iter = env.db.iter(&rtxn).map_err(|e| StorageError::ReadTxnFailed(e.to_string()))?;
+    for result in iter {
+        let (_k, neuron) = result.map_err(|e| StorageError::ReadTxnFailed(e.to_string()))?;
+        if neuron.payload_type == payload_type {
+            neurons.push(neuron);
+        }
+    }
+
+    Ok(neurons)
+}

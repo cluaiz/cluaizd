@@ -47,6 +47,43 @@ fn parse_durability(result_map: &rhai::Map) -> Durability {
     Durability::Lite
 }
 
+/// Creates and configures a Rhai engine with registered CLUAIZD system helpers.
+pub fn create_rhai_engine() -> rhai::Engine {
+    let mut engine = rhai::Engine::new();
+
+    // Register cosine_similarity helper
+    engine.register_fn("cosine_similarity", |a: rhai::Array, b: rhai::Array| -> f64 {
+        let mut vec_a = [0.0f32; 16];
+        let mut vec_b = [0.0f32; 16];
+        for i in 0..16 {
+            if let Some(val) = a.get(i) {
+                vec_a[i] = val.as_float().unwrap_or(0.0) as f32;
+            }
+            if let Some(val) = b.get(i) {
+                vec_b[i] = val.as_float().unwrap_or(0.0) as f32;
+            }
+        }
+        cluaizd_types::distance::cosine_similarity(&vec_a, &vec_b) as f64
+    });
+
+    // Register euclidean_distance helper
+    engine.register_fn("euclidean_distance", |a: rhai::Array, b: rhai::Array| -> f64 {
+        let mut vec_a = [0.0f32; 16];
+        let mut vec_b = [0.0f32; 16];
+        for i in 0..16 {
+            if let Some(val) = a.get(i) {
+                vec_a[i] = val.as_float().unwrap_or(0.0) as f32;
+            }
+            if let Some(val) = b.get(i) {
+                vec_b[i] = val.as_float().unwrap_or(0.0) as f32;
+            }
+        }
+        cluaizd_types::distance::euclidean_distance(&vec_a, &vec_b) as f64
+    });
+
+    engine
+}
+
 impl GenomeExecutor {
     /// Evaluates the DNA ruleset to decide if a write should be allowed, deferred, or aborted.
     /// Returns:
@@ -67,7 +104,7 @@ impl GenomeExecutor {
                 
                 // 2. Rhai Interpreted Engine
                 if dna.engine == "rhai" {
-                    let engine = rhai::Engine::new();
+                    let engine = create_rhai_engine();
                     let mut scope = rhai::Scope::new();
                     let metrics = rhai::Map::from([
                         ("bp".into(), (bp as i64).into()),
@@ -130,7 +167,7 @@ impl GenomeExecutor {
         if let Some(dna) = &neuron.dna {
             if let Some(read_script) = &dna.on_read {
                 if dna.engine == "rhai" {
-                    let engine = rhai::Engine::new();
+                    let engine = create_rhai_engine();
                     let mut scope = rhai::Scope::new();
                     // We can pass the neuron ID or tier as context
                     let ctx = rhai::Map::from([
@@ -192,7 +229,7 @@ impl GenomeExecutor {
         if let Some(dna) = &neuron.dna {
             if let Some(lifecycle_script) = &dna.on_lifecycle {
                 if dna.engine == "rhai" {
-                    let engine = rhai::Engine::new();
+                    let engine = create_rhai_engine();
                     let mut scope = rhai::Scope::new();
                     let age_ns = current_time_ns.saturating_sub(neuron.created_at_ns);
                     let ctx = rhai::Map::from([

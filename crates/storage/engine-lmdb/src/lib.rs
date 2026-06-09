@@ -22,7 +22,7 @@ pub mod specular;
 // Flat public API surface
 pub use codecs::*;
 pub use env::LmdbEnv;
-pub use reader::{read_neuron, iter_all_neurons};
+pub use reader::{read_neuron, iter_all_neurons, scan_neurons_by_type};
 pub use sensory_shard::SensoryShard;
 pub use writer::write_neuron;
 pub use gc::{spawn_biological_gc, run_gc_sweep};
