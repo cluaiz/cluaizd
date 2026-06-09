@@ -40,54 +40,16 @@ pub fn read_neuron(
         }
     }
 
-    // Execute Circulation (on_read) DNA Hook
+    // Execute Circulation (on_read) DNA Hook via Unified GenomeExecutor
     let mut changed = false;
-    if let Some(ref dna) = neuron.dna {
-        if let Some(read_script) = &dna.on_read {
-            if dna.engine == "rhai" {
-                let engine = rhai::Engine::new();
-                let mut scope = rhai::Scope::new();
-                if let Ok(dynamic_config) = rhai::serde::to_dynamic(&dna.parameters) {
-                    scope.push_dynamic("config", dynamic_config);
-                }
-                
-                // Expose payload string if text
-                if neuron.payload_type == cluaizd_types::PayloadType::Text {
-                    if let Ok(text) = String::from_utf8(neuron.raw_payload.to_vec()) {
-                        scope.push("payload", text);
-                    }
-                }
+    let old_adjacency = neuron.adjacency.clone();
+    
+    if let Err(e) = genome::GenomeExecutor::execute_on_read(&mut neuron) {
+        return Err(e);
+    }
 
-                if let Ok(result_map) = engine.eval_with_scope::<rhai::Map>(&mut scope, read_script) {
-                    // Check for Edge Strengthening
-                    if let Some(strengthen) = result_map.get("strengthen_factor").and_then(|v| v.as_float().ok()) {
-                        if !neuron.adjacency.is_empty() {
-                            for edge in &mut neuron.adjacency {
-                                edge.weight *= strengthen as f32;
-                                if edge.weight > 1.0 { edge.weight = 1.0; } // Cap at 1.0
-                            }
-                            changed = true;
-                        }
-                    }
-                }
-            } else if dna.engine == "wasm" {
-                if let Some(ref wasm_bytes) = dna.wasm_module {
-                    let executor = genome::WasmExecutor::new();
-                    // Call the exported WASM function "on_read".
-                    // If it returns a strengthen factor (e.g. integer percentage), apply it.
-                    if let Ok(strengthen_percent) = executor.execute(wasm_bytes, "on_read") {
-                        if strengthen_percent > 100 && !neuron.adjacency.is_empty() {
-                            let strengthen_factor = strengthen_percent as f32 / 100.0;
-                            for edge in &mut neuron.adjacency {
-                                edge.weight *= strengthen_factor;
-                                if edge.weight > 1.0 { edge.weight = 1.0; } // Cap at 1.0
-                            }
-                            changed = true;
-                        }
-                    }
-                }
-            }
-        }
+    if neuron.adjacency != old_adjacency {
+        changed = true;
     }
 
     // Drop read transaction to free locks before a potential write transaction

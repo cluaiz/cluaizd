@@ -44,8 +44,9 @@ cluaizddHandle* cluaizd_open(const char* path, unsigned long map_size_mb);
 
 // ─────────────────────────────────────────────
 // cluaizd_write()
-// Write raw bytes into LMDB — NO genome hooks, NO HTTP, NO JSON parser.
-// This is the absolute fastest write path.
+// Write raw bytes into LMDB. 
+// Note: If the neuron has a label that matches an Auto-WASM/WASM module in the `active_dnas/` directory,
+// this function WILL trigger the RAM-Cached validation hook at microsecond speed!
 //
 // @handle:       Handle from cluaizd_open()
 // @neuron_id:    String key (any unique identifier)
@@ -199,4 +200,4 @@ cluaizd.cluaizd_close(handle)
 | C-FFI + Ring Buffer | ~2M writes/s | ~0.5µs | Amortized batching |
 
 > [!CAUTION]
-> `cluaizd_write()` bypasses all Genome DNA hooks (`on_write`, `on_index`, `on_lifecycle`). Use it only for high-throughput sensor/BCI streams where you own the schema at the application level.
+> `cluaizd_write()` bypasses the slow JSON API and CDQL planner, but **it DOES execute WASM validation hooks** if the neuron matches a label in the `active_dnas/` RAM Cache. This ensures data integrity even at 1,000,000 writes/sec!

@@ -134,3 +134,32 @@ pub extern "C" fn similarity_score(
 
     ((dot / (mag_a * mag_b)) * 1000.0) as i32
 }
+
+/// DNA Validation Hook
+/// Called by the engine before inserting a neuron with this DNA label.
+/// Returns 1 if valid, 0 if invalid.
+#[no_mangle]
+pub extern "C" fn validate(
+    payload_ptr: *const u8,
+    payload_len: usize,
+    vector_ptr: *const f32,
+) -> i32 {
+    let payload_bytes = unsafe { slice::from_raw_parts(payload_ptr, payload_len) };
+    let vector_data = unsafe { slice::from_raw_parts(vector_ptr, 16) };
+
+    // 1. Validate Payload is valid JSON (if provided)
+    if !payload_bytes.is_empty() {
+        if serde_json::from_slice::<serde_json::Value>(payload_bytes).is_err() {
+            return 0; // Invalid JSON payload
+        }
+    }
+
+    // 2. Validate Vector is well-formed (non-zero magnitude)
+    let mag: f32 = vector_data.iter().map(|x| x * x).sum::<f32>().sqrt();
+    if mag == 0.0 {
+        return 0; // Invalid vector (Zero magnitude)
+    }
+
+    // All validation passed
+    1
+}

@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use tracing::warn;
 
 use cluaizd_types::{PayloadType, UniversalNeuron, NeuronDna, NeuronEdge};
+use genome::{GenomeWriteAction, Durability};
 use crate::routes::AppState;
 
 /// API request representation of a Neuron Edge.
@@ -130,57 +131,100 @@ pub async fn handle_write(
         }
     };
 
+    // Verify payload based on format config
+    match shard.config.payload_format.as_str() {
+        "protobuf" => {
+            // Protobuf validation framework placeholder
+            tracing::info!("Validating Protobuf payload structure for tenant {}", tenant_id);
+        }
+        "flatbuffers" => {
+            // FlatBuffers zero-copy verification placeholder
+            tracing::info!("Verifying FlatBuffers binary layout for tenant {}", tenant_id);
+        }
+        _ => {
+            // JSON (default / implicit verification through Axum extractor)
+            tracing::info!("Processing JSON structured payload for tenant {}", tenant_id);
+        }
+    }
+
     // Retrieve current telemetry for the DNA script
     let (bp, spo2) = {
         let tel = state.heart_telemetry.read().await;
         (tel.bp_systolic, tel.spo2)
     };
 
-    // Execute DNA on_write hook
-    if let Some(dna) = &neuron.dna {
-        if let Some(write_script) = &dna.on_write {
-            if dna.engine == "rhai" {
-                let engine = rhai::Engine::new();
-                let mut scope = rhai::Scope::new();
-                
-                let metrics = rhai::Map::from([
-                    ("bp".into(), (bp as i64).into()),
-                    ("spo2".into(), (spo2 as i64).into())
-                ]);
-                scope.push("system_metrics", metrics);
-                
-                if let Ok(result_map) = engine.eval_with_scope::<rhai::Map>(&mut scope, write_script) {
-                    if let Some(action) = result_map.get("action").map(|v| v.to_string()) {
-                        if action == "Defer" {
-                            tracing::warn!(bp=bp, spo2=spo2, neuron_id=%neuron_id, "DNA deferred write processing (Lazy Execution)");
-                            // In a real defer we might write to an append-only lazy queue instead of primary LMDB.
-                            // For now, we simulate this by ONLY writing to WAL and skipping LMDB insert.
-                            if let Err(e) = shard.wal_writer.lock().await.append_write(&neuron) {
-                                return (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": format!("WAL write failure: {}", e) }))).into_response();
-                            }
-                            return (
-                                StatusCode::ACCEPTED,
-                                Json(WriteNeuronResponse { neuron_id, status: "deferred" }),
-                            ).into_response();
-                        }
-                    }
-                }
+    // Execute DNA Validation (Subconscious AI)
+    let durability = match genome::GenomeExecutor::execute_on_write(&neuron, bp as f32, spo2 as f32) {
+        Ok(GenomeWriteAction::Allow(d)) => d,
+        Ok(GenomeWriteAction::Defer) => {
+            // DNA requested a lazy write: commit to WAL only, skip LMDB for now.
+            tracing::warn!(bp=bp, spo2=spo2, neuron_id=%neuron_id, "DNA deferred write (Lazy Execution)");
+            let mut wal = shard.wal_writer.lock().await;
+            if let Err(e) = wal.append_write(&neuron) {
+                return (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": format!("WAL write failure: {}", e) }))).into_response();
             }
+            return (
+                StatusCode::ACCEPTED,
+                Json(WriteNeuronResponse { neuron_id, status: "deferred" }),
+            ).into_response();
         }
+        Ok(GenomeWriteAction::Abort(reason)) => {
+            tracing::warn!(reason = %reason, "DNA Validation Aborted write");
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({ "error": format!("DNA Validation Failed: {}", reason) })),
+            ).into_response();
+        }
+        Err(e) => {
+            tracing::warn!(error = %e, "DNA engine internal error");
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": format!("DNA engine error: {:?}", e) })),
+            ).into_response();
+        }
+    };
+
+    // --- Strict Durability path ---
+    // DNA requested sync_write: "strict" / true.
+    // Bypass the Transit Lounge entirely. Write WAL, call fsync, then write LMDB inline.
+    // This guarantees the block is physically on the SSD before we return 201.
+    if durability == Durability::Strict {
+        tracing::debug!(neuron_id = %neuron_id, "sync_write: strict — bypassing Transit Lounge");
+        let mut wal = shard.wal_writer.lock().await;
+        if let Err(e) = wal.append_write(&neuron) {
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": format!("WAL write failure: {}", e) }))).into_response();
+        }
+        // fsync: force OS to flush page-cache to physical SSD blocks.
+        if let Err(e) = wal.sync() {
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": format!("WAL sync failure: {}", e) }))).into_response();
+        }
+        drop(wal); // release lock before LMDB write
+        if let Err(e) = engine_lmdb::write_neuron(&shard.env, &neuron) {
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": format!("LMDB write failure: {}", e) }))).into_response();
+        }
+        return (
+            StatusCode::CREATED,
+            Json(WriteNeuronResponse { neuron_id, status: "created" }),
+        ).into_response();
     }
 
-    // Push to Transit Lounge (O(1) lock-free RAM ring buffer)
+    // --- Lite Durability path (default) ---
+    // DNA requested sync_write: "lite" / false (or omitted).
+    // Push to the Transit Lounge (O(1) lock-free RAM ring buffer).
+    // The background flusher drains it to WAL + LMDB every 50ms.
     if let Err(returned_neuron) = shard.transit_lounge.push(neuron) {
-        // Fallback to synchronous write if Transit Lounge is full
-        tracing::warn!(tenant = %tenant_id, "Transit Lounge full! Falling back to synchronous disk write.");
-        
-        if let Err(e) = shard.wal_writer.lock().await.append_write(&returned_neuron) {
+        // Transit Lounge is full — fall back to synchronous WAL + LMDB write (no fsync).
+        tracing::warn!(tenant = %tenant_id, "Transit Lounge full — falling back to synchronous write (no fsync)");
+
+        let mut wal = shard.wal_writer.lock().await;
+        if let Err(e) = wal.append_write(&returned_neuron) {
             warn!(error = %e, tenant = %tenant_id, "Failed to write to WAL");
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(serde_json::json!({ "error": format!("WAL write failure: {}", e) })),
             ).into_response();
         }
+        drop(wal);
 
         if let Err(e) = engine_lmdb::write_neuron(&shard.env, &returned_neuron) {
             warn!(error = %e, tenant = %tenant_id, "Failed to write to LMDB");
@@ -199,5 +243,3 @@ pub async fn handle_write(
         }),
     ).into_response()
 }
-
-

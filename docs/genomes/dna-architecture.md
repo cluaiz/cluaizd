@@ -88,6 +88,7 @@ Every Genome can implement up to **5 hooks**. Each hook is a Rhai script string 
 ```json
 {
   "engine": "rhai",
+  "sync_write": "lite",
   "on_write": "let res = #{ action: \"Allow\" }; res",
   "on_read": "let res = #{ payload: payload }; res",
   "on_index": null,
@@ -101,11 +102,44 @@ Every Genome can implement up to **5 hooks**. Each hook is a Rhai script string 
 }
 ```
 
-## WASM vs Rhai
+## The 4 Execution Engines
 
-| Feature | Rhai (`.json`) | WASM (`.wasm`) |
-|---|---|---|
-| Authoring | Simple JSON-embedded scripts | Compiled C/Rust binary |
-| Performance | ~0.1ms per hook | ~0.01ms per hook (near-native) |
-| Use case | Schema validation, TTL rules, access control | Vector math, text parsing, heavy compute |
-| Hot-reload | ✅ Yes — change JSON file, restart not needed | ⚠️ Requires re-upload via `/booster/upload` |
+Cluaizd supports 4 distinct execution modes for DNA validation and filtering. These modes give developers the flexibility to choose between ease-of-use and maximum performance.
+
+### 1. `cdql` (Native JSON Translation)
+**Best for:** 90% of users who only need declarative data filtering.
+**How it works:** The user provides a JSON rule (e.g., `{"age": {">": 18}}`). The database translates this JSON into a CDQL Abstract Syntax Tree (AST).
+**Speed:** `0.05 ms` (Native Rust speed).
+
+### 2. `wasm` (Direct Native Compiled)
+**Best for:** Pro developers doing complex custom mathematics or proprietary algorithms.
+**How it works:** The developer writes code in Rust or C++, compiles it locally to a `.wasm` file, and uploads the Base64 bytes directly via the API.
+**Speed:** `0.05 ms` (Hardware Machine Code).
+
+### 3. `auto-wasm` (Auto-Compiled Rust)
+**Best for:** Developers who want complex math and strict typing but don't want to compile WASM themselves.
+**How it works:** The user uploads a raw Rust script. Our `cluaizd` server automatically compiles it into a `.wasm` binary in the background and saves it to the `active_dnas/` directory.
+**Hot-Reload:** Yes! The File Watcher detects the new binary and Hot-Reloads it into RAM instantly with zero downtime.
+**Learn More:** See the [Auto-WASM Guide](auto-wasm-guide.md) to understand why defining strict struct types is crucial.
+
+### 4. `rhai` (Legacy Interpreter)
+**Best for:** Rapid prototyping or legacy dynamic scripts.
+**How it works:** The user uploads a dynamic Rhai script. The server parses the AST and evaluates the logic line-by-line during execution.
+**Speed:** `2.0 - 5.0 ms` (Slowest option).
+
+---
+
+## ⚡ Zero-Downtime RAM Hot-Reloading
+
+One of Cluaizd's most powerful features is **Absolute Zero Path Hot-Reloading** for WASM modules.
+
+Historically, databases require a full restart to load new plugins, or they suffer massive SSD I/O bottlenecks by reading plugins from the disk on every query. Cluaizd solves this using a background RAM synchronization engine.
+
+### How it Works:
+1. **The `active_dnas/` Directory:** The server creates an isolated directory in the root folder.
+2. **Global RAM Cache:** Cluaizd initializes a highly-concurrent, thread-safe `DashMap` in RAM that holds pre-compiled WASM modules.
+3. **The File Watcher:** A background `tokio` thread uses OS-level events (`notify` crate / FSEvents) to monitor `active_dnas/`.
+4. **Instant Swap:** When a new `.wasm` file is uploaded (either manually or via the `auto-wasm` API), the watcher detects it and instantly swaps the compiled `Module` inside the RAM cache. 
+
+### Why it Matters:
+When the Database FFI Engine (`engine-lmdb`) needs to execute a DNA hook, it **never touches the SSD**. It pulls the pre-compiled binary directly from the RAM Cache. This results in **0.0001 ms** execution overhead and allows developers to hot-swap database logic in production with **zero downtime**.

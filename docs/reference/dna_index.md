@@ -3,7 +3,9 @@
 Welcome to the **cluaizd DNA Reference**. 
 Because cluaizd is built on an **Absolute Flexible Architecture**, it intentionally avoids bloating the CDQL parser with hundreds of hardcoded math functions, triggers, or map-reduce commands. 
 
-Instead, developers inject **WASM or Rhai Execution Affordances (DNA)** directly into records. The Database Engine executes these scripts at zero-copy speeds in a secure sandbox.
+Instead, developers inject **Execution Affordances (DNA)** directly into records using one of the **4 Execution Engines (CDQL, WASM, Auto-WASM, Rhai)**. The Database Engine executes these scripts at zero-copy speeds in a secure sandbox.
+
+For a deep dive into writing strict-typed `0.05ms` code, check out the [Auto-WASM Guide](../genomes/auto-wasm-guide.md).
 
 ## Reference Index
 
@@ -18,3 +20,4 @@ Instead, developers inject **WASM or Rhai Execution Affordances (DNA)** directly
 | [`on_read`](./dna/on_read.md) | Event Hook | Synchronous hook invoked during a `find` traversal, enabling on-the-fly redaction or computation.<hr>`fn on_read(ctx)` |
 | [`on_write`](./dna/on_write.md) | Event Hook | Synchronous hook invoked before WAL commit, enabling data validation or cascading mutations.<hr>`fn on_write(ctx)` |
 | [`sum`](./dna/sum.md) | Aggregation | High-performance numerical accumulation using SIMD vector folding.<hr>`dna.aggregate("sum", field)` |
+| [`sync_write`](./dna/sync_write.md) | Engine Config | Dynamic OS page-cache vs hardware block-level durability control on a per-genome basis.<hr>`"sync_write": "lite"` |

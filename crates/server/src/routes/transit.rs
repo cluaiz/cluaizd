@@ -44,6 +44,10 @@ impl TransitLounge {
                                 error!("Transit Lounge: Failed to flush to WAL: {}", e);
                             }
                         }
+                        // Sync once per batch
+                        if let Err(e) = wal.sync() {
+                            error!("Transit Lounge: Failed to sync WAL: {}", e);
+                        }
                     } // wal lock drops here
                     
                     // 2. Commit to LMDB (Physical Shard)

@@ -13,6 +13,7 @@ crate-type = ["cdylib", "staticlib"]
 cluaizd-types = { path = "../components/cluaizd-types" }
 cluaizd-errors = { path = "../components/cluaizd-errors" }
 engine-lmdb = { path = "../crates/storage/engine-lmdb" }
+genome = { path = "../crates/genome" }
 bytes = "1.9"
 serde_json = "1.0"
 uuid = { version = "1.16", features = ["v4"] }

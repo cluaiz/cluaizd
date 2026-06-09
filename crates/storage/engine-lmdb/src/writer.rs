@@ -25,6 +25,8 @@ pub fn write_neuron(env: &LmdbEnv, neuron: &UniversalNeuron) -> Result<(), Stora
     Ok(())
 }
 
+
+
 #[cfg(test)]
 mod tests {
     use bytes::Bytes;

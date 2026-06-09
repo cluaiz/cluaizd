@@ -1,13 +1,16 @@
 use bytes::Bytes;
 use cluaizd_types::{PayloadType, UniversalNeuron, NeuronDna};
 use tempfile::tempdir;
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 use super::shard_manager::ShardManager;
 
 #[tokio::test]
 async fn test_shard_isolation_and_routing() {
     let tmp_dir = tempdir().expect("Failed to create temp dir");
-    let manager = ShardManager::new(tmp_dir.path());
+    let telemetry = Arc::new(RwLock::new(heart::Telemetry::default()));
+    let manager = ShardManager::new(tmp_dir.path(), telemetry, "dashmap".into(), "json".into());
 
     // Open tenant_A and tenant_B
     let shard_a = manager.get_or_open_shard("tenant_A").await.expect("Failed to open shard A");
@@ -56,11 +59,11 @@ async fn test_shard_wal_recovery_on_opening() {
     {
         let mut writer = wal::WalWriter::open(&wal_dir).expect("Failed to open WalWriter");
         writer.append_write(&neuron).expect("Failed to write to WAL");
-        // Drop writer to flush everything
     }
 
     // 2. Open shard using ShardManager. It should automatically run recovery.
-    let manager = ShardManager::new(tmp_dir.path());
+    let telemetry = Arc::new(RwLock::new(heart::Telemetry::default()));
+    let manager = ShardManager::new(tmp_dir.path(), telemetry, "dashmap".into(), "json".into());
     let shard = manager.get_or_open_shard(tenant_id).await.expect("Failed to open shard");
 
     // 3. Verify the neuron was successfully recovered and populated in LMDB.
@@ -73,7 +76,8 @@ async fn test_shard_wal_recovery_on_opening() {
 #[tokio::test]
 async fn test_biological_gc_ttl_decay() {
     let tmp_dir = tempdir().expect("Failed to create temp dir");
-    let manager = ShardManager::new(tmp_dir.path());
+    let telemetry = Arc::new(RwLock::new(heart::Telemetry::default()));
+    let manager = ShardManager::new(tmp_dir.path(), telemetry, "dashmap".into(), "json".into());
     let tenant_id = "ttl_decay_tenant";
 
     let shard = manager.get_or_open_shard(tenant_id).await.expect("Failed to open shard");
@@ -92,7 +96,7 @@ async fn test_biological_gc_ttl_decay() {
         on_index: None,
         on_traverse: None,
         on_dream: None,
-        on_lifecycle: Some("let res = #{}; if age_ns > 1000000 { res.new_tier = \"Warm\"; res.clear_payload = true; } res".to_string()),
+        on_lifecycle: Some("let res = #{}; if neuron.age_ns > 1000000 { res.new_tier = \"Warm\"; res.clear_payload = true; } res".to_string()),
         wasm_module: None,
         wasm_module_path: None,
         parameters: serde_json::json!({}),
@@ -105,7 +109,7 @@ async fn test_biological_gc_ttl_decay() {
     engine_lmdb::write_neuron(&shard.env, &neuron).expect("Failed to write neuron");
 
     // Run GC Sweep manually
-    engine_lmdb::run_gc_sweep(&shard.env).expect("GC Sweep failed");
+    engine_lmdb::run_gc_sweep(&shard.env, 95).expect("GC Sweep failed");
 
     // Retrieve the neuron back - it should have StorageTier::Warm and empty raw_payload,
     // but the vector data is preserved (Shadow State).
@@ -127,12 +131,19 @@ async fn test_artificial_pacemaker_stream_limit() {
     use crate::routes::stream::handle_stream;
     
     let tmp_dir = tempdir().expect("Failed to create temp dir");
-    let shard_manager = ShardManager::new(tmp_dir.path());
+    let telemetry = Arc::new(RwLock::new(heart::Telemetry::default()));
+    let shard_manager = ShardManager::new(tmp_dir.path(), Arc::clone(&telemetry), "dashmap".into(), "json".into());
     let sensory_shard = engine_lmdb::SensoryShard::open(&tmp_dir.path().join("sensory"), 10).expect("Failed to open sensory shard");
     
     let genome_registry = genome::GenomeRegistry::new();
-    let heart = heart::Heart::new();
-    let state = AppState::new(shard_manager, sensory_shard, genome_registry, std::sync::Arc::clone(&heart.telemetry));
+    let heart = heart::Heart::new(tmp_dir.path());
+    let state = AppState::new(
+        shard_manager,
+        sensory_shard,
+        genome_registry,
+        Arc::clone(&heart.telemetry),
+        Arc::clone(&heart.booster_state),
+    );
     
     // Set pacemaker write limit to 10 bytes
     state.write_rate_limit.store(10, std::sync::atomic::Ordering::SeqCst);
@@ -157,11 +168,18 @@ async fn test_sandbox_mutation_validation() {
     use crate::routes::validate::{handle_validate, ValidateNeuronRequest};
 
     let tmp_dir = tempdir().expect("Failed to create temp dir");
-    let shard_manager = ShardManager::new(tmp_dir.path());
+    let telemetry = Arc::new(RwLock::new(heart::Telemetry::default()));
+    let shard_manager = ShardManager::new(tmp_dir.path(), Arc::clone(&telemetry), "dashmap".into(), "json".into());
     let sensory_shard = engine_lmdb::SensoryShard::open(&tmp_dir.path().join("sensory"), 10).expect("Failed to open sensory shard");
     let genome_registry = genome::GenomeRegistry::new();
-    let heart = heart::Heart::new();
-    let state = AppState::new(shard_manager, sensory_shard, genome_registry, std::sync::Arc::clone(&heart.telemetry));
+    let heart = heart::Heart::new(tmp_dir.path());
+    let state = AppState::new(
+        shard_manager,
+        sensory_shard,
+        genome_registry,
+        Arc::clone(&heart.telemetry),
+        Arc::clone(&heart.booster_state),
+    );
 
     let model_hash = "2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a".to_string();
     let original_id = uuid::Uuid::now_v7().to_string();
@@ -192,6 +210,3 @@ async fn test_sandbox_mutation_validation() {
     let resp_unsafe = handle_validate(State(state), HeaderMap::new(), req_unsafe).await.into_response();
     assert_eq!(resp_unsafe.status(), axum::http::StatusCode::UNPROCESSABLE_ENTITY);
 }
-
-
-

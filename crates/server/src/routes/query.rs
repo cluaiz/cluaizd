@@ -238,6 +238,7 @@ fn execute_cdql(
             PlanStep::GeoNear { .. } => {}
             PlanStep::RangeScan { .. } => {}
             PlanStep::ByteStream { .. } => {}
+            PlanStep::InsertData { .. } => {} // Insertions are handled in the FFI or /neuron route
         }
     }
 

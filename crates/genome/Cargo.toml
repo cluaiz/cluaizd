@@ -11,3 +11,8 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 tracing = { workspace = true }
 wasmtime = "45.0.1"
+dashmap = "6.1"
+notify = { version = "6.1", features = ["macos_fsevent"] }
+lazy_static = "1.5.0"
+tokio = { workspace = true }
+bytes.workspace = true

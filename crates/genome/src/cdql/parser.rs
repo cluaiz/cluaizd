@@ -7,6 +7,7 @@ pub enum CdqlValue {
     Number(f64),
     Bool(bool),
     Vector(Vec<f32>),
+    Parameter, // Represents a placeholder (?) mapped to a binary binding
     Null,
 }
 
@@ -55,6 +56,11 @@ pub enum CdqlOp {
     // ---------------------------------------------------------
     // 1. CORE / DOCUMENT (MongoDB style)
     // ---------------------------------------------------------
+    /// `insert into <label>(key: value)` — Insert a new neuron
+    Insert {
+        label: String,
+        data: std::collections::HashMap<String, CdqlValue>,
+    },
     /// `find *(filters...)` — Scan all neurons matching the label/filters
     Find {
         label: String,
@@ -218,8 +224,12 @@ pub fn parse(input: &str) -> Result<CdqlQuery, String> {
 fn parse_find(segment: &str) -> Result<CdqlOp, String> {
     let segment = segment.trim();
 
+    if segment.starts_with("insert ") {
+        return parse_insert(segment);
+    }
+
     if !segment.starts_with("find") {
-        return Err(format!("Expected 'find' keyword, got: '{}'", segment));
+        return Err(format!("Expected 'find' or 'insert' keyword, got: '{}'", segment));
     }
 
     let after_find = segment["find".len()..].trim();
@@ -359,6 +369,7 @@ fn parse_single_filter(input: &str) -> Result<Filter, String> {
 
 fn parse_value(input: &str) -> Result<CdqlValue, String> {
     let input = input.trim();
+    if input == "?" { return Ok(CdqlValue::Parameter); }
     if input.starts_with('"') && input.ends_with('"') {
         return Ok(CdqlValue::Text(input[1..input.len() - 1].to_string()));
     }
@@ -367,4 +378,31 @@ fn parse_value(input: &str) -> Result<CdqlValue, String> {
     if input == "null" { return Ok(CdqlValue::Null); }
     if let Ok(n) = input.parse::<f64>() { return Ok(CdqlValue::Number(n)); }
     Ok(CdqlValue::Text(input.to_string()))
+}
+
+/// Helper for parsing `insert into Vector(id: "123", vector: ?)`
+fn parse_insert(segment: &str) -> Result<CdqlOp, String> {
+    let after_insert = segment["insert into".len()..].trim();
+    let (label, data_str) = if let Some(paren_pos) = after_insert.find('(') {
+        let label = after_insert[..paren_pos].trim().to_string();
+        let rest = &after_insert[paren_pos..];
+        let close = rest.rfind(')').ok_or("Missing closing ')' in insert")?;
+        let body = &rest[1..close];
+        (label, body.trim())
+    } else {
+        return Err("Malformed insert command. Expected: insert into Label(key: value)".to_string());
+    };
+
+    let mut data = std::collections::HashMap::new();
+    let parts: Vec<&str> = data_str.split(',').collect();
+    for part in parts {
+        if part.trim().is_empty() { continue; }
+        if let Some(colon) = part.find(':') {
+            let key = part[..colon].trim().to_string();
+            let val_str = part[colon + 1..].trim();
+            data.insert(key, parse_value(val_str)?);
+        }
+    }
+
+    Ok(CdqlOp::Insert { label, data })
 }

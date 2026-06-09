@@ -21,10 +21,12 @@ Learn the internals of how Cluaizd achieves 0ms latency and supports 10 paradigm
 - [FFI Bypass (0ms Latency)](architecture/ffi-bypass.md)
 - [Sensory Shards (High-Frequency)](architecture/sensory-shards.md)
 - [The Dreamer Engine (GC & Analytics)](architecture/dreamer-engine.md)
+- [Concurrency & Serialization Engine](architecture/concurrency-serialization.md)
 
-### 4. 🧬 WASM Genomes (DNA)
-Explore the 10 built-in execution paradigms.
-- [DNA Architecture Overview](genomes/dna-architecture.md)
+### 4. 🧬 The 4 Execution Engines (DNA)
+Explore the 4 runtime modes (CDQL, WASM, Auto-WASM, Rhai) and the built-in paradigms.
+- [DNA Architecture & The 4 Engines](genomes/dna-architecture.md)
+- [Auto-WASM Strict Types Guide](genomes/auto-wasm-guide.md)
 - [Key-Value DNA](genomes/key-value.md)
 - [Graph Network DNA](genomes/graph-network.md)
 - [Vector & AI DNA](genomes/vector-ai.md)

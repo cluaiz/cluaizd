@@ -23,6 +23,10 @@ impl CrisprSandbox {
 
     /// Validates all provided DNA sequences in the 4-hook architecture.
     pub fn validate_dna(&self, dna: &NeuronDna) -> Result<(), StorageError> {
+        if dna.engine != "rhai" {
+            return Ok(());
+        }
+
         let mut sequences_to_test = Vec::new();
         if let Some(s) = &dna.on_write { sequences_to_test.push(("on_write", s)); }
         if let Some(s) = &dna.on_read { sequences_to_test.push(("on_read", s)); }

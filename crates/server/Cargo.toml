@@ -33,6 +33,9 @@ rhai = { version = "1.25.1", features = ["serde", "sync"] }
 wasmtime = "45.0.1"
 rand = "0.8"
 crossbeam = { version = "0.8.4", features = ["crossbeam-queue"] }
+base64 = "0.22"
+toml = "0.8"
+dashmap = "6.1.0"
 
 [dev-dependencies]
 tempfile = "3"

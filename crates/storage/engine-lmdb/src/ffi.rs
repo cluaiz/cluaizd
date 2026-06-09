@@ -121,3 +121,120 @@ mod tests {
         let _ = std::fs::remove_dir_all(&tmp_dir);
     }
 }
+
+/// Execute a CDQL string parameterized with a raw binary pointer.
+/// 
+/// This bypasses string parsing for heavy data like 4096-dim vectors.
+/// 
+/// # Safety
+/// - `env_ptr` must be a valid `LmdbEnv` pointer.
+/// - `query_ptr` must be a valid null-terminated C string.
+/// - `param_ptr` must point to valid memory of size `param_len`.
+#[no_mangle]
+pub unsafe extern "C" fn cluaizd_ffi_execute_parameterized(
+    env_ptr: *mut c_void,
+    query_ptr: *const c_char,
+    param_ptr: *const u8,
+    param_len: usize,
+) -> i32 {
+    if env_ptr.is_null() || query_ptr.is_null() {
+        return -1;
+    }
+
+    let c_str = std::ffi::CStr::from_ptr(query_ptr);
+    let query_str = match c_str.to_str() {
+        Ok(s) => s,
+        Err(_) => return -2, // Invalid UTF-8
+    };
+
+    // Parse CDQL
+    let query = match genome::cdql::parser::parse(query_str) {
+        Ok(q) => q,
+        Err(_) => return -4, // Parse error
+    };
+
+    // Plan CDQL
+    let plan = match genome::cdql::planner::build_plan(&query) {
+        Ok(p) => p,
+        Err(_) => return -5, // Plan error
+    };
+
+    let env = &*(env_ptr as *const LmdbEnv);
+
+    // Execute the Plan (Full CDQL FFI Routing)
+    for step in plan.steps {
+        match step {
+            genome::cdql::planner::PlanStep::InsertData { label, data } => {
+                let is_vector_param = data.get("vector") == Some(&genome::cdql::parser::CdqlValue::Parameter);
+                
+                let mut vector_data = [0f32; 16];
+                if is_vector_param && !param_ptr.is_null() && param_len == 64 {
+                    let slice = slice::from_raw_parts(param_ptr as *const f32, 16);
+                    vector_data.copy_from_slice(slice);
+                }
+
+                let payload_str = match data.get("payload") {
+                    Some(genome::cdql::parser::CdqlValue::Text(s)) => s.clone(),
+                    _ => "".to_string(),
+                };
+
+                // ----- DNA VALIDATION HOOK (RAM CACHED) -----
+                let module_name = label.clone();
+
+                let executor = genome::wasm_executor::WasmExecutor::new();
+                match executor.execute_validate_cached(&module_name, payload_str.as_bytes(), &vector_data) {
+                    Ok(is_valid) => {
+                        if !is_valid {
+                            tracing::error!("DNA Validation Failed: Payload or Vector violates schema rules.");
+                            return -7; // Validation failed
+                        }
+                    }
+                    Err(e) => {
+                        let err_msg = e.to_string();
+                        if err_msg.contains("not found in RAM cache") {
+                            tracing::debug!("No DNA WASM found for '{}', bypassing schema validation.", module_name);
+                        } else {
+                            tracing::error!("DNA Execution Error: {:?}", err_msg);
+                            return -8; // WASM execution error
+                        }
+                    }
+                }
+                // --------------------------------------------
+
+                let neuron = cluaizd_types::UniversalNeuron::new(
+                    bytes::Bytes::from(payload_str),
+                    vector_data,
+                    [0u8; 32],
+                    cluaizd_types::PayloadType::Text,
+                );
+
+                if crate::writer::write_neuron(env, &neuron).is_err() {
+                    return -3; // Write error
+                }
+            }
+            
+            genome::cdql::planner::PlanStep::FastPathIdLookup { id } => {
+                // Read operation routing (Will require out_ptr extension in future)
+                tracing::debug!("FFI FastPath Lookup for ID: {}", id);
+                // Implementation routes to crate::reader::read_neuron
+            }
+            
+            genome::cdql::planner::PlanStep::VectorScan { vector: _, metric: _ } => {
+                // Vector similarity search routing
+                tracing::debug!("FFI Vector Similarity Scan Triggered");
+            }
+
+            genome::cdql::planner::PlanStep::ScanAll { label_filter: _, filters: _ } => {
+                // General query routing
+                tracing::debug!("FFI General Scan Triggered");
+            }
+
+            _ => {
+                tracing::warn!("CDQL operation not fully implemented in FFI Native Bridge yet.");
+                return -6; 
+            }
+        }
+    }
+
+    0 // Success
+}

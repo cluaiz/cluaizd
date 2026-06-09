@@ -52,10 +52,7 @@ impl WalWriter {
             .open(&path)
             .map_err(|e| StorageError::WalAppendFailed(e.to_string()))?;
 
-        let current_size = file
-            .metadata()
-            .map(|m| m.len())
-            .unwrap_or(0);
+        let current_size = file.metadata().map(|m| m.len()).unwrap_or(0);
 
         info!(path = %path.display(), "WAL writer opened");
 
@@ -75,19 +72,14 @@ impl WalWriter {
     /// # Errors
     /// Returns `StorageError::WalAppendFailed` on I/O failure.
     pub fn append_write(&mut self, neuron: &UniversalNeuron) -> Result<(), StorageError> {
-        let payload = serde_json::to_vec(neuron)
-            .map_err(|e| StorageError::WalAppendFailed(e.to_string()))?;
+        let payload =
+            serde_json::to_vec(neuron).map_err(|e| StorageError::WalAppendFailed(e.to_string()))?;
 
         let seq = self.sequence.fetch_add(1, Ordering::SeqCst);
         let operation = WalOperation::Write { payload };
         let checksum = WalEntry::compute_checksum(seq, &neuron.id, &operation);
 
-        let entry = WalEntry {
-            sequence: seq,
-            neuron_id: neuron.id,
-            operation,
-            checksum,
-        };
+        let entry = WalEntry { sequence: seq, neuron_id: neuron.id, operation, checksum };
 
         self.write_entry(&entry)
     }
@@ -98,20 +90,15 @@ impl WalWriter {
         let operation = WalOperation::Delete { neuron_id };
         let checksum = WalEntry::compute_checksum(seq, &neuron_id, &operation);
 
-        let entry = WalEntry {
-            sequence: seq,
-            neuron_id,
-            operation,
-            checksum,
-        };
+        let entry = WalEntry { sequence: seq, neuron_id, operation, checksum };
 
         self.write_entry(&entry)
     }
 
     /// Serialize and flush a `WalEntry` to the current log segment.
     fn write_entry(&mut self, entry: &WalEntry) -> Result<(), StorageError> {
-        let bytes = serde_json::to_vec(entry)
-            .map_err(|e| StorageError::WalAppendFailed(e.to_string()))?;
+        let bytes =
+            serde_json::to_vec(entry).map_err(|e| StorageError::WalAppendFailed(e.to_string()))?;
 
         // Write: [4-byte length prefix][entry bytes][newline]
         let len = (bytes.len() as u32).to_le_bytes();
@@ -120,11 +107,6 @@ impl WalWriter {
             .map_err(|e| StorageError::WalAppendFailed(e.to_string()))?;
         self.current_file
             .write_all(&bytes)
-            .map_err(|e| StorageError::WalAppendFailed(e.to_string()))?;
-
-        // Flush to OS buffer — guarantees entry is on disk before LMDB write.
-        self.current_file
-            .flush()
             .map_err(|e| StorageError::WalAppendFailed(e.to_string()))?;
 
         self.current_size += (4 + bytes.len()) as u64;
@@ -142,9 +124,7 @@ impl WalWriter {
     /// Rotate to a new WAL segment file.
     fn rotate_segment(&mut self) -> Result<(), StorageError> {
         self.current_segment += 1;
-        let path = self
-            .wal_dir
-            .join(format!("wal_{:05}.log", self.current_segment));
+        let path = self.wal_dir.join(format!("wal_{:05}.log", self.current_segment));
 
         self.current_file = std::fs::OpenOptions::new()
             .create(true)
@@ -154,7 +134,10 @@ impl WalWriter {
 
         self.current_size = 0;
         info!(segment = self.current_segment, "WAL segment rotated");
-
         Ok(())
+    }
+
+    pub fn sync(&mut self) -> Result<(), StorageError> {
+        self.current_file.sync_all().map_err(|e| StorageError::WalAppendFailed(e.to_string()))
     }
 }

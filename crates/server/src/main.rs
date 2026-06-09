@@ -6,6 +6,7 @@ use tracing_subscriber::EnvFilter;
 
 mod routes;
 mod dreamer;
+mod config;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -14,6 +15,9 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env())
         .init();
+
+    let config = config::ServerConfig::load();
+    info!("Loaded configuration from cluaizd.toml: {:?}", config);
 
     info!("Cluaizd CLUAIZD Server v0.0.1 — starting");
 
@@ -63,7 +67,12 @@ async fn main() -> Result<()> {
     heart.start_heartbeat();
 
     info!("Initializing CLUAIZD Shard Manager at {:?}", shards_path);
-    let shard_manager = routes::ShardManager::new(shards_path, Arc::clone(&heart.telemetry));
+    let shard_manager = routes::ShardManager::new(
+        shards_path,
+        Arc::clone(&heart.telemetry),
+        config.database.concurrency_mode.clone(),
+        config.database.payload_format.clone(),
+    );
 
     info!("Opening CLUAIZD Sensory Shard at {:?}", sensory_path);
     // Sensory shard capacity: 10,000 entries (ring buffer limit)
@@ -76,6 +85,23 @@ async fn main() -> Result<()> {
         tracing::warn!("Failed to load some genomes: {}", e);
     }
 
+    // ─────────────────────────────────────────────────────────
+    // STEP 2: WASM DNA Hot-Reload Cache Setup
+    // Ensure `active_dnas` directory exists, preload existing WASM into RAM,
+    // and spawn the file watcher to hot-reload future WASM updates.
+    // ─────────────────────────────────────────────────────────
+    let active_dnas_path = Path::new("active_dnas");
+    if !active_dnas_path.exists() {
+        if let Err(e) = std::fs::create_dir_all(active_dnas_path) {
+            tracing::warn!("Could not create active_dnas directory: {}", e);
+        }
+    }
+    tracing::info!("Pre-loading WASM DNAs from {:?} into RAM cache...", active_dnas_path);
+    genome::wasm_executor::WasmExecutor::preload_cache(active_dnas_path);
+    
+    // Start background watcher for hot-reloading
+    genome::wasm_executor::start_dna_watcher(active_dnas_path.to_path_buf()).await;
+
     // Heart is already started above
 
     // Build the shared app state
@@ -87,9 +113,10 @@ async fn main() -> Result<()> {
     // Build the Axum router with all routes.
     let app = routes::build_router(state);
 
-    // Bind to local address — default port 7331.
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:7331").await?;
-    info!(addr = "0.0.0.0:7331", "Server listening — ready to accept requests");
+    // Bind to address configured in cluaizd.toml.
+    let addr = format!("{}:{}", config.server.host, config.server.port);
+    let listener = tokio::net::TcpListener::bind(&addr).await?;
+    info!(addr = %addr, "Server listening — ready to accept requests");
 
     axum::serve(listener, app).await?;
 

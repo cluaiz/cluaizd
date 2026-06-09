@@ -35,13 +35,12 @@ impl LmdbEnv {
             reason: e.to_string(),
         })?;
 
-        // SAFETY: We create the directory above before calling open.
-        // The map_size is caller-controlled and bounded by system RAM checks upstream.
         let env = unsafe {
-            EnvOpenOptions::new()
-                .map_size(map_size_bytes)
-                .max_dbs(8)
-                .open(path)
+            let mut options = EnvOpenOptions::new();
+            options.map_size(map_size_bytes);
+            options.max_dbs(8);
+            options.flags(heed::EnvFlags::NO_SYNC | heed::EnvFlags::NO_META_SYNC);
+            options.open(path)
                 .map_err(|e| StorageError::EnvOpenFailed {
                     path: path.display().to_string(),
                     reason: e.to_string(),

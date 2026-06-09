@@ -22,6 +22,7 @@
 | `POST` | `/booster/mode/{mode}` | Switch booster performance mode |
 | `POST` | `/ingest/stream` | High-throughput sensory stream ingestion |
 | `POST` | `/sandbox/validate` | Validate mutations in Deep Archer sandbox |
+| `POST` | `/dna/setup` | Register new DNA Execution code (Auto-WASM, Rhai, CDQL) |
 | `GET` | `/ws/telemetry` | WebSocket live HEART telemetry + controls |
 
 ---
@@ -216,6 +217,35 @@ curl -X POST http://localhost:7331/sandbox/validate \
 **Response:**
 ```json
 { "valid": true, "errors": [], "warnings": [] }
+```
+
+---
+
+## `POST /dna/setup` — Register DNA Execution Code
+
+Registers new validation logic into the global Genome Registry. Supports Auto-WASM, CDQL, WASM, and Rhai.
+
+```bash
+curl -X POST http://localhost:7331/dna/setup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "my_custom_validator",
+    "engine": "auto-wasm",
+    "code": "use serde::Deserialize; ..."
+  }'
+```
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `name` | `string` | ✅ | Unique name for this DNA sequence |
+| `engine` | `string` | ✅ | `"auto-wasm"`, `"wasm"`, `"cdql"`, or `"rhai"` |
+| `code` | `string` | ✅ | The raw code or Base64 binary |
+
+**Response: `200 OK`**
+```json
+{ "status": "success", "message": "Auto-WASM DNA 'my_custom_validator' compiled successfully and hot-reloaded." }
 ```
 
 ---

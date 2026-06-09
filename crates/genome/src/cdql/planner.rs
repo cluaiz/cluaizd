@@ -19,6 +19,10 @@ pub enum PlanStep {
     // ---------------------------------------------------------
     // 2. CORE / DOCUMENT
     // ---------------------------------------------------------
+    InsertData {
+        label: String,
+        data: std::collections::HashMap<String, CdqlValue>,
+    },
     ScanAll {
         label_filter: Option<String>,
         filters: Vec<Filter>,
@@ -149,6 +153,12 @@ pub fn build_plan(query: &CdqlQuery) -> Result<QueryPlan, String> {
 
     for op in &query.ops {
         match op {
+            CdqlOp::Insert { label, data } => {
+                plan.steps.push(PlanStep::InsertData {
+                    label: label.clone(),
+                    data: data.clone(),
+                });
+            }
             CdqlOp::FindById { id } => {
                 plan.is_fast_path = true;
                 plan.steps.push(PlanStep::FastPathIdLookup { id: id.clone() });

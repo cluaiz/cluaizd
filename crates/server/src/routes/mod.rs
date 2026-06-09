@@ -16,6 +16,7 @@ mod media;
 pub mod juju;
 mod crispr;
 pub mod booster;
+pub mod dna;
 
 #[cfg(test)]
 mod shard_manager_tests;
@@ -29,20 +30,22 @@ pub fn build_router(state: Arc<AppState>) -> Router {
         // Write a neuron (insert or update)
         .route("/neuron", post(write::handle_write))
         // Read a neuron by ID
-        .route("/neuron/{id}", get(read::handle_read))
+        .route("/neuron/:id", get(read::handle_read))
         // Zero-copy media stream
-        .route("/stream/{id}", get(media::handle_media_stream))
+        .route("/stream/:id", get(media::handle_media_stream))
         // Deep Graph Traversal
-        .route("/graph/{id}/traverse", get(graph::handle_traverse))
+        .route("/graph/:id/traverse", get(graph::handle_traverse))
         // JUJU Live Spatial State
         .route("/juju/state", get(juju::handle_juju_state))
         // CRISPR Surgery API
-        .route("/crispr/clamp/{id}", post(crispr::handle_clamp))
-        .route("/crispr/clamp-vector/{id}", post(crispr::handle_clamp_vector))
-        .route("/crispr/force/{id}", post(crispr::handle_force_edge))
+        .route("/crispr/clamp/:id", post(crispr::handle_clamp))
+        .route("/crispr/clamp-vector/:id", post(crispr::handle_clamp_vector))
+        .route("/crispr/force/:id", post(crispr::handle_force_edge))
         // WASM Booster Config
         .route("/booster/upload", post(booster::handle_upload_booster))
-        .route("/booster/mode/{mode}", post(booster::handle_change_mode))
+        .route("/booster/mode/:mode", post(booster::handle_change_mode))
+        // DNA Execution Setup API
+        .route("/dna/setup", post(dna::handle_dna_setup))
         // Query the database via on_index
         .route("/query", post(query::handle_query))
         // Ingest a raw voltage/sensor stream into the sensory shard
