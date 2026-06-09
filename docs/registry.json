@@ -155,44 +155,44 @@
         "group": "Paradigms 01-10",
         "pages": [
           { "slug": "01-key-value", "title": "⚡ 01: Key-Value", "file_path": "docs/cluaizd-types/01-key-value.md" },
-          { "slug": "02-document-nosql", "title": "📑 02: Document NoSQL", "file_path": "docs/cluaizd-types/02-document-nosql.md" },
-          { "slug": "03-relational-oltp", "title": "🗄️ 03: Relational OLTP", "file_path": "docs/cluaizd-types/03-relational-oltp.md" },
-          { "slug": "04-columnar-olap", "title": "📊 04: Columnar OLAP", "file_path": "docs/cluaizd-types/04-columnar-olap.md" },
-          { "slug": "05-vector-similarity", "title": "🧠 05: Vector Similarity", "file_path": "docs/cluaizd-types/05-vector-similarity.md" },
-          { "slug": "06-labeled-property-graph", "title": "🕸️ 06: Labeled Property Graph", "file_path": "docs/cluaizd-types/06-labeled-property-graph.md" },
-          { "slug": "07-rdf-triple-store", "title": "🌐 07: RDF Triple Store", "file_path": "docs/cluaizd-types/07-rdf-triple-store.md" },
-          { "slug": "08-time-series", "title": "⏱️ 08: Time-Series", "file_path": "docs/cluaizd-types/08-time-series.md" },
-          { "slug": "09-spatial-gis", "title": "🌍 09: Geo-Spatial / GIS", "file_path": "docs/cluaizd-types/09-spatial-gis.md" },
+          { "slug": "02-graph", "title": "🕸️ 02: Graph", "file_path": "docs/cluaizd-types/02-graph.md" },
+          { "slug": "03-document", "title": "📑 03: Document NoSQL", "file_path": "docs/cluaizd-types/03-document.md" },
+          { "slug": "04-relational", "title": "🗄️ 04: Relational", "file_path": "docs/cluaizd-types/04-relational.md" },
+          { "slug": "05-vector-ai", "title": "🧠 05: Vector AI", "file_path": "docs/cluaizd-types/05-vector-ai.md" },
+          { "slug": "06-time-series", "title": "⏱️ 06: Time-Series", "file_path": "docs/cluaizd-types/06-time-series.md" },
+          { "slug": "07-geo-spatial", "title": "🌍 07: Geo-Spatial", "file_path": "docs/cluaizd-types/07-geo-spatial.md" },
+          { "slug": "08-wide-column", "title": "🏛️ 08: Wide-Column", "file_path": "docs/cluaizd-types/08-wide-column.md" },
+          { "slug": "09-full-text-search", "title": "🔍 09: Full-Text Search", "file_path": "docs/cluaizd-types/09-full-text-search.md" },
           { "slug": "10-blob-object", "title": "📦 10: Blob / Object", "file_path": "docs/cluaizd-types/10-blob-object.md" }
         ]
       },
       {
         "group": "Paradigms 11-20",
         "pages": [
-          { "slug": "11-inverted-index", "title": "🔍 11: Inverted Index", "file_path": "docs/cluaizd-types/11-inverted-index.md" },
+          { "slug": "11-multi-model", "title": "🧩 11: Multi-Model", "file_path": "docs/cluaizd-types/11-multi-model.md" },
           { "slug": "12-hierarchical", "title": "🌳 12: Hierarchical", "file_path": "docs/cluaizd-types/12-hierarchical.md" },
-          { "slug": "13-network-model", "title": "🕸️ 13: Network Model", "file_path": "docs/cluaizd-types/13-network-model.md" },
-          { "slug": "14-event-store", "title": "⏱️ 14: Event Store / Sourcing", "file_path": "docs/cluaizd-types/14-event-store.md" },
-          { "slug": "15-pub-sub", "title": "📡 15: Pub-Sub / Message Queue", "file_path": "docs/cluaizd-types/15-pub-sub.md" },
-          { "slug": "16-blockchain-ledger", "title": "🔗 16: Blockchain Ledger", "file_path": "docs/cluaizd-types/16-blockchain-ledger.md" },
-          { "slug": "17-ledger-blockchain", "title": "📜 17: Immutable Ledger", "file_path": "docs/cluaizd-types/17-ledger-blockchain.md" },
-          { "slug": "18-content-addressable", "title": "🔑 18: Content-Addressable", "file_path": "docs/cluaizd-types/18-content-addressable.md" },
-          { "slug": "19-grid-data", "title": "🏁 19: Grid / In-Memory Data", "file_path": "docs/cluaizd-types/19-grid-data.md" },
-          { "slug": "20-multi-valued", "title": "📦 20: Multivalued Tables", "file_path": "docs/cluaizd-types/20-multi-valued.md" }
+          { "slug": "13-network", "title": "🕸️ 13: Network Model", "file_path": "docs/cluaizd-types/13-network.md" },
+          { "slug": "14-object-oriented", "title": "📦 14: Object-Oriented", "file_path": "docs/cluaizd-types/14-object-oriented.md" },
+          { "slug": "15-columnar", "title": "📊 15: Columnar", "file_path": "docs/cluaizd-types/15-columnar.md" },
+          { "slug": "16-in-memory", "title": "🏁 16: In-Memory", "file_path": "docs/cluaizd-types/16-in-memory.md" },
+          { "slug": "17-ledger-blockchain", "title": "🔗 17: Immutable Ledger / Blockchain", "file_path": "docs/cluaizd-types/17-ledger-blockchain.md" },
+          { "slug": "18-spatial-geographic", "title": "🌍 18: Spatial Geographic", "file_path": "docs/cluaizd-types/18-spatial-geographic.md" },
+          { "slug": "19-event-sourcing", "title": "⏱️ 19: Event Sourcing", "file_path": "docs/cluaizd-types/19-event-sourcing.md" },
+          { "slug": "20-autonomous", "title": "🤖 20: Autonomous", "file_path": "docs/cluaizd-types/20-autonomous.md" }
         ]
       },
       {
         "group": "Paradigms 21-30",
         "pages": [
-          { "slug": "21-probabilistic", "title": "📊 21: Probabilistic Sketches", "file_path": "docs/cluaizd-types/21-probabilistic.md" },
-          { "slug": "22-crdt", "title": "🤝 22: CRDT (State/Op-Based)", "file_path": "docs/cluaizd-types/22-crdt.md" },
-          { "slug": "23-operational-transformation", "title": "🔄 23: Operational Transformation", "file_path": "docs/cluaizd-types/23-operational-transformation.md" },
+          { "slug": "21-newsql", "title": "📊 21: NewSQL", "file_path": "docs/cluaizd-types/21-newsql.md" },
+          { "slug": "22-streaming-reactive", "title": "📡 22: Streaming Reactive", "file_path": "docs/cluaizd-types/22-streaming-reactive.md" },
+          { "slug": "23-temporal", "title": "⏱️ 23: Temporal", "file_path": "docs/cluaizd-types/23-temporal.md" },
           { "slug": "24-array-tensor", "title": "🔲 24: Array / Tensor", "file_path": "docs/cluaizd-types/24-array-tensor.md" },
-          { "slug": "25-semantic-web", "title": "🕸️ 25: Semantic Web (RDF)", "file_path": "docs/cluaizd-types/25-semantic-web.md" },
-          { "slug": "26-multivalued", "title": "📈 26: Multi-Valued Attributes", "file_path": "docs/cluaizd-types/26-multivalued.md" },
-          { "slug": "27-probabilistic-sketches", "title": "🎲 27: HyperLogLog & Bloom", "file_path": "docs/cluaizd-types/27-probabilistic-sketches.md" },
-          { "slug": "28-crdt-collaborative", "title": "👥 28: Collaborative CRDT", "file_path": "docs/cluaizd-types/28-crdt-collaborative.md" },
-          { "slug": "29-analytical-cube", "title": "🧊 29: Analytical OLAP Cube", "file_path": "docs/cluaizd-types/29-analytical-cube.md" },
+          { "slug": "25-federated-virtual", "title": "🌐 25: Federated / Virtual", "file_path": "docs/cluaizd-types/25-federated-virtual.md" },
+          { "slug": "26-multivalued", "title": "📈 26: Multivalued Attributes", "file_path": "docs/cluaizd-types/26-multivalued.md" },
+          { "slug": "27-native-xml", "title": "🎲 27: Native XML", "file_path": "docs/cluaizd-types/27-native-xml.md" },
+          { "slug": "28-spatial-temporal", "title": "👥 28: Spatial Temporal", "file_path": "docs/cluaizd-types/28-spatial-temporal.md" },
+          { "slug": "29-graph-relational", "title": "🕸️ 29: Graph-Relational Hybrid", "file_path": "docs/cluaizd-types/29-graph-relational.md" },
           { "slug": "30-embedded-in-process", "title": "🔌 30: Embedded In-Process", "file_path": "docs/cluaizd-types/30-embedded-in-process.md" }
         ]
       }

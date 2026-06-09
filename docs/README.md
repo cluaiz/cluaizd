@@ -28,16 +28,17 @@ Learn the internals of how Cluaizd achieves 0ms latency and supports multiple da
 ### 4. 🗃️ 30 Database Paradigms (Engine Taxonomy)
 Cluaizd operates as a multi-model database engine, supporting 30 distinct paradigms native to the `UniversalNeuron` core:
 - **Index & Deep Dive Guides**: Check out the comprehensive markdown guides located directly inside [docs/cluaizd-types/](cluaizd-types/):
-  - [01-key-value.md](cluaizd-types/01-key-value.md) | [02-document-nosql.md](cluaizd-types/02-document-nosql.md) | [03-relational-oltp.md](cluaizd-types/03-relational-oltp.md)
-  - [04-columnar-olap.md](cluaizd-types/04-columnar-olap.md) | [05-vector-similarity.md](cluaizd-types/05-vector-similarity.md) | [06-labeled-property-graph.md](cluaizd-types/06-labeled-property-graph.md)
-  - [07-rdf-triple-store.md](cluaizd-types/07-rdf-triple-store.md) | [08-time-series.md](cluaizd-types/08-time-series.md) | [09-spatial-gis.md](cluaizd-types/09-spatial-gis.md)
-  - [10-blob-object.md](cluaizd-types/10-blob-object.md) | [11-inverted-index.md](cluaizd-types/11-inverted-index.md) | [12-hierarchical.md](cluaizd-types/12-hierarchical.md)
-  - [13-network-model.md](cluaizd-types/13-network-model.md) | [14-event-store.md](cluaizd-types/14-event-store.md) | [15-pub-sub.md](cluaizd-types/15-pub-sub.md)
-  - [16-blockchain-ledger.md](cluaizd-types/16-blockchain-ledger.md) | [17-ledger-blockchain.md](cluaizd-types/17-ledger-blockchain.md) | [18-content-addressable.md](cluaizd-types/18-content-addressable.md)
-  - [19-grid-data.md](cluaizd-types/19-grid-data.md) | [20-multi-valued.md](cluaizd-types/20-multi-valued.md) | [21-probabilistic.md](cluaizd-types/21-probabilistic.md)
-  - [22-crdt.md](cluaizd-types/22-crdt.md) | [23-operational-transformation.md](cluaizd-types/23-operational-transformation.md) | [24-array-tensor.md](cluaizd-types/24-array-tensor.md)
-  - [25-semantic-web.md](cluaizd-types/25-semantic-web.md) | [26-multivalued.md](cluaizd-types/26-multivalued.md) | [27-probabilistic-sketches.md](cluaizd-types/27-probabilistic-sketches.md)
-  - [28-crdt-collaborative.md](cluaizd-types/28-crdt-collaborative.md) | [29-analytical-cube.md](cluaizd-types/29-analytical-cube.md) | [30-embedded-in-process.md](cluaizd-types/30-embedded-in-process.md)
+  - [01-key-value.md](cluaizd-types/01-key-value.md) | [02-graph.md](cluaizd-types/02-graph.md) | [03-document.md](cluaizd-types/03-document.md)
+  - [04-relational.md](cluaizd-types/04-relational.md) | [05-vector-ai.md](cluaizd-types/05-vector-ai.md) | [06-time-series.md](cluaizd-types/06-time-series.md)
+  - [07-geo-spatial.md](cluaizd-types/07-geo-spatial.md) | [08-wide-column.md](cluaizd-types/08-wide-column.md) | [09-full-text-search.md](cluaizd-types/09-full-text-search.md)
+  - [10-blob-object.md](cluaizd-types/10-blob-object.md) | [11-multi-model.md](cluaizd-types/11-multi-model.md) | [12-hierarchical.md](cluaizd-types/12-hierarchical.md)
+  - [13-network.md](cluaizd-types/13-network.md) | [14-object-oriented.md](cluaizd-types/14-object-oriented.md) | [15-columnar.md](cluaizd-types/15-columnar.md)
+  - [16-in-memory.md](cluaizd-types/16-in-memory.md) | [17-ledger-blockchain.md](cluaizd-types/17-ledger-blockchain.md) | [18-spatial-geographic.md](cluaizd-types/18-spatial-geographic.md)
+  - [19-event-sourcing.md](cluaizd-types/19-event-sourcing.md) | [20-autonomous.md](cluaizd-types/20-autonomous.md) | [21-newsql.md](cluaizd-types/21-newsql.md)
+  - [22-streaming-reactive.md](cluaizd-types/22-streaming-reactive.md) | [23-temporal.md](cluaizd-types/23-temporal.md) | [24-array-tensor.md](cluaizd-types/24-array-tensor.md)
+  - [25-federated-virtual.md](cluaizd-types/25-federated-virtual.md) | [26-multivalued.md](cluaizd-types/26-multivalued.md) | [27-native-xml.md](cluaizd-types/27-native-xml.md)
+  - [28-spatial-temporal.md](cluaizd-types/28-spatial-temporal.md) | [29-graph-relational.md](cluaizd-types/29-graph-relational.md) | [30-embedded-in-process.md](cluaizd-types/30-embedded-in-process.md)
+
 
 ### 5. 🧬 DNA Rulesets & Serialization Templates
 See executable rulesets, schema files, and performance blueprints in the [DNA Templates Hub](cluaizd-dna-templates/README.md):

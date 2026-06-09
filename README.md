@@ -84,21 +84,21 @@ By attaching different DNA scripts, **cluaizd** natively supports the behavior o
 
 | # | Paradigm | Link | # | Paradigm | Link |
 |---|---|---|---|---|---|
-| 1 | ⚡ Key-Value | [01-key-value.md](docs/cluaizd-types/01-key-value.md) | 16 | 🔗 Blockchain / Ledger | [16-blockchain-ledger.md](docs/cluaizd-types/16-blockchain-ledger.md) |
-| 2 | 📑 Document NoSQL | [02-document-nosql.md](docs/cluaizd-types/02-document-nosql.md) | 17 | 📜 Immutable Ledger | [17-ledger-blockchain.md](docs/cluaizd-types/17-ledger-blockchain.md) |
-| 3 | 🗄️ Relational OLTP | [03-relational-oltp.md](docs/cluaizd-types/03-relational-oltp.md) | 18 | 🔑 Content-Addressable | [18-content-addressable.md](docs/cluaizd-types/18-content-addressable.md) |
-| 4 | 📊 Columnar OLAP | [04-columnar-olap.md](docs/cluaizd-types/04-columnar-olap.md) | 19 | 🏁 Grid / In-Memory | [19-grid-data.md](docs/cluaizd-types/19-grid-data.md) |
-| 5 | 🧠 Vector Similarity | [05-vector-similarity.md](docs/cluaizd-types/05-vector-similarity.md) | 20 | 📦 Multivalued Tables | [20-multi-valued.md](docs/cluaizd-types/20-multi-valued.md) |
-| 6 | 🕸️ Graph Property | [06-labeled-property-graph.md](docs/cluaizd-types/06-labeled-property-graph.md) | 21 | 📊 Probabilistic Sketches | [21-probabilistic.md](docs/cluaizd-types/21-probabilistic.md) |
-| 7 | 🌐 RDF Triple Store | [07-rdf-triple-store.md](docs/cluaizd-types/07-rdf-triple-store.md) | 22 | 🤝 CRDT (State/Op-Based) | [22-crdt.md](docs/cluaizd-types/22-crdt.md) |
-| 8 | ⏱️ Time-Series | [08-time-series.md](docs/cluaizd-types/08-time-series.md) | 23 | 🔄 Operational Transformation | [23-operational-transformation.md](docs/cluaizd-types/23-operational-transformation.md) |
-| 9 | 🌍 Spatial / GIS | [09-spatial-gis.md](docs/cluaizd-types/09-spatial-gis.md) | 24 | 🔲 Array / Tensor | [24-array-tensor.md](docs/cluaizd-types/24-array-tensor.md) |
-| 10| 📦 Blob / Object | [10-blob-object.md](docs/cluaizd-types/10-blob-object.md) | 25 | 🕸️ Semantic Web (RDF) | [25-semantic-web.md](docs/cluaizd-types/25-semantic-web.md) |
-| 11| 🔍 Inverted Index | [11-inverted-index.md](docs/cluaizd-types/11-inverted-index.md) | 26 | 📈 Multi-Valued Attributes | [26-multivalued.md](docs/cluaizd-types/26-multivalued.md) |
-| 12| 🌳 Hierarchical | [12-hierarchical.md](docs/cluaizd-types/12-hierarchical.md) | 27 | 🎲 HyperLogLog & Bloom | [27-probabilistic-sketches.md](docs/cluaizd-types/27-probabilistic-sketches.md) |
-| 13| 🕸️ Network Model | [13-network-model.md](docs/cluaizd-types/13-network-model.md) | 28 | 👥 Collaborative CRDT | [28-crdt-collaborative.md](docs/cluaizd-types/28-crdt-collaborative.md) |
-| 14| ⏱️ Event Store / Sourcing | [14-event-store.md](docs/cluaizd-types/14-event-store.md) | 29 | 🧊 Analytical OLAP Cube | [29-analytical-cube.md](docs/cluaizd-types/29-analytical-cube.md) |
-| 15| 📡 Pub-Sub / Message Queue | [15-pub-sub.md](docs/cluaizd-types/15-pub-sub.md) | 30 | 🔌 Embedded In-Process | [30-embedded-in-process.md](docs/cluaizd-types/30-embedded-in-process.md) |
+| 1 | ⚡ Key-Value | [01-key-value.md](docs/cluaizd-types/01-key-value.md) | 16 | 🏁 In-Memory | [16-in-memory.md](docs/cluaizd-types/16-in-memory.md) |
+| 2 | 🕸️ Graph | [02-graph.md](docs/cluaizd-types/02-graph.md) | 17 | 🔗 Blockchain / Ledger | [17-ledger-blockchain.md](docs/cluaizd-types/17-ledger-blockchain.md) |
+| 3 | 📑 Document NoSQL | [03-document.md](docs/cluaizd-types/03-document.md) | 18 | 🌍 Spatial Geographic | [18-spatial-geographic.md](docs/cluaizd-types/18-spatial-geographic.md) |
+| 4 | 🗄️ Relational | [04-relational.md](docs/cluaizd-types/04-relational.md) | 19 | ⏱️ Event Sourcing | [19-event-sourcing.md](docs/cluaizd-types/19-event-sourcing.md) |
+| 5 | 🧠 Vector AI | [05-vector-ai.md](docs/cluaizd-types/05-vector-ai.md) | 20 | 🤖 Autonomous | [20-autonomous.md](docs/cluaizd-types/20-autonomous.md) |
+| 6 | ⏱️ Time-Series | [06-time-series.md](docs/cluaizd-types/06-time-series.md) | 21 | 📊 NewSQL | [21-newsql.md](docs/cluaizd-types/21-newsql.md) |
+| 7 | 🌍 Geo-Spatial | [07-geo-spatial.md](docs/cluaizd-types/07-geo-spatial.md) | 22 | 📡 Streaming Reactive | [22-streaming-reactive.md](docs/cluaizd-types/22-streaming-reactive.md) |
+| 8 | 🏛️ Wide-Column | [08-wide-column.md](docs/cluaizd-types/08-wide-column.md) | 23 | ⏱️ Temporal | [23-temporal.md](docs/cluaizd-types/23-temporal.md) |
+| 9 | 🔍 Full-Text Search | [09-full-text-search.md](docs/cluaizd-types/09-full-text-search.md) | 24 | 🔲 Array / Tensor | [24-array-tensor.md](docs/cluaizd-types/24-array-tensor.md) |
+| 10| 📦 Blob / Object | [10-blob-object.md](docs/cluaizd-types/10-blob-object.md) | 25 | 🌐 Federated / Virtual | [25-federated-virtual.md](docs/cluaizd-types/25-federated-virtual.md) |
+| 11| 🧩 Multi-Model | [11-multi-model.md](docs/cluaizd-types/11-multi-model.md) | 26 | 📈 Multivalued Attributes | [26-multivalued.md](docs/cluaizd-types/26-multivalued.md) |
+| 12| 🌳 Hierarchical | [12-hierarchical.md](docs/cluaizd-types/12-hierarchical.md) | 27 | 🎲 Native XML | [27-native-xml.md](docs/cluaizd-types/27-native-xml.md) |
+| 13| 🕸️ Network Model | [13-network.md](docs/cluaizd-types/13-network.md) | 28 | 👥 Spatial Temporal | [28-spatial-temporal.md](docs/cluaizd-types/28-spatial-temporal.md) |
+| 14| 📦 Object-Oriented | [14-object-oriented.md](docs/cluaizd-types/14-object-oriented.md) | 29 | 🕸️ Graph-Relational Hybrid | [29-graph-relational.md](docs/cluaizd-types/29-graph-relational.md) |
+| 15| 📊 Columnar | [15-columnar.md](docs/cluaizd-types/15-columnar.md) | 30 | 🔌 Embedded In-Process | [30-embedded-in-process.md](docs/cluaizd-types/30-embedded-in-process.md) |
 
 ---
 
