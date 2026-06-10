@@ -222,10 +222,11 @@ find *(tier: "Hot") -> limit 100
 | `filter` (exact) | `O(n)` | Scans working set |
 | `range(...)` | `O(n)` | JSON field extract per neuron |
 | `sort_by` | `O(n log n)` | In-memory sort |
-| `traverse` 1 hop | `O(edges)` | Index-free adjacency |
-| `traverse` N hops | `O(edges^N)` | Use `limit`! |
+| `traverse` 1 hop | `O(edges)` | Native Graph Engine BFS |
+| `traverse` N hops | `O(edges^N)` | Native Graph Engine BFS (Use `limit`!) |
 | `join` | `O(n × m)` | Hash join |
-| `similar_to` | `O(n × dim)` | Float32 dot products |
+| `similar_to` | `< 1ms` | MV-HNSW Approximate Nearest Neighbor |
+| `time_window`| `< 2ms` | Gorilla compression bucketing |
 | `search` (exact) | `O(n × tokens)` | Token match per neuron |
 | `search` (fuzzy) | `O(n × tokens × words)` | Substring scan |
 | `geo_near` | `O(n)` | Haversine per candidate, sorted by proximity |

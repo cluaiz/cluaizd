@@ -7,6 +7,7 @@ description = "LMDB-backed physical storage engine for Cluaiz CLUAIZD"
 
 [dependencies]
 cluaizd-types  = { workspace = true }
+cluaizd-index-mvhsnw = { workspace = true }
 cluaizd-errors = { workspace = true }
 thiserror    = { workspace = true }
 tokio        = { workspace = true }

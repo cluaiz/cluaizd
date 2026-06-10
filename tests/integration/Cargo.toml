@@ -13,4 +13,9 @@ serde_json = { workspace = true }
 cluaizd-types = { workspace = true }
 cluaizd-errors = { workspace = true }
 genome = { workspace = true }
+bytes = { workspace = true }
 chrono = "0.4"
+cluaizd-index-mvhsnw = { path = "../../crates/storage/index-mvhsnw" }
+cluaizd-consensus-raft = { path = "../../crates/consensus/raft-engine" }
+cluaizd-graph-engine = { path = "../../crates/storage/graph-engine" }
+cluaizd-time-series = { path = "../../crates/storage/time-series" }

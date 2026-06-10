@@ -66,7 +66,7 @@ pub async fn handle_query(
     // PATH 1: CDQL Universal Query
     // ──────────────────────────────────────────────────────────────
     if let Some(ref cdql_str) = payload.cdql {
-        return execute_cdql(cdql_str, all_neurons, global_limit).into_response();
+        return execute_cdql(cdql_str, all_neurons, global_limit, shard).into_response();
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -147,6 +147,7 @@ fn execute_cdql(
     cdql_str: &str,
     all_neurons: Vec<UniversalNeuron>,
     global_limit: usize,
+    shard: Arc<crate::routes::shard_manager::ActiveShard>,
 ) -> impl IntoResponse {
     // Step 1: Parse
     let query = match parse(cdql_str) {
@@ -207,10 +208,12 @@ fn execute_cdql(
             }
 
             PlanStep::VectorScan { vector, metric: _ } => {
-                working_set = working_set.into_iter().filter(|n| {
-                    let dot: f32 = n.vector_data.iter().zip(vector.iter()).map(|(a, b)| a * b).sum();
-                    dot > 0.0
-                }).collect();
+                let knn_results = shard.env.hnsw_index.search_knn(vector, effective_limit);
+                let mut knn_set = std::collections::HashSet::new();
+                for (id, _) in knn_results {
+                    knn_set.insert(id.to_string());
+                }
+                working_set = working_set.into_iter().filter(|n| knn_set.contains(&n.id.to_string())).collect();
             }
 
             PlanStep::Limit(n) => {
@@ -289,36 +292,32 @@ fn execute_cdql(
             }
 
             // ── Graph: multi-hop BFS traversal via adjacency list ─────────────────────
-            PlanStep::GraphTraverse { edge, min_hops: _, max_hops, min_weight } => {
-                let mut visited: std::collections::HashSet<String> = std::collections::HashSet::new();
-                let mut result_set: Vec<&UniversalNeuron> = Vec::new();
-                let mut frontier: Vec<&UniversalNeuron> = working_set.clone();
-
-                for _ in 0..*max_hops {
-                    let mut new_frontier: Vec<&UniversalNeuron> = Vec::new();
-                    for neuron in &frontier {
-                        for e in &neuron.adjacency {
-                            if (e.weight as f64) < *min_weight { continue; }
-                            let tid = e.target_id.to_string();
-                            if visited.contains(&tid) { continue; }
-                            // Optional: match edge type against target label
-                            if !edge.is_empty() && edge != "*" {
-                                if let Some(t) = neuron_index.get(&tid) {
-                                    let p = String::from_utf8_lossy(&t.raw_payload);
-                                    if !p.to_lowercase().contains(&edge.to_lowercase()) { continue; }
-                                }
-                            }
-                            visited.insert(tid.clone());
-                            if let Some(target) = neuron_index.get(&tid) {
-                                new_frontier.push(target);
+            PlanStep::GraphTraverse { edge: _, min_hops: _, max_hops, min_weight } => {
+                struct MemFetcher<'a> { index: &'a std::collections::HashMap<String, &'a UniversalNeuron> }
+                impl<'a> cluaizd_graph_engine::NeuronFetcher for MemFetcher<'a> {
+                    fn fetch(&self, id: &cluaizd_types::NeuronId) -> Option<UniversalNeuron> {
+                        self.index.get(&id.to_string()).map(|n| (*n).clone())
+                    }
+                }
+                let fetcher = std::sync::Arc::new(MemFetcher { index: &neuron_index });
+                let graph = cluaizd_graph_engine::GraphEngine::new(fetcher);
+                let config = cluaizd_graph_engine::TraversalConfig {
+                    max_depth: *max_hops,
+                    min_weight: *min_weight as f32,
+                    limit: effective_limit,
+                };
+                
+                let mut graph_results = std::collections::HashSet::new();
+                for start_node in &working_set {
+                    if let Ok(paths) = graph.bfs_traverse(start_node.id.clone(), &config) {
+                        for (tid, _) in paths {
+                            if let Some(target) = neuron_index.get(&tid.to_string()) {
+                                graph_results.insert(target.id.to_string());
                             }
                         }
                     }
-                    result_set.extend(new_frontier.iter().copied());
-                    frontier = new_frontier;
-                    if frontier.is_empty() { break; }
                 }
-                working_set = result_set;
+                working_set = working_set.into_iter().filter(|n| graph_results.contains(&n.id.to_string())).collect();
             }
 
             // ── Graph: BFS shortest path ──────────────────────────────────────────────

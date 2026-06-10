@@ -31,13 +31,13 @@ Step 2: -> traverse(edge: "bought_by")
   └─ Working set: 8,400 users who bought red products
 
 Step 3: -> similar_to(vector: [...], metric: "cosine")
-  └─ Loads vector_data from the 8,400 user neurons (in Hot RAM)
-  └─ Computes Float32 dot products: 8,400 × 384-dim vectors
-  └─ Returns top-K by cosine score
+  └─ Passes the vector to the `cluaizd-index-mvhsnw` HNSW Engine
+  └─ Graph-based approximate nearest neighbor search bypasses flat scans
+  └─ Returns top-K by cosine score in <1ms
   └─ Working set: 10 most relevant users
 ```
 
-All three steps happen in the same Rust thread. No serialization. No deserialization. No TCP. The only I/O is reading from LMDB's memory-mapped file.
+All three steps happen in the same Rust thread. No serialization. No deserialization. No TCP. The only I/O is reading from LMDB's memory-mapped file and the MV-HNSW index in RAM.
 
 ---
 
@@ -154,10 +154,10 @@ find id("flight_video_007_2026-06-07")
 | Pipeline Complexity | Typical Latency | Bottleneck |
 |---|---|---|
 | Single filter | 1-5ms | LMDB scan |
-| Filter + traverse (1 hop) | 2-10ms | Adjacency pointer jumps |
-| Filter + traverse + vector | 10-50ms | Float32 dot products |
-| Filter + geo + text + vector | 20-100ms | All three compute engines |
-| Time-series window + aggregate | 20-100ms | In-memory bucket sort |
+| Filter + traverse (1 hop) | <1ms | Graph Engine Adjacency lookup |
+| Vector Search (HNSW) | <1ms | MV-HNSW memory latency |
+| Filter + geo + text + vector | 5-20ms | Compute Engines (Pipeline reduction) |
+| Time-series window + aggregate | <2ms | Gorilla Decompression & Bucketing |
 
 > [!TIP]
 > **Pipeline order is execution order.** Always put the fastest, most selective operation first. The working set shrinks at each step, making all subsequent operations cheaper.

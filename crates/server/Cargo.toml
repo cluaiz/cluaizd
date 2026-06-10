@@ -10,10 +10,17 @@ name = "cluaizd-server"
 path = "src/main.rs"
 
 [dependencies]
-cluaizd-types  = { workspace = true }
+bincode = "1"
+
+# Internal Modules
+cluaizd-types = { workspace = true }
 cluaizd-errors = { workspace = true }
-engine-lmdb  = { path = "../storage/engine-lmdb" }
-wal          = { path = "../storage/wal" }
+genome = { workspace = true }
+heart = { workspace = true }
+engine-lmdb = { path = "../storage/engine-lmdb" }
+wal = { path = "../storage/wal" }
+cluaizd-index-mvhsnw = { path = "../storage/index-mvhsnw" }
+cluaizd-graph-engine = { path = "../storage/graph-engine" }
 tokio        = { workspace = true }
 serde        = { workspace = true }
 serde_json   = { workspace = true }
@@ -27,8 +34,6 @@ anyhow       = { workspace = true }
 # Hex encoding/decoding for model hashes
 hex          = "0.4"
 futures-util = { workspace = true }
-genome = { version = "0.1.0", path = "../genome" }
-heart = { workspace = true }
 rhai = { version = "1.25.1", features = ["serde", "sync"] }
 wasmtime = "45.0.1"
 rand = "0.8"

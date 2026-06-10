@@ -10,6 +10,12 @@ members = [
     # Storage Layer
     "crates/storage/engine-lmdb",
     "crates/storage/wal",
+    "crates/storage/index-mvhsnw",
+    "crates/storage/graph-engine",
+    "crates/storage/time-series",
+
+    # Consensus Layer
+    "crates/consensus/raft-engine",
 
     # Server
     "crates/server",
@@ -69,3 +75,4 @@ cluaizd-errors = { path = "components/cluaizd-errors" }
 cluaizd-common = { path = "components/cluaizd-common" }
 genome       = { path = "crates/genome" }
 heart        = { path = "crates/heart" }
+cluaizd-index-mvhsnw = { path = "crates/storage/index-mvhsnw" }

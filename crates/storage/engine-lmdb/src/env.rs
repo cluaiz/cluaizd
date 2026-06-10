@@ -19,6 +19,8 @@ pub struct LmdbEnv {
     /// Key: NeuronId (16 bytes, zero-copy bincode)
     /// Value: UniversalNeuron (zero-copy bincode via custom codec)
     pub(crate) db: Database<SerdeBincode<NeuronId>, UniversalNeuronCodec>,
+    /// In-memory vector index for rapid similarity search.
+    pub hnsw_index: std::sync::Arc<cluaizd_index_mvhsnw::HnswIndex<cluaizd_index_mvhsnw::CosineDistance>>,
 }
 
 impl LmdbEnv {
@@ -56,7 +58,9 @@ impl LmdbEnv {
 
         info!(path = %path.display(), "LMDB environment opened successfully");
 
-        Ok(Self { env, db })
+        let hnsw_index = std::sync::Arc::new(cluaizd_index_mvhsnw::HnswIndex::new());
+
+        Ok(Self { env, db, hnsw_index })
     }
 
     /// Begin a read-only transaction.
