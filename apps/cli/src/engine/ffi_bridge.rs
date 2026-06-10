@@ -2,7 +2,15 @@ use std::path::Path;
 use std::sync::Arc;
 use anyhow::{Result, Context};
 use engine_lmdb::{LmdbEnv, read_neuron, iter_all_neurons};
-use cluaizd_types::{NeuronId, UniversalNeuron};
+use cluaizd_types::{NeuronId, UniversalNeuron, StorageTier};
+
+/// Counts of neurons per storage tier.
+pub struct TierBreakdown {
+    pub hot: usize,
+    pub warm: usize,
+    pub cold: usize,
+}
+
 
 /// Securely bridges the CLI with the core LMDB storage engine via FFI.
 pub struct FfiBridge {
@@ -30,6 +38,20 @@ impl FfiBridge {
         let neurons = iter_all_neurons(&self.env)
             .map_err(|e| anyhow::anyhow!("Storage error: {}", e))?;
         Ok(neurons.len())
+    }
+
+    /// Returns a count of neurons grouped by their storage tier (Hot/Warm/Cold).
+    pub fn get_tier_breakdown(&self) -> TierBreakdown {
+        let neurons = iter_all_neurons(&self.env).unwrap_or_default();
+        let mut breakdown = TierBreakdown { hot: 0, warm: 0, cold: 0 };
+        for n in neurons {
+            match n.tier {
+                StorageTier::Hot  => breakdown.hot  += 1,
+                StorageTier::Warm => breakdown.warm += 1,
+                StorageTier::Cold => breakdown.cold += 1,
+            }
+        }
+        breakdown
     }
 
     /// Executes a CDQL query directly via FFI (no HTTP needed).
