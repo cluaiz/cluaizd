@@ -5,7 +5,7 @@ The **CRUD Schema Validation** template utilizes the `on_write` DNA hook. It tra
 
 ## 2. Purpose
 Why was this created?
-Cluaizd operates in "Kabadi" mode by default—it accepts any raw bytes. However, traditional business applications (HR software, billing, identity management) break if data structures mutate unpredictably. For example, a `User` record must always have an `email` (string) and an `age` (integer).
+Cluaizd operates in "Static Heap" mode by default—it accepts any raw bytes. However, traditional business applications (HR software, billing, identity management) break if data structures mutate unpredictably. For example, a `User` record must always have an `email` (string) and an `age` (integer).
 Instead of trusting the backend Node.js or Python server to validate this (which can be bypassed by a rogue microservice or direct database access), you push the schema enforcement directly into the database engine. The database physically rejects malformed transactions.
 
 ## 3. Mechanism (How it works)

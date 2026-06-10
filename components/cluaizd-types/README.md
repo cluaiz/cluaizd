@@ -21,7 +21,7 @@ This file contains the most critical `struct` definitions in the entire reposito
 
 **1. `UniversalNeuron` Struct**
 - **Core Logic:** Defines fields: `id`, `raw_payload` (zero-copy `Bytes`), `vector_data` (16-dimensional `f32` array for hardware acceleration), `model_creator_hash`, `adjacency` (Graph edges), `tier`, and `dna` (`Option<NeuronDna>`).
-- **Execution Flow:** The constructor `UniversalNeuron::new()` generates a UTC nanosecond timestamp and a fresh UUID. It specifically leaves the `dna` field as `None` (defaulting to static "Kabadi" mode) until explicitly hydrated by a Genome script.
+- **Execution Flow:** The constructor `UniversalNeuron::new()` generates a UTC nanosecond timestamp and a fresh UUID. It specifically leaves the `dna` field as `None` (defaulting to static "Static Heap" mode) until explicitly hydrated by a Genome script.
 - **Why?** We co-locate Vector embeddings, Graph Adjacency lists, and Document payloads into a single memory-contiguous struct. This ensures that reading a document automatically loads its vector and graph edges into the CPU cache in a single disk read, bypassing the need for SQL `JOIN` operations.
 
 **2. `NeuronDna` Struct**

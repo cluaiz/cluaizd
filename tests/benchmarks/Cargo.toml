@@ -7,6 +7,8 @@ publish = false
 [dev-dependencies]
 criterion = "0.5"
 tokio = { workspace = true, features = ["full"] }
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+serde_json = { workspace = true }
 
 [[bench]]
 name = "core_benchmarks"

@@ -169,7 +169,17 @@ Detailed implementation documents:
 - 🗄️ **[LMDB Zero-Copy](docs/architecture/lmdb-zero-copy.md)** — The foundational storage layer mechanics
 - 🛡️ **[Sensory Shards](docs/architecture/sensory-shards.md)** — Handling 256k+ writes/sec cleanly
 
----
+ 
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=Cluaiz%2Fcluaizd&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Cluaiz/cluaizd&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Cluaiz/cluaizd&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Cluaiz/cluaizd&type=date&legend=top-left" />
+ </picture>
+</a>
 
 ## 📜 License & Usage
 

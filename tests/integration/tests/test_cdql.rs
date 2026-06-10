@@ -23,18 +23,22 @@ async fn test_cdql_multi_paradigm() {
     let client = common::get_client();
 
     // 1. Seed some Relational / SQL Data
+    let vector_data1 = vec![0.1_f32; 16];
+    let vector_data2 = vec![0.2_f32; 16];
+    let vector_data3 = vec![0.3_f32; 16];
+
     let ids = vec![
         seed_data(&client, json!({
-            "raw_payload": { "type": "Employee", "department": "Engineering", "salary": 100000 },
-            "vector_data": [0.1; 16], "model_creator_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "payload_type": "text"
+            "raw_payload": serde_json::to_string(&json!({ "type": "Employee", "department": "Engineering", "salary": 100000 })).unwrap(),
+            "vector_data": vector_data1, "model_creator_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "payload_type": "text"
         })).await,
         seed_data(&client, json!({
-            "raw_payload": { "type": "Employee", "department": "Engineering", "salary": 120000 },
-            "vector_data": [0.2; 16], "model_creator_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "payload_type": "text"
+            "raw_payload": serde_json::to_string(&json!({ "type": "Employee", "department": "Engineering", "salary": 120000 })).unwrap(),
+            "vector_data": vector_data2, "model_creator_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "payload_type": "text"
         })).await,
         seed_data(&client, json!({
-            "raw_payload": { "type": "Employee", "department": "Marketing", "salary": 80000 },
-            "vector_data": [0.3; 16], "model_creator_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "payload_type": "text"
+            "raw_payload": serde_json::to_string(&json!({ "type": "Employee", "department": "Marketing", "salary": 80000 })).unwrap(),
+            "vector_data": vector_data3, "model_creator_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "payload_type": "text"
         })).await,
     ];
 

@@ -11,9 +11,10 @@ async fn test_write_and_query_neuron() {
     println!("Testing POST /neuron...");
     
     // Create dummy payload matching Python test
+    let vector_data = vec![0.1; 16];
     let payload = json!({
         "raw_payload": "Hello from Native Rust API Tests!",
-        "vector_data": [0.1; 16],
+        "vector_data": vector_data,
         "model_creator_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "payload_type": "text",
         "dna": null,

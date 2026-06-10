@@ -15,24 +15,24 @@ pub struct NeuronEdge {
 }
 
 /// The Living DNA Sequence attached to a node, separated into 4 operational hooks.
-/// If `None`, the neuron defaults to the static raw "Kabadi" storage mode.
+/// If `None`, the neuron defaults to the static raw "Static Heap" storage mode.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct NeuronDna {
     /// Executed before writing. Used for Strict Schema validation (SQL) or Tokenization (Search).
     pub on_write: Option<String>,
-    
+
     /// Executed during querying. Used for JSON filtering (NoSQL) or Graph BFS Traversal.
     pub on_read: Option<String>,
-    
+
     /// Executed for indexing. Used for Vector Cosine Math or Geospatial Radius.
     pub on_index: Option<String>,
-    
+
     /// Executed by the deep graph traversal API to determine if an edge should be followed.
     pub on_traverse: Option<String>,
-    
+
     /// Executed by the background Dreaming Engine to forge new semantic connections.
     pub on_dream: Option<String>,
-    
+
     /// Executed by the GC. Used for Edge Decay, TTL, and Tier transitions.
     pub on_lifecycle: Option<String>,
 
@@ -41,14 +41,14 @@ pub struct NeuronDna {
 
     /// Executed on path resolution (reinforcement) for winning paths.
     pub on_path_resolve: Option<String>,
-    
+
     /// Pre-compiled WASM bytecode module for native machine execution.
     #[serde(skip)] // Don't serialize the raw bytes
     pub wasm_module: Option<Vec<u8>>,
-    
+
     /// Path to a .wasm file on disk. Loaded by GenomeRegistry on startup.
     pub wasm_module_path: Option<String>,
-    
+
     /// Dynamic parameters injected into the DNA (controlled via Cluaizd-JUJU UI).
     pub parameters: serde_json::Value,
 
@@ -106,13 +106,13 @@ pub struct UniversalNeuron {
     pub tier: StorageTier,
 
     /// Optional DNA sequence attached to this neuron.
-    /// If `None`, the neuron resides in the static "Kabadi" heap default mode.
+    /// If `None`, the neuron resides in the static "Static Heap" default mode.
     pub dna: Option<NeuronDna>,
 }
 
 impl UniversalNeuron {
     /// Create a new neuron with required fields.
-    /// `dna` defaults to `None` (Kabadi Mode) and `adjacency` starts empty.
+    /// `dna` defaults to `None` (Static Heap Mode) and `adjacency` starts empty.
     pub fn new(
         raw_payload: Bytes,
         vector_data: [f32; 16],
@@ -137,7 +137,7 @@ impl UniversalNeuron {
         }
     }
 
-    /// Note: `is_expired` logic is now delegated entirely to the DNA engine. 
+    /// Note: `is_expired` logic is now delegated entirely to the DNA engine.
     /// This method is a stub for the Rust core to call the DNA interpreter if needed.
     pub fn execute_dna_lifecycle(&self) {
         // This will be invoked by the GC engine evaluating the DNA script.

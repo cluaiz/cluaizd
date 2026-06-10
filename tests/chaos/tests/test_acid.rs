@@ -50,9 +50,10 @@ async fn test_acid_isolation_concurrent_writes() {
     for i in 0..100 {
         let client_clone = client.clone();
         tasks.push(tokio::spawn(async move {
+            let vector_data = vec![0.0_f32; 16];
             let payload = json!({
                 "raw_payload": format!("Concurrent transaction #{}", i),
-                "vector_data": [0.0; 16],
+                "vector_data": vector_data,
                 "model_creator_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                 "payload_type": "text",
             });
