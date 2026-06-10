@@ -35,7 +35,7 @@ use engine_lmdb::LmdbEnv;
 /// Opaque handle representing an open CLUAIZD  instance.
 /// The caller holds a raw pointer — they must call `cluaizd_close` to free it.
 pub struct CluaizdHandle {
-    env: Mutex<LmdbEnv>,
+    env: LmdbEnv,
 }
 
 /// Open a CLUAIZD at the given path.
@@ -66,7 +66,7 @@ pub extern "C" fn cluaizd_open(path: *const c_char, map_size_mb: usize) -> *mut 
     match LmdbEnv::open(std::path::Path::new(path_str), map_size) {
         Ok(env) => {
             let handle = Box::new(CluaizdHandle {
-                env: Mutex::new(env),
+                env,
             });
             Box::into_raw(handle)
         }
@@ -149,10 +149,7 @@ pub extern "C" fn cluaizd_write(
     }
 
     let handle_ref = unsafe { &*handle };
-    let env = match handle_ref.env.lock() {
-        Ok(e) => e,
-        Err(_) => return std::ptr::null_mut(),
-    };
+    let env = &handle_ref.env;
 
     match engine_lmdb::write_neuron(&env, &neuron) {
         Ok(_) => {
@@ -200,10 +197,7 @@ pub extern "C" fn cluaizd_read(
     let nid = cluaizd_types::NeuronId::from_bytes(*uuid.as_bytes());
 
     let handle_ref = unsafe { &*handle };
-    let env = match handle_ref.env.lock() {
-        Ok(e) => e,
-        Err(_) => return std::ptr::null_mut(),
-    };
+    let env = &handle_ref.env;
 
     match engine_lmdb::read_neuron(&env, nid, None) {
         Ok(neuron) => {
@@ -243,10 +237,7 @@ pub extern "C" fn cluaizd_query(
         .unwrap_or("");
 
     let handle_ref = unsafe { &*handle };
-    let env = match handle_ref.env.lock() {
-        Ok(e) => e,
-        Err(_) => return std::ptr::null_mut(),
-    };
+    let env = &handle_ref.env;
 
     match engine_lmdb::iter_all_neurons(&env) {
         Ok(neurons) => {

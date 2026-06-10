@@ -7,7 +7,7 @@ description = "C-compatible FFI bindings for CLUAIZD — 0ms local access for ro
 # Build as a C-compatible shared library (.dll / .so / .dylib)
 [lib]
 name = "cluaizd"
-crate-type = ["cdylib", "staticlib"]
+crate-type = ["cdylib", "staticlib", "rlib"]
 
 [dependencies]
 cluaizd-types = { path = "../components/cluaizd-types" }

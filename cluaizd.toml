@@ -3,10 +3,5 @@ port = 7331
 host = "0.0.0.0"
 
 [database]
-# Default concurrency model for new collections/tenants
-# Options: "dashmap" | "mutex"
-concurrency_mode = "dashmap"
-
-# Default storage/payload format
-# Options: "json" | "protobuf" | "flatbuffers"
-payload_format = "json"
+concurrency_mode = "mutex"
+payload_format = "flatbuffers"
