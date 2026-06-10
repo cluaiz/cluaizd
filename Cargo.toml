@@ -16,6 +16,19 @@ members = [
 
     # CLI binary
     "apps/cli", "crates/genome", "crates/heart", "dnas/base_document", "dnas/base_sql", "dnas/base_vector", "dnas/base_graph", "ffi",
+
+    # Integration Tests & QA
+    "tests/integration",
+    "tests/chaos",
+    "tests/benchmarks",
+    "tests/quality",
+    "tests/qa",
+    "tests/api",
+    "tests/sdk",
+    "tests/apps",
+    "tests/fuzz",
+    "tests/migration",
+    "tests/replication",
 ]
 
 # Shared dependency versions for all crates.

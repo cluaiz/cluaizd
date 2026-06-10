@@ -12,6 +12,9 @@
 /// ```
 pub mod parser;
 pub mod planner;
+pub mod eval;
 
 pub use parser::{parse, CdqlQuery};
 pub use planner::{build_plan, QueryPlan};
+pub use eval::{eval_full_text, eval_geo_near, eval_range};
+

@@ -1,5 +1,48 @@
 use cluaizd_types::UniversalNeuron;
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum GraphMutation {
+    ConnectNeurons {
+        source: String,
+        target: String,
+        weight: f32,
+    },
+    StrengthenEdge {
+        source: String,
+        target: String,
+        amount: f32,
+    },
+    DecayEdge {
+        source: String,
+        target: String,
+        amount: f32,
+    },
+}
+
+#[derive(Debug, Clone)]
+pub struct GraphContext {
+    pub mutations: std::sync::Arc<std::sync::Mutex<Vec<GraphMutation>>>,
+}
+
+impl Default for GraphContext {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl GraphContext {
+    pub fn new() -> Self {
+        Self {
+            mutations: std::sync::Arc::new(std::sync::Mutex::new(Vec::new())),
+        }
+    }
+
+    pub fn take_mutations(&self) -> Vec<GraphMutation> {
+        let mut guard = self.mutations.lock().unwrap();
+        std::mem::take(&mut *guard)
+    }
+}
+
 /// Controls how the WAL flush is performed after a successful write.
 ///
 /// - `Lite`   — OS page-cache flush only. Maximum throughput (20k+ OPS).
@@ -79,6 +122,33 @@ pub fn create_rhai_engine() -> rhai::Engine {
             }
         }
         cluaizd_types::distance::euclidean_distance(&vec_a, &vec_b) as f64
+    });
+
+    // Register GraphContext and connection helpers
+    engine.register_type_with_name::<GraphContext>("GraphContext");
+
+    engine.register_fn("connect_neurons", |ctx: &mut GraphContext, source: String, target: String, weight: f64| {
+        ctx.mutations.lock().unwrap().push(GraphMutation::ConnectNeurons {
+            source,
+            target,
+            weight: weight as f32,
+        });
+    });
+
+    engine.register_fn("strengthen_edge", |ctx: &mut GraphContext, source: String, target: String, amount: f64| {
+        ctx.mutations.lock().unwrap().push(GraphMutation::StrengthenEdge {
+            source,
+            target,
+            amount: amount as f32,
+        });
+    });
+
+    engine.register_fn("decay_edge", |ctx: &mut GraphContext, source: String, target: String, amount: f64| {
+        ctx.mutations.lock().unwrap().push(GraphMutation::DecayEdge {
+            source,
+            target,
+            amount: amount as f32,
+        });
     });
 
     engine
@@ -284,5 +354,88 @@ impl GenomeExecutor {
             }
         }
         Ok(true)
+    }
+
+    /// Evaluates the DNA ruleset at a single step of speculative parallel routing.
+    /// Returns `Ok(true)` if the path should continue, or `Ok(false)` if it should be pruned/aborted.
+    pub fn execute_on_path_step(
+        neuron: &UniversalNeuron,
+        current_path: Vec<String>,
+        ctx: &mut GraphContext,
+    ) -> Result<bool, cluaizd_errors::StorageError> {
+        if let Some(dna) = &neuron.dna {
+            if let Some(step_script) = &dna.on_path_step {
+                if dna.engine == "rhai" {
+                    let engine = create_rhai_engine();
+                    let mut scope = rhai::Scope::new();
+                    
+                    let path_array: rhai::Array = current_path.into_iter().map(|s| s.into()).collect();
+                    scope.push("current_path", path_array);
+                    scope.push("ctx", ctx.clone());
+                    
+                    let neuron_map = rhai::Map::from([
+                        ("id".into(), neuron.id.to_string().into())
+                    ]);
+                    scope.push("neuron", neuron_map);
+
+                    match engine.eval_with_scope::<rhai::Dynamic>(&mut scope, step_script) {
+                        Ok(res) => {
+                            if let Ok(b) = res.as_bool() {
+                                return Ok(b);
+                            }
+                            if let Some(map) = res.clone().try_cast::<rhai::Map>() {
+                                if let Some(action_dyn) = map.get("action") {
+                                    let action = action_dyn.to_string();
+                                    if action == "Prune" || action == "Abort" {
+                                        return Ok(false);
+                                    }
+                                }
+                            }
+                            return Ok(true);
+                        }
+                        Err(e) => return Err(cluaizd_errors::StorageError::DnaValidationFailed(format!("Rhai path_step error: {}", e))),
+                    }
+                }
+            }
+        }
+        Ok(true)
+    }
+
+    /// Evaluates the DNA ruleset when a path is successfully resolved (reinforced).
+    pub fn execute_on_path_resolve(
+        neuron: &UniversalNeuron,
+        winning_path: Vec<String>,
+        ctx: &mut GraphContext,
+    ) -> Result<(), cluaizd_errors::StorageError> {
+        if let Some(dna) = &neuron.dna {
+            if let Some(resolve_script) = &dna.on_path_resolve {
+                if dna.engine == "rhai" {
+                    let engine = create_rhai_engine();
+                    let mut scope = rhai::Scope::new();
+                    
+                    let path_array: rhai::Array = winning_path.clone().into_iter().map(|s| s.into()).collect();
+                    scope.push("winning_path", path_array);
+                    scope.push("ctx", ctx.clone());
+                    
+                    let neuron_map = rhai::Map::from([
+                        ("id".into(), neuron.id.to_string().into())
+                    ]);
+                    scope.push("neuron", neuron_map.clone());
+
+                    if let Err(e) = engine.eval_with_scope::<()>(&mut scope, resolve_script) {
+                        // Check if it returned a Map/Dynamic instead
+                        let mut scope2 = rhai::Scope::new();
+                        let path_array2: rhai::Array = winning_path.into_iter().map(|s| s.into()).collect();
+                        scope2.push("winning_path", path_array2);
+                        scope2.push("ctx", ctx.clone());
+                        scope2.push("neuron", neuron_map);
+                        if let Err(e2) = engine.eval_with_scope::<rhai::Dynamic>(&mut scope2, resolve_script) {
+                            return Err(cluaizd_errors::StorageError::DnaValidationFailed(format!("Rhai path_resolve error: {} / {}", e, e2)));
+                        }
+                    }
+                }
+            }
+        }
+        Ok(())
     }
 }

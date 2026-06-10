@@ -1,0 +1,13 @@
+[package]
+name = "benchmarks"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dev-dependencies]
+criterion = "0.5"
+tokio = { workspace = true, features = ["full"] }
+
+[[bench]]
+name = "core_benchmarks"
+harness = false

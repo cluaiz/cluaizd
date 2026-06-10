@@ -22,7 +22,13 @@ docs/** linguist-documentation
 genomes/*.json linguist-vendored
 *.json linguist-vendored
 
+# --- Hide Python API test/benchmark scripts from language stats ---
+# These are dev tooling scripts, NOT the product code.
+tests/qa/legacy_python/** linguist-vendored
+*.py linguist-vendored
+
 # --- Force index core languages (just in case) ---
 *.rs linguist-detectable=true
 *.c linguist-detectable=true
 *.h linguist-detectable=true
+

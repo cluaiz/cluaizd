@@ -35,6 +35,7 @@ pub fn build_router(state: Arc<AppState>) -> Router {
         .route("/stream/:id", get(media::handle_media_stream))
         // Deep Graph Traversal
         .route("/graph/:id/traverse", get(graph::handle_traverse))
+        .route("/graph/search/speculative", post(graph::handle_speculative_search))
         // JUJU Live Spatial State
         .route("/juju/state", get(juju::handle_juju_state))
         // CRISPR Surgery API

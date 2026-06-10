@@ -3,5 +3,5 @@ port = 7331
 host = "0.0.0.0"
 
 [database]
-concurrency_mode = "mutex"
+concurrency_mode = "dashmap"
 payload_format = "flatbuffers"

@@ -32,6 +32,8 @@ impl CrisprSandbox {
         if let Some(s) = &dna.on_read { sequences_to_test.push(("on_read", s)); }
         if let Some(s) = &dna.on_index { sequences_to_test.push(("on_index", s)); }
         if let Some(s) = &dna.on_lifecycle { sequences_to_test.push(("on_lifecycle", s)); }
+        if let Some(s) = &dna.on_path_step { sequences_to_test.push(("on_path_step", s)); }
+        if let Some(s) = &dna.on_path_resolve { sequences_to_test.push(("on_path_resolve", s)); }
 
         for (hook_name, sequence) in sequences_to_test {
             if let Err(err) = self.engine.compile(sequence) {
@@ -58,6 +60,8 @@ mod tests {
             on_traverse: None,
             on_dream: None,
             on_lifecycle: None,
+            on_path_step: None,
+            on_path_resolve: None,
             wasm_module: None,
             wasm_module_path: None,
             parameters: serde_json::json!({}),
@@ -76,6 +80,8 @@ mod tests {
             on_traverse: None,
             on_dream: None,
             on_lifecycle: Some("let res = # { missing_semicolon }".to_string()),
+            on_path_step: None,
+            on_path_resolve: None,
             wasm_module: None,
             wasm_module_path: None,
             parameters: serde_json::json!({}),

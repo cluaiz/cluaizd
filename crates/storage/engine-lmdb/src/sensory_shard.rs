@@ -2,7 +2,6 @@ use std::path::Path;
 
 use tracing::debug;
 
-
 use cluaizd_errors::StorageError;
 use cluaizd_types::{NeuronId, PayloadType, UniversalNeuron};
 
@@ -61,12 +60,8 @@ impl SensoryShard {
         // Zero hash — signals that no model has processed this yet.
         let zero_hash = [0u8; 32];
 
-        let mut neuron = UniversalNeuron::new(
-            raw_stream,
-            zero_vector,
-            zero_hash,
-            PayloadType::VoltageStream,
-        );
+        let mut neuron =
+            UniversalNeuron::new(raw_stream, zero_vector, zero_hash, PayloadType::VoltageStream);
 
         neuron.dna = dna;
 

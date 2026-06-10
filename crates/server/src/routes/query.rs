@@ -2,9 +2,9 @@ use std::sync::Arc;
 use axum::{Json, extract::State, http::{StatusCode, HeaderMap}, response::IntoResponse};
 use serde::{Deserialize, Serialize};
 
-use cluaizd_types::{UniversalNeuron, StorageTier};
+use cluaizd_types::UniversalNeuron;
 use crate::routes::AppState;
-use genome::cdql::{parser::{parse, CdqlValue, CompareOp}, planner::{build_plan, PlanStep}};
+use genome::cdql::{parser::{parse, CdqlValue, CompareOp}, planner::{build_plan, PlanStep}, eval_full_text, eval_geo_near, eval_range};
 
 /// Request payload for `POST /query`.
 #[derive(Debug, Deserialize)]
@@ -170,10 +170,17 @@ fn execute_cdql(
     let mut working_set: Vec<&UniversalNeuron> = all_neurons.iter().collect();
     let effective_limit = plan.limit.min(global_limit);
 
+    // O(1) neuron lookup by ID — used by traverse, join, shortest_path
+    let neuron_index: std::collections::HashMap<String, &UniversalNeuron> =
+        all_neurons.iter().map(|n| (n.id.to_string(), n)).collect();
+
+    // State for GroupBy → Aggregate pipeline
+    let mut group_buckets: Option<std::collections::HashMap<String, Vec<&UniversalNeuron>>> = None;
+    let mut agg_results: Option<Vec<serde_json::Value>> = None;
+
     for step in &plan.steps {
         match step {
             PlanStep::FastPathIdLookup { id } => {
-                // Direct LMDB fetch bypasses all filters
                 working_set = working_set.into_iter().filter(|n| n.id.to_string() == *id).collect();
             }
 
@@ -199,13 +206,6 @@ fn execute_cdql(
                 }).collect();
             }
 
-            PlanStep::GraphTraverse { edge, min_hops: _, max_hops: _, min_weight: _ } => {
-                // Mock implementation for deep traversal
-                working_set = working_set.into_iter().filter(|n| {
-                    !n.adjacency.is_empty() && !edge.is_empty()
-                }).collect();
-            }
-
             PlanStep::VectorScan { vector, metric: _ } => {
                 working_set = working_set.into_iter().filter(|n| {
                     let dot: f32 = n.vector_data.iter().zip(vector.iter()).map(|(a, b)| a * b).sum();
@@ -226,34 +226,304 @@ fn execute_cdql(
                 });
             }
 
-            // Stubs for new advanced features (to be fully implemented in Base DNAs later)
-            PlanStep::Unwind { .. } => {}
-            PlanStep::Project { .. } => {}
-            PlanStep::ShortestPath { .. } => {}
-            PlanStep::RelationalJoin { .. } => {}
-            PlanStep::GroupBy { .. } => {}
-            PlanStep::Aggregate { .. } => {}
-            PlanStep::TimeWindow { .. } => {}
-            PlanStep::FullTextSearch { .. } => {}
-            PlanStep::GeoNear { .. } => {}
-            PlanStep::RangeScan { .. } => {}
-            PlanStep::ByteStream { .. } => {}
-            PlanStep::InsertData { .. } => {} // Insertions are handled in the FFI or /neuron route
+            // ── Full-Text / Inverted Search ─────────────────────────────────────────
+            PlanStep::FullTextSearch { query, fuzzy } => {
+                let mut scored: Vec<(&UniversalNeuron, f32)> = working_set
+                    .iter()
+                    .filter_map(|n| {
+                        let payload_str = String::from_utf8_lossy(&n.raw_payload).to_string();
+                        let score = eval_full_text(&payload_str, query, *fuzzy);
+                        if score > 0.0 { Some((*n, score)) } else { None }
+                    })
+                    .collect();
+                // Sort descending by relevance score.
+                scored.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                working_set = scored.into_iter().map(|(n, _)| n).collect();
+            }
+
+            // ── Range Scan ───────────────────────────────────────────────────────────
+            PlanStep::RangeScan { field, start, end } => {
+                working_set = working_set.into_iter().filter(|n| {
+                    let payload_str = String::from_utf8_lossy(&n.raw_payload).to_string();
+                    eval_range(&payload_str, field, start, end)
+                }).collect();
+            }
+
+            // ── Geo-Spatial Proximity ────────────────────────────────────────────────
+            PlanStep::GeoNear { lat, lon, radius_km } => {
+                let mut scored: Vec<(&UniversalNeuron, f32)> = working_set
+                    .iter()
+                    .filter_map(|n| {
+                        let payload_str = String::from_utf8_lossy(&n.raw_payload).to_string();
+                        eval_geo_near(&payload_str, *lat, *lon, *radius_km)
+                            .map(|score| (*n, score))
+                    })
+                    .collect();
+                // Sort descending: closest first (highest inverse-distance score).
+                scored.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                working_set = scored.into_iter().map(|(n, _)| n).collect();
+            }
+
+            // ── Project: keep neurons that have at least one requested field ─────────
+            PlanStep::Project { keep } => {
+                working_set = working_set.into_iter().filter(|n| {
+                    if let Ok(json) = serde_json::from_slice::<serde_json::Value>(&n.raw_payload) {
+                        keep.iter().any(|k| json.get(k).is_some())
+                    } else { true }
+                }).collect();
+            }
+
+            // ── Unwind: one result row per array element ──────────────────────────────
+            PlanStep::Unwind { field } => {
+                let mut expanded: Vec<&UniversalNeuron> = Vec::new();
+                for n in &working_set {
+                    if let Ok(json) = serde_json::from_slice::<serde_json::Value>(&n.raw_payload) {
+                        if let Some(arr) = json.get(field).and_then(|v| v.as_array()) {
+                            for _ in arr { expanded.push(n); }
+                            continue;
+                        }
+                    }
+                    expanded.push(n);
+                }
+                working_set = expanded;
+            }
+
+            // ── Graph: multi-hop BFS traversal via adjacency list ─────────────────────
+            PlanStep::GraphTraverse { edge, min_hops: _, max_hops, min_weight } => {
+                let mut visited: std::collections::HashSet<String> = std::collections::HashSet::new();
+                let mut result_set: Vec<&UniversalNeuron> = Vec::new();
+                let mut frontier: Vec<&UniversalNeuron> = working_set.clone();
+
+                for _ in 0..*max_hops {
+                    let mut new_frontier: Vec<&UniversalNeuron> = Vec::new();
+                    for neuron in &frontier {
+                        for e in &neuron.adjacency {
+                            if (e.weight as f64) < *min_weight { continue; }
+                            let tid = e.target_id.to_string();
+                            if visited.contains(&tid) { continue; }
+                            // Optional: match edge type against target label
+                            if !edge.is_empty() && edge != "*" {
+                                if let Some(t) = neuron_index.get(&tid) {
+                                    let p = String::from_utf8_lossy(&t.raw_payload);
+                                    if !p.to_lowercase().contains(&edge.to_lowercase()) { continue; }
+                                }
+                            }
+                            visited.insert(tid.clone());
+                            if let Some(target) = neuron_index.get(&tid) {
+                                new_frontier.push(target);
+                            }
+                        }
+                    }
+                    result_set.extend(new_frontier.iter().copied());
+                    frontier = new_frontier;
+                    if frontier.is_empty() { break; }
+                }
+                working_set = result_set;
+            }
+
+            // ── Graph: BFS shortest path ──────────────────────────────────────────────
+            PlanStep::ShortestPath { to_node } => {
+                let mut path_neurons: Vec<&UniversalNeuron> = Vec::new();
+                'outer: for start in &working_set {
+                    let mut visited: std::collections::HashSet<String> = std::collections::HashSet::new();
+                    let mut queue: std::collections::VecDeque<(String, Vec<String>)> =
+                        std::collections::VecDeque::new();
+                    let start_id = start.id.to_string();
+                    visited.insert(start_id.clone());
+                    queue.push_back((start_id, vec![]));
+                    while let Some((cur, path)) = queue.pop_front() {
+                        if cur == *to_node {
+                            for pid in &path {
+                                if let Some(n) = neuron_index.get(pid) { path_neurons.push(n); }
+                            }
+                            if let Some(n) = neuron_index.get(to_node) { path_neurons.push(n); }
+                            break 'outer;
+                        }
+                        if let Some(neuron) = neuron_index.get(&cur) {
+                            for e in &neuron.adjacency {
+                                let nid = e.target_id.to_string();
+                                if !visited.contains(&nid) {
+                                    visited.insert(nid.clone());
+                                    let mut np = path.clone();
+                                    np.push(cur.clone());
+                                    queue.push_back((nid, np));
+                                }
+                            }
+                        }
+                    }
+                }
+                working_set = path_neurons;
+            }
+
+            // ── Relational: in-memory hash join ──────────────────────────────────────
+            PlanStep::RelationalJoin { target, on_left, on_right, .. } => {
+                let right_map: std::collections::HashMap<String, &UniversalNeuron> = all_neurons
+                    .iter()
+                    .filter(|n| {
+                        String::from_utf8_lossy(&n.raw_payload).contains(target.as_str())
+                    })
+                    .filter_map(|n| {
+                        let json: serde_json::Value = serde_json::from_slice(&n.raw_payload).ok()?;
+                        Some((json.get(on_right)?.to_string(), n))
+                    })
+                    .collect();
+                working_set = working_set.into_iter().filter(|n| {
+                    if let Ok(json) = serde_json::from_slice::<serde_json::Value>(&n.raw_payload) {
+                        let lv = json.get(on_left).map(|v| v.to_string()).unwrap_or_default();
+                        right_map.contains_key(&lv)
+                    } else { false }
+                }).collect();
+            }
+
+            // ── SQL: group by one or more fields ─────────────────────────────────────
+            PlanStep::GroupBy { fields } => {
+                let mut buckets: std::collections::HashMap<String, Vec<&UniversalNeuron>> =
+                    std::collections::HashMap::new();
+                for n in &working_set {
+                    let json: serde_json::Value =
+                        serde_json::from_slice(&n.raw_payload).unwrap_or(serde_json::Value::Null);
+                    let key = fields.iter()
+                        .map(|f| json.get(f).map(|v| v.to_string()).unwrap_or_default())
+                        .collect::<Vec<_>>().join("|");
+                    buckets.entry(key).or_default().push(n);
+                }
+                group_buckets = Some(buckets);
+            }
+
+            // ── SQL: aggregate (count / sum / avg / min / max) ────────────────────────
+            PlanStep::Aggregate { functions } => {
+                let buckets = group_buckets.take().unwrap_or_else(|| {
+                    let mut m = std::collections::HashMap::new();
+                    m.insert("*".to_string(), working_set.clone());
+                    m
+                });
+                let mut rows: Vec<serde_json::Value> = Vec::new();
+                for (gkey, neurons) in &buckets {
+                    let mut row = serde_json::json!({ "_group": gkey });
+                    for func in functions {
+                        match func {
+                            genome::cdql::parser::AggFunc::Count => {
+                                row["count"] = serde_json::json!(neurons.len());
+                            }
+                            genome::cdql::parser::AggFunc::Sum(field) => {
+                                let v: f64 = neurons.iter().filter_map(|n| {
+                                    serde_json::from_slice::<serde_json::Value>(&n.raw_payload)
+                                        .ok()?.get(field)?.as_f64()
+                                }).sum();
+                                row[format!("sum_{field}")] = serde_json::json!(v);
+                            }
+                            genome::cdql::parser::AggFunc::Avg(field) => {
+                                let vals: Vec<f64> = neurons.iter().filter_map(|n| {
+                                    serde_json::from_slice::<serde_json::Value>(&n.raw_payload)
+                                        .ok()?.get(field)?.as_f64()
+                                }).collect();
+                                if !vals.is_empty() {
+                                    row[format!("avg_{field}")] = serde_json::json!(
+                                        vals.iter().sum::<f64>() / vals.len() as f64);
+                                }
+                            }
+                            genome::cdql::parser::AggFunc::Min(field) => {
+                                let m = neurons.iter().filter_map(|n| {
+                                    serde_json::from_slice::<serde_json::Value>(&n.raw_payload)
+                                        .ok()?.get(field)?.as_f64()
+                                }).fold(f64::INFINITY, f64::min);
+                                if m.is_finite() { row[format!("min_{field}")] = serde_json::json!(m); }
+                            }
+                            genome::cdql::parser::AggFunc::Max(field) => {
+                                let m = neurons.iter().filter_map(|n| {
+                                    serde_json::from_slice::<serde_json::Value>(&n.raw_payload)
+                                        .ok()?.get(field)?.as_f64()
+                                }).fold(f64::NEG_INFINITY, f64::max);
+                                if m.is_finite() { row[format!("max_{field}")] = serde_json::json!(m); }
+                            }
+                        }
+                    }
+                    rows.push(row);
+                }
+                agg_results = Some(rows);
+                working_set = vec![];
+            }
+
+            // ── Time-Series: bucket neurons by time window ────────────────────────────
+            PlanStep::TimeWindow { size } => {
+                let window_ns = parse_time_window_ns(size);
+                let mut buckets: std::collections::HashMap<String, Vec<&UniversalNeuron>> =
+                    std::collections::HashMap::new();
+                for n in &working_set {
+                    let ts = get_timestamp_ns(n);
+                    let key = if window_ns > 0 {
+                        format!("{}", (ts / window_ns) * window_ns)
+                    } else { ts.to_string() };
+                    buckets.entry(key).or_default().push(n);
+                }
+                group_buckets = Some(buckets);
+            }
+
+            // ── Blob: byte-range pre-filter (actual slicing at serialisation) ─────────
+            PlanStep::ByteStream { start_byte, .. } => {
+                working_set = working_set.into_iter()
+                    .filter(|n| n.raw_payload.len() > *start_byte)
+                    .collect();
+            }
+
+            PlanStep::InsertData { .. } => {}
         }
     }
 
-    working_set.truncate(effective_limit);
+    // ── Aggregate short-circuit: return grouped rows directly ─────────────────────
+    if let Some(rows) = agg_results {
+        return (StatusCode::OK, Json(serde_json::json!(rows))).into_response();
+    }
 
-    let results: Vec<QueryResult> = working_set.into_iter().map(|n| {
-        QueryResult {
-            neuron: n.clone(),
-            score: if n.tier == StorageTier::Hot { 1.0 } else { 0.5 },
-            matched_by: "CDQL".to_string(),
-        }
+    // ── Capture byte-stream range for per-neuron slicing at serialisation ────────
+    let byte_range = plan.steps.iter().find_map(|s| {
+        if let PlanStep::ByteStream { start_byte, end_byte } = s {
+            Some((*start_byte, *end_byte))
+        } else { None }
+    });
+
+    // Build scored working set — preserve actual search/geo scores from pipeline.
+    // For pure filter queries (no scoring step), use 1.0 as the default.
+    let mut scored: Vec<(&UniversalNeuron, f32)> = working_set
+        .into_iter()
+        .map(|n| {
+            let mut best_score: f32 = 1.0;
+            for step in &plan.steps {
+                match step {
+                    PlanStep::FullTextSearch { query, fuzzy } => {
+                        let payload_str = String::from_utf8_lossy(&n.raw_payload).to_string();
+                        let s = eval_full_text(&payload_str, query, *fuzzy);
+                        if s > 0.0 { best_score = s; }
+                    }
+                    PlanStep::GeoNear { lat, lon, radius_km } => {
+                        let payload_str = String::from_utf8_lossy(&n.raw_payload).to_string();
+                        if let Some(s) = eval_geo_near(&payload_str, *lat, *lon, *radius_km) {
+                            best_score = s;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            (n, best_score)
+        })
+        .collect();
+
+    scored.truncate(effective_limit);
+
+    let results: Vec<QueryResult> = scored.into_iter().map(|(n, score)| {
+        let neuron = if let Some((start, end)) = byte_range {
+            let mut n2 = n.clone();
+            let end_c = end.min(n2.raw_payload.len());
+            let start_c = start.min(end_c);
+            n2.raw_payload = n2.raw_payload.slice(start_c..end_c);
+            n2
+        } else { n.clone() };
+        QueryResult { neuron, score, matched_by: "CDQL".to_string() }
     }).collect();
 
     (StatusCode::OK, Json(results)).into_response()
 }
+
 
 /// Check if a neuron matches a single filter condition
 fn matches_filter(
@@ -323,4 +593,36 @@ fn extract_json_field_str(raw: &bytes::Bytes, field: &str) -> String {
     } else {
         String::new()
     }
+}
+
+/// Parse a time window string like "1m", "5m", "1h", "1d" into nanoseconds.
+fn parse_time_window_ns(size: &str) -> u64 {
+    let s = size.trim();
+    if let Some(num_str) = s.strip_suffix('d') {
+        num_str.parse::<u64>().unwrap_or(1) * 86_400 * 1_000_000_000
+    } else if let Some(num_str) = s.strip_suffix('h') {
+        num_str.parse::<u64>().unwrap_or(1) * 3_600 * 1_000_000_000
+    } else if let Some(num_str) = s.strip_suffix('m') {
+        num_str.parse::<u64>().unwrap_or(1) * 60 * 1_000_000_000
+    } else if let Some(num_str) = s.strip_suffix('s') {
+        num_str.parse::<u64>().unwrap_or(1) * 1_000_000_000
+    } else {
+        60 * 1_000_000_000 // default: 1 minute
+    }
+}
+
+/// Get the timestamp (in nanoseconds) from a neuron.
+/// Tries to read a "timestamp" field from the JSON payload first,
+/// then falls back to `created_at_ns`.
+fn get_timestamp_ns(n: &UniversalNeuron) -> u64 {
+    if let Ok(json) = serde_json::from_slice::<serde_json::Value>(&n.raw_payload) {
+        // Try common timestamp field names
+        for key in &["timestamp", "ts", "time", "created_at"] {
+            if let Some(v) = json.get(*key) {
+                if let Some(num) = v.as_u64() { return num; }
+                if let Some(num) = v.as_f64() { return num as u64; }
+            }
+        }
+    }
+    n.created_at_ns
 }

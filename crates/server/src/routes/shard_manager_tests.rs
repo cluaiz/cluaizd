@@ -97,6 +97,8 @@ async fn test_biological_gc_ttl_decay() {
         on_traverse: None,
         on_dream: None,
         on_lifecycle: Some("let res = #{}; if neuron.age_ns > 1000000 { res.new_tier = \"Warm\"; res.clear_payload = true; } res".to_string()),
+        on_path_step: None,
+        on_path_resolve: None,
         wasm_module: None,
         wasm_module_path: None,
         parameters: serde_json::json!({}),

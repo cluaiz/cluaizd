@@ -93,17 +93,27 @@ find Article(published: true, category: "tech")
 
 ## E-Commerce Product Search Example
 
-```python
-# User types "blak shoez" (typo)
-response = requests.post("http://localhost:7331/query", json={
-    "cdql": """
-        find Product(in_stock: true)
-          -> search(fields: {name: 3.0, description: 1.0}, query: "blak shoez", fuzzy: true)
-          -> sort_by_score()
-          -> limit 20
-    """
-})
-# Returns products matching "black shoes" despite the typos
+```rust
+// User types "blak shoez" (typo) — Rust client example
+use reqwest::blocking::Client;
+use serde_json::json;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = Client::new();
+    let resp = client
+        .post("http://localhost:7331/query")
+        .json(&json!({
+            "tenant_id": "shop",
+            "cdql": "\
+                find Product(in_stock: true) \
+                -> search(query: \"blak shoez\", fuzzy: true) \
+                -> limit 20"
+        }))
+        .send()?
+        .text()?;
+    println!("{resp}");  // Returns products matching "black shoes" despite the typos
+    Ok(())
+}
 ```
 
 ---

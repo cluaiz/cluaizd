@@ -98,15 +98,16 @@ find *(tier: "Hot") -> limit 100
 
 ### `join` — In-Memory Hash Join
 ```text
--> join(target: "Order", on: "id == target.user_id", type: "inner")
--> join(target: "Product", on: "product_id == target.id", type: "left")
+-> join(target: "Order", on_left: "id", on_right: "user_id", type: "inner")
+-> join(target: "Product", on_left: "product_id", on_right: "id", type: "left")
 ```
 
 | Parameter | Type | Description |
 |---|---|---|
 | `target` | `string` | Label of neurons to join with. |
-| `on` | `string` | Join condition expression. |
-| `type` | `"inner"` \| `"left"` | Join type. |
+| `on_left` | `string` | Field to match on the current working set. |
+| `on_right`| `string` | Field to match on the target dataset. |
+| `type` | `"inner"` \| `"left"` \| `"right"` \| `"full"` | Join type. |
 
 ### `group_by` — Bucket Records by Field
 ```text
@@ -158,11 +159,12 @@ find *(tier: "Hot") -> limit 100
 
 ### `geo_near` — Haversine Radius Search
 ```text
--> geo_near(lat: 28.6139, lon: 77.2090, radius: "5km")
--> geo_near(lat: 28.6139, lon: 77.2090, radius: "500m")
+-> geo_near(lat: 28.6139, lon: 77.2090, radius_km: 50.0)
+-> geo_near(lat: 12.9716, lon: 77.5946, radius_km: 2.0)
 ```
+> **Note:** The parameter is `radius_km` (a plain `f64` number), NOT `radius: "5km"`. The value is always in kilometres.
 
-### `geo_within` — Bounding Box or Polygon
+### `geo_within` — Bounding Box or Polygon *(Planned)*
 ```text
 -> geo_within(lat_min: 28.55, lat_max: 28.70, lon_min: 77.10, lon_max: 77.30)
 ```
@@ -179,11 +181,21 @@ find *(tier: "Hot") -> limit 100
 -> time_window(size: "1d")    # Daily buckets
 ```
 
-### `range_scan` — Ordered Field Scan
+### `range` — Inclusive Field Boundary Scan
 ```text
--> range_scan(field: "timestamp", start: 1717789200, end: 1717792800)
--> range_scan(field: "ts", start: "now-1h", end: "now")
+-> range(field: "age",       start: 18,          end: 35)
+-> range(field: "salary",    start: 60000,        end: 120000)
+-> range(field: "city",      start: "Chennai",    end: "Pune")   # Lexicographic
+-> range(field: "timestamp", start: 1717789200,   end: 1717792800)
 ```
+
+| Parameter | Type | Description |
+|---|---|---|
+| `field` | `string` | JSON key to read from each neuron's payload |
+| `start` | `number \| string` | Lower bound (inclusive) |
+| `end` | `number \| string` | Upper bound (inclusive) |
+
+> Both `start` and `end` must be the same type. Mix of number + string → no results.
 
 ---
 
@@ -208,10 +220,12 @@ find *(tier: "Hot") -> limit 100
 |---|---|---|
 | `find id()` | `O(1)` | LMDB mmap direct |
 | `filter` (exact) | `O(n)` | Scans working set |
+| `range(...)` | `O(n)` | JSON field extract per neuron |
 | `sort_by` | `O(n log n)` | In-memory sort |
 | `traverse` 1 hop | `O(edges)` | Index-free adjacency |
 | `traverse` N hops | `O(edges^N)` | Use `limit`! |
 | `join` | `O(n × m)` | Hash join |
 | `similar_to` | `O(n × dim)` | Float32 dot products |
-| `search` (fuzzy) | `O(n × len)` | Levenshtein distance |
-| `geo_near` | `O(n)` | Haversine per candidate |
+| `search` (exact) | `O(n × tokens)` | Token match per neuron |
+| `search` (fuzzy) | `O(n × tokens × words)` | Substring scan |
+| `geo_near` | `O(n)` | Haversine per candidate, sorted by proximity |

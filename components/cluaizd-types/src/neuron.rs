@@ -35,6 +35,12 @@ pub struct NeuronDna {
     
     /// Executed by the GC. Used for Edge Decay, TTL, and Tier transitions.
     pub on_lifecycle: Option<String>,
+
+    /// Executed at each step of speculative path search to validate path conditions.
+    pub on_path_step: Option<String>,
+
+    /// Executed on path resolution (reinforcement) for winning paths.
+    pub on_path_resolve: Option<String>,
     
     /// Pre-compiled WASM bytecode module for native machine execution.
     #[serde(skip)] // Don't serialize the raw bytes
@@ -169,6 +175,8 @@ mod tests {
             on_traverse: None,
             on_dream: None,
             on_lifecycle: Some("if age > 1000 { return true; } else { return false; }".to_string()),
+            on_path_step: None,
+            on_path_resolve: None,
             wasm_module: None,
             wasm_module_path: None,
             parameters: serde_json::json!({}),
